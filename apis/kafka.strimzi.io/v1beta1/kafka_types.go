@@ -1019,7 +1019,7 @@ type CruiseControlContainer struct {
 
 }
 
-// Deployment Template for Kafka Exporter `Deployment`.
+// Deployment Template for Entity Operator `Deployment`.
 type Deployment struct {
 	// Metadata Metadata applied to the resource.
 	Metadata *Metadata `json:"metadata,omitempty"`
@@ -1345,7 +1345,7 @@ type LivenessProbe struct {
 type Loggers struct {
 }
 
-// Logging Logging configuration for ZooKeeper.
+// Logging Logging configuration.
 type Logging struct {
 	// Loggers A Map from logger name to logger level.
 	Loggers *Loggers `json:"loggers,omitempty"`
@@ -1548,7 +1548,7 @@ type Plain struct {
 
 }
 
-// Pod Template for ZooKeeper `Pods`.
+// Pod Template for Entity Operator `Pods`.
 type Pod struct {
 	// Affinity The pod's affinity rules.
 	Affinity *Affinity `json:"affinity,omitempty"`
@@ -1887,31 +1887,22 @@ type SysctlsItems struct {
 
 }
 
-// Template Template for ZooKeeper cluster resources. The template allows users to specify how are the `StatefulSet`, `Pods` and `Services` generated.
+// Template Template for Entity Operator resources. The template allows users to specify how is the `Deployment` and `Pods` generated.
 type Template struct {
-	// ClientService Template for ZooKeeper client `Service`.
-	ClientService *ClientService `json:"clientService,omitempty"`
+	// Deployment Template for Entity Operator `Deployment`.
+	Deployment *Deployment `json:"deployment,omitempty"`
 
-	// NodesService Template for ZooKeeper nodes `Service`.
-	NodesService *NodesService `json:"nodesService,omitempty"`
-
-	// PersistentVolumeClaim Template for all ZooKeeper `PersistentVolumeClaims`.
-	PersistentVolumeClaim *PersistentVolumeClaim `json:"persistentVolumeClaim,omitempty"`
-
-	// Pod Template for ZooKeeper `Pods`.
+	// Pod Template for Entity Operator `Pods`.
 	Pod *Pod `json:"pod,omitempty"`
 
-	// PodDisruptionBudget Template for ZooKeeper `PodDisruptionBudget`.
-	PodDisruptionBudget *PodDisruptionBudget `json:"podDisruptionBudget,omitempty"`
-
-	// Statefulset Template for ZooKeeper `StatefulSet`.
-	Statefulset *Statefulset `json:"statefulset,omitempty"`
-
-	// TlsSidecarContainer Template for the Zookeeper server TLS sidecar container. The TLS sidecar is not used anymore and this option will be ignored.
+	// TlsSidecarContainer Template for the Entity Operator TLS sidecar container.
 	TlsSidecarContainer *TlsSidecarContainer `json:"tlsSidecarContainer,omitempty"`
 
-	// ZookeeperContainer Template for the ZooKeeper container.
-	ZookeeperContainer *ZookeeperContainer `json:"zookeeperContainer,omitempty"`
+	// TopicOperatorContainer Template for the Entity Topic Operator container.
+	TopicOperatorContainer *TopicOperatorContainer `json:"topicOperatorContainer,omitempty"`
+
+	// UserOperatorContainer Template for the Entity User Operator container.
+	UserOperatorContainer *UserOperatorContainer `json:"userOperatorContainer,omitempty"`
 
 }
 
@@ -1928,7 +1919,7 @@ type Tls struct {
 
 }
 
-// TlsSidecar TLS sidecar configuration. The TLS sidecar is not used anymore and this option will be ignored.
+// TlsSidecar TLS sidecar configuration.
 type TlsSidecar struct {
 	// Image The docker image for the container.
 	Image string `json:"image,omitempty"`
@@ -1947,7 +1938,7 @@ type TlsSidecar struct {
 
 }
 
-// TlsSidecarContainer Template for the Zookeeper server TLS sidecar container. The TLS sidecar is not used anymore and this option will be ignored.
+// TlsSidecarContainer Template for the Entity Operator TLS sidecar container.
 type TlsSidecarContainer struct {
 	// Env Environment variables which should be applied to the container.
 	Env []*EnvItems `json:"env,omitempty"`
@@ -1988,9 +1979,6 @@ type TolerationsItems struct {
 
 // TopicOperator Configuration of the Topic Operator.
 type TopicOperator struct {
-	// Affinity Pod affinity rules.
-	Affinity *Affinity `json:"affinity,omitempty"`
-
 	// Image The image to use for the Topic Operator.
 	Image string `json:"image,omitempty"`
 
@@ -2011,9 +1999,6 @@ type TopicOperator struct {
 
 	// Resources CPU and memory resources to reserve.
 	Resources *Resources `json:"resources,omitempty"`
-
-	// TlsSidecar TLS sidecar configuration.
-	TlsSidecar *TlsSidecar `json:"tlsSidecar,omitempty"`
 
 	// TopicMetadataMaxAttempts The number of attempts at getting topic metadata.
 	TopicMetadataMaxAttempts int `json:"topicMetadataMaxAttempts,omitempty"`

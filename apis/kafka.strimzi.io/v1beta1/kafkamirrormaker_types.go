@@ -846,7 +846,7 @@ type MatchFieldsItems struct {
 type MatchLabels struct {
 }
 
-// Metadata Metadata applied to the resource.
+// Metadata Metadata to apply to the `PodDistruptionBugetTemplate` resource.
 type Metadata struct {
 	// Annotations Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 	Annotations *Annotations `json:"annotations,omitempty"`
@@ -999,8 +999,8 @@ type Preference struct {
 
 // PreferredDuringSchedulingIgnoredDuringExecutionItems 
 type PreferredDuringSchedulingIgnoredDuringExecutionItems struct {
-	// PodAffinityTerm 
-	PodAffinityTerm *PodAffinityTerm `json:"podAffinityTerm,omitempty"`
+	// Preference 
+	Preference *Preference `json:"preference,omitempty"`
 
 	// Weight 
 	Weight int `json:"weight,omitempty"`
@@ -1115,22 +1115,13 @@ type SeccompProfile struct {
 
 }
 
-// SecurityContext Security context for the container.
+// SecurityContext Configures pod-level security attributes and common container settings.
 type SecurityContext struct {
-	// AllowPrivilegeEscalation 
-	AllowPrivilegeEscalation bool `json:"allowPrivilegeEscalation,omitempty"`
+	// FsGroup 
+	FsGroup int `json:"fsGroup,omitempty"`
 
-	// Capabilities 
-	Capabilities *Capabilities `json:"capabilities,omitempty"`
-
-	// Privileged 
-	Privileged bool `json:"privileged,omitempty"`
-
-	// ProcMount 
-	ProcMount string `json:"procMount,omitempty"`
-
-	// ReadOnlyRootFilesystem 
-	ReadOnlyRootFilesystem bool `json:"readOnlyRootFilesystem,omitempty"`
+	// FsGroupChangePolicy 
+	FsGroupChangePolicy string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup 
 	RunAsGroup int `json:"runAsGroup,omitempty"`
@@ -1146,6 +1137,12 @@ type SecurityContext struct {
 
 	// SeccompProfile 
 	SeccompProfile *SeccompProfile `json:"seccompProfile,omitempty"`
+
+	// SupplementalGroups 
+	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+
+	// Sysctls 
+	Sysctls []*SysctlsItems `json:"sysctls,omitempty"`
 
 	// WindowsOptions 
 	WindowsOptions *WindowsOptions `json:"windowsOptions,omitempty"`

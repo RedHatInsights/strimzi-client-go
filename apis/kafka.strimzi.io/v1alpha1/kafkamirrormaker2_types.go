@@ -1000,7 +1000,7 @@ type MatchFieldsItems struct {
 type MatchLabels struct {
 }
 
-// Metadata Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata Metadata applied to the resource.
 type Metadata struct {
 	// Annotations Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 	Annotations *Annotations `json:"annotations,omitempty"`
@@ -1174,8 +1174,8 @@ type Preference struct {
 
 // PreferredDuringSchedulingIgnoredDuringExecutionItems 
 type PreferredDuringSchedulingIgnoredDuringExecutionItems struct {
-	// PodAffinityTerm 
-	PodAffinityTerm *PodAffinityTerm `json:"podAffinityTerm,omitempty"`
+	// Preference 
+	Preference *Preference `json:"preference,omitempty"`
 
 	// Weight 
 	Weight int `json:"weight,omitempty"`

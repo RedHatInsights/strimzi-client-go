@@ -758,7 +758,7 @@ type ConfigMap struct {
 
 }
 
-// ConfigMapKeyRef Reference to a key in a ConfigMap.
+// ConfigMapKeyRef Reference to the key in the ConfigMap containing the metrics configuration.
 type ConfigMapKeyRef struct {
 	// Key 
 	Key string `json:"key,omitempty"`
@@ -1221,7 +1221,7 @@ type RequiredDuringSchedulingIgnoredDuringExecutionItems struct {
 
 }
 
-// Resources The maximum limits for CPU and memory resources and the requested initial resources.
+// Resources CPU and memory resources to reserve for the build.
 type Resources struct {
 	// Limits 
 	Limits *Limits `json:"limits,omitempty"`
@@ -1286,22 +1286,13 @@ type SecretKeyRef struct {
 
 }
 
-// SecurityContext Security context for the container.
+// SecurityContext Configures pod-level security attributes and common container settings.
 type SecurityContext struct {
-	// AllowPrivilegeEscalation 
-	AllowPrivilegeEscalation bool `json:"allowPrivilegeEscalation,omitempty"`
+	// FsGroup 
+	FsGroup int `json:"fsGroup,omitempty"`
 
-	// Capabilities 
-	Capabilities *Capabilities `json:"capabilities,omitempty"`
-
-	// Privileged 
-	Privileged bool `json:"privileged,omitempty"`
-
-	// ProcMount 
-	ProcMount string `json:"procMount,omitempty"`
-
-	// ReadOnlyRootFilesystem 
-	ReadOnlyRootFilesystem bool `json:"readOnlyRootFilesystem,omitempty"`
+	// FsGroupChangePolicy 
+	FsGroupChangePolicy string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup 
 	RunAsGroup int `json:"runAsGroup,omitempty"`
@@ -1317,6 +1308,12 @@ type SecurityContext struct {
 
 	// SeccompProfile 
 	SeccompProfile *SeccompProfile `json:"seccompProfile,omitempty"`
+
+	// SupplementalGroups 
+	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+
+	// Sysctls 
+	Sysctls []*SysctlsItems `json:"sysctls,omitempty"`
 
 	// WindowsOptions 
 	WindowsOptions *WindowsOptions `json:"windowsOptions,omitempty"`
@@ -1534,13 +1531,10 @@ type TrustedCertificatesItems struct {
 
 }
 
-// ValueFrom Value of the environment variable which will be passed to the Kafka Connect pods. It can be passed either as a reference to Secret or ConfigMap field. The field has to specify exactly one Secret or ConfigMap.
+// ValueFrom ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
 type ValueFrom struct {
-	// ConfigMapKeyRef Reference to a key in a ConfigMap.
+	// ConfigMapKeyRef Reference to the key in the ConfigMap containing the metrics configuration.
 	ConfigMapKeyRef *ConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
-
-	// SecretKeyRef Reference to a key in a Secret.
-	SecretKeyRef *SecretKeyRef `json:"secretKeyRef,omitempty"`
 
 }
 

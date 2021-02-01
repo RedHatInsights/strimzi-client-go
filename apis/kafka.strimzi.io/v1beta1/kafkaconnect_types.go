@@ -748,7 +748,7 @@ type ConfigMap struct {
 
 }
 
-// ConfigMapKeyRef Reference to the key in the ConfigMap containing the metrics configuration.
+// ConfigMapKeyRef Reference to a key in a ConfigMap.
 type ConfigMapKeyRef struct {
 	// Key 
 	Key string `json:"key,omitempty"`
@@ -796,11 +796,11 @@ type Deployment struct {
 
 // EnvItems 
 type EnvItems struct {
-	// Name Name of the environment variable which will be passed to the Kafka Connect pods. The name of the environment variable cannot start with `KAFKA_` or `STRIMZI_`.
-	Name string `json:"name"`
+	// Name The environment variable key.
+	Name string `json:"name,omitempty"`
 
-	// ValueFrom Value of the environment variable which will be passed to the Kafka Connect pods. It can be passed either as a reference to Secret or ConfigMap field. The field has to specify exactly one Secret or ConfigMap.
-	ValueFrom *ValueFrom `json:"valueFrom"`
+	// Value The environment variable value.
+	Value string `json:"value,omitempty"`
 
 }
 
@@ -977,7 +977,7 @@ type MatchFieldsItems struct {
 type MatchLabels struct {
 }
 
-// Metadata Metadata applied to the resource.
+// Metadata Metadata to apply to the `PodDistruptionBugetTemplate` resource.
 type Metadata struct {
 	// Annotations Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 	Annotations *Annotations `json:"annotations,omitempty"`
@@ -1211,7 +1211,7 @@ type RequiredDuringSchedulingIgnoredDuringExecutionItems struct {
 
 }
 
-// Resources The maximum limits for CPU and memory resources and the requested initial resources.
+// Resources CPU and memory resources to reserve for the build.
 type Resources struct {
 	// Limits 
 	Limits *Limits `json:"limits,omitempty"`
@@ -1276,22 +1276,13 @@ type SecretKeyRef struct {
 
 }
 
-// SecurityContext Security context for the container.
+// SecurityContext Configures pod-level security attributes and common container settings.
 type SecurityContext struct {
-	// AllowPrivilegeEscalation 
-	AllowPrivilegeEscalation bool `json:"allowPrivilegeEscalation,omitempty"`
+	// FsGroup 
+	FsGroup int `json:"fsGroup,omitempty"`
 
-	// Capabilities 
-	Capabilities *Capabilities `json:"capabilities,omitempty"`
-
-	// Privileged 
-	Privileged bool `json:"privileged,omitempty"`
-
-	// ProcMount 
-	ProcMount string `json:"procMount,omitempty"`
-
-	// ReadOnlyRootFilesystem 
-	ReadOnlyRootFilesystem bool `json:"readOnlyRootFilesystem,omitempty"`
+	// FsGroupChangePolicy 
+	FsGroupChangePolicy string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup 
 	RunAsGroup int `json:"runAsGroup,omitempty"`
@@ -1307,6 +1298,12 @@ type SecurityContext struct {
 
 	// SeccompProfile 
 	SeccompProfile *SeccompProfile `json:"seccompProfile,omitempty"`
+
+	// SupplementalGroups 
+	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+
+	// Sysctls 
+	Sysctls []*SysctlsItems `json:"sysctls,omitempty"`
 
 	// WindowsOptions 
 	WindowsOptions *WindowsOptions `json:"windowsOptions,omitempty"`
@@ -1515,10 +1512,13 @@ type TrustedCertificatesItems struct {
 
 }
 
-// ValueFrom ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+// ValueFrom Value of the environment variable which will be passed to the Kafka Connect pods. It can be passed either as a reference to Secret or ConfigMap field. The field has to specify exactly one Secret or ConfigMap.
 type ValueFrom struct {
-	// ConfigMapKeyRef Reference to the key in the ConfigMap containing the metrics configuration.
+	// ConfigMapKeyRef Reference to a key in a ConfigMap.
 	ConfigMapKeyRef *ConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
+
+	// SecretKeyRef Reference to a key in a Secret.
+	SecretKeyRef *SecretKeyRef `json:"secretKeyRef,omitempty"`
 
 }
 
@@ -2226,87 +2226,6 @@ func (s *ClientSecret) UnmarshalJSONIterator(iter *jsoniter.Iterator) {
 
 
 
-
-// MarshalJSON serializes to JSON
-func (s *EnvItems) MarshalJSON() ([]byte, error) {
-	buf := bytes.NewBuffer(nil)
-	stream := jsoniter.ConfigDefault.BorrowStream(buf)
-	s.MarshalJSONStream(stream)
-	stream.Flush()
-	err := stream.Error
-	jsoniter.ConfigDefault.ReturnStream(stream)
-
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
-
-func (s EnvItems) MarshalJSONStream(stream *jsoniter.Stream) {
-	stream.WriteObjectStart()
-	ct := commaTracker{stream:stream}
-
-	// Marshal the Name field
-	ct.More()
-	stream.WriteObjectField("name")
-	stream.WriteString(s.Name)
-
-	// Marshal the ValueFrom field
-
-	// ValueFrom is required
-	if s.ValueFrom == nil {
-		stream.Error = errors.New("ValueFrom (valueFrom) is a required")
-		return
-	}
-	ct.More()
-	stream.WriteObjectField("valueFrom")
-	stream.WriteVal(s.ValueFrom)
-	if stream.Error != nil {
-		return
-	}
-	stream.WriteObjectEnd()
-}
-
-func (s *EnvItems) UnmarshalJSON(data []byte) error {
-	iter := jsoniter.ConfigDefault.BorrowIterator(data)
-	s.UnmarshalJSONIterator(iter)
-	err := iter.Error
-	jsoniter.ConfigDefault.ReturnIterator(iter)
-	return err
-}
-
-func (s *EnvItems) UnmarshalJSONIterator(iter *jsoniter.Iterator) {
-	NameReceived := false
-	ValueFromReceived := false
-
-	for field := iter.ReadObject(); field != ""; field = iter.ReadObject() {
-		switch field {
-		case "name":
-			s.Name = iter.ReadString()
-			if iter.Error != nil {
-				return
-			}
-			NameReceived = true
-		case "valueFrom":
-			iter.ReadVal(&s.ValueFrom)
-			if iter.Error != nil {
-				return
-			}
-			ValueFromReceived = true
-		default:
-			// Ignore the additional property
-			iter.Skip()
-		}
-	}
-
-	if !NameReceived {
-		iter.ReportError("validating EnvItems", "\"name\" is required but was not present")
-	}
-
-	if !ValueFromReceived {
-		iter.ReportError("validating EnvItems", "\"valueFrom\" is required but was not present")
-	}
-}
 
 
 

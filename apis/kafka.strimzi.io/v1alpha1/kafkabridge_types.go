@@ -851,7 +851,7 @@ type MatchFieldsItems struct {
 type MatchLabels struct {
 }
 
-// Metadata Metadata applied to the resource.
+// Metadata Metadata to apply to the `PodDistruptionBugetTemplate` resource.
 type Metadata struct {
 	// Annotations Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 	Annotations *Annotations `json:"annotations,omitempty"`
