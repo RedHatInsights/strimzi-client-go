@@ -1,4 +1,4 @@
-module github.com/bsquizz/strimzi-client-go
+module github.com/RedHatInsights/strimzi-client-go
 
 go 1.13
 
