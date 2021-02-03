@@ -12,5 +12,6 @@ use does not handle those.
 3. Edit the top-level type definitions so that they implement the runtime.Object interfaces and
 add kubebuilder annotations. You may also see some of the "misc properties" type attributes defined
 as `type <name> map[string]interface{}` -- these must be changed to `type <name> map[string]string`
+4. Convert int types to int32: ```sed -i 's/int `json/int32 `json'/g *```
 4. Finally run `controller-gen object paths=./...` is run to generate`DeepCopy` implementations
 

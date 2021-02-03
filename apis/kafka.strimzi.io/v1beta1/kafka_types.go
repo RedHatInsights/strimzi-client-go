@@ -126,11 +126,11 @@ type KafkaSpecClientsCa struct {
 	// generation of a new certificate. When `generateCertificateAuthority` is true,
 	// this will cause extra logging at WARN level about the pending certificate
 	// expiry. Default is 30.
-	RenewalDays *int `json:"renewalDays,omitempty"`
+	RenewalDays *int32 `json:"renewalDays,omitempty"`
 
 	// The number of days generated certificates should be valid for. The default is
 	// 365.
-	ValidityDays *int `json:"validityDays,omitempty"`
+	ValidityDays *int32 `json:"validityDays,omitempty"`
 }
 
 type KafkaSpecClusterCaCertificateExpirationPolicy string
@@ -219,17 +219,17 @@ type KafkaSpecClusterCa struct {
 	// generation of a new certificate. When `generateCertificateAuthority` is true,
 	// this will cause extra logging at WARN level about the pending certificate
 	// expiry. Default is 30.
-	RenewalDays *int `json:"renewalDays,omitempty"`
+	RenewalDays *int32 `json:"renewalDays,omitempty"`
 
 	// The number of days generated certificates should be valid for. The default is
 	// 365.
-	ValidityDays *int `json:"validityDays,omitempty"`
+	ValidityDays *int32 `json:"validityDays,omitempty"`
 }
 
 // The Cruise Control `brokerCapacity` configuration.
 type KafkaSpecCruiseControlBrokerCapacity struct {
 	// Broker capacity for CPU resource utilization as a percentage (0 - 100).
-	CpuUtilization *int `json:"cpuUtilization,omitempty"`
+	CpuUtilization *int32 `json:"cpuUtilization,omitempty"`
 
 	// Broker capacity for disk in bytes, for example, 100Gi.
 	Disk *string `json:"disk,omitempty"`
@@ -293,23 +293,23 @@ type KafkaSpecCruiseControlJvmOptions struct {
 type KafkaSpecCruiseControlLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // A Map from logger name to logger level.
@@ -494,23 +494,23 @@ func (j *KafkaSpecCruiseControlMetricsConfig) UnmarshalJSON(b []byte) error {
 type KafkaSpecCruiseControlReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecCruiseControlResourcesLimits map[string]string
@@ -621,13 +621,13 @@ type KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContext struct 
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -708,7 +708,7 @@ type KafkaSpecCruiseControlTemplatePodAffinityNodeAffinityPreferredDuringSchedul
 	Preference *KafkaSpecCruiseControlTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecCruiseControlTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
@@ -793,7 +793,7 @@ type KafkaSpecCruiseControlTemplatePodAffinityPodAffinityPreferredDuringScheduli
 	PodAffinityTerm *KafkaSpecCruiseControlTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecCruiseControlTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -875,7 +875,7 @@ type KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinityPreferredDuringSche
 	PodAffinityTerm *KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1009,19 +1009,19 @@ type KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions struct {
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecCruiseControlTemplatePodSecurityContext struct {
 	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int `json:"fsGroup,omitempty"`
+	FsGroup *int32 `json:"fsGroup,omitempty"`
 
 	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
 	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecCruiseControlTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -1030,7 +1030,7 @@ type KafkaSpecCruiseControlTemplatePodSecurityContext struct {
 	SeccompProfile *KafkaSpecCruiseControlTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
 
 	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
 
 	// Sysctls corresponds to the JSON schema field "sysctls".
 	Sysctls []KafkaSpecCruiseControlTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
@@ -1050,7 +1050,7 @@ type KafkaSpecCruiseControlTemplatePodTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -1082,7 +1082,7 @@ type KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsElem struct {
 	LabelSelector *KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int `json:"maxSkew,omitempty"`
+	MaxSkew *int32 `json:"maxSkew,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -1129,7 +1129,7 @@ type KafkaSpecCruiseControlTemplatePod struct {
 	// very large Kafka clusters, so that the Kafka brokers have enough time to
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
-	TerminationGracePeriodSeconds *int `json:"terminationGracePeriodSeconds,omitempty"`
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaSpecCruiseControlTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -1163,7 +1163,7 @@ type KafkaSpecCruiseControlTemplatePodDisruptionBudget struct {
 	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
 	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
 	// evictions, so the pods must be evicted manually. Defaults to 1.
-	MaxUnavailable *int `json:"maxUnavailable,omitempty"`
+	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
 	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
 	Metadata *KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
@@ -1239,13 +1239,13 @@ type KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -1292,23 +1292,23 @@ type KafkaSpecCruiseControlTemplate struct {
 type KafkaSpecCruiseControlTlsSidecarLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecCruiseControlTlsSidecarLogLevel string
@@ -1368,23 +1368,23 @@ const KafkaSpecCruiseControlTlsSidecarLogLevelDebug KafkaSpecCruiseControlTlsSid
 type KafkaSpecCruiseControlTlsSidecarReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecCruiseControlTlsSidecarResourcesLimits map[string]string
@@ -1508,7 +1508,7 @@ type KafkaSpecEntityOperatorAffinityNodeAffinityPreferredDuringSchedulingIgnored
 	Preference *KafkaSpecEntityOperatorAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecEntityOperatorAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
@@ -1593,7 +1593,7 @@ type KafkaSpecEntityOperatorAffinityPodAffinityPreferredDuringSchedulingIgnoredD
 	PodAffinityTerm *KafkaSpecEntityOperatorAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecEntityOperatorAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1675,7 +1675,7 @@ type KafkaSpecEntityOperatorAffinityPodAntiAffinityPreferredDuringSchedulingIgno
 	PodAffinityTerm *KafkaSpecEntityOperatorAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecEntityOperatorAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1792,7 +1792,7 @@ type KafkaSpecEntityOperatorTemplatePodAffinityNodeAffinityPreferredDuringSchedu
 	Preference *KafkaSpecEntityOperatorTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecEntityOperatorTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
@@ -1877,7 +1877,7 @@ type KafkaSpecEntityOperatorTemplatePodAffinityPodAffinityPreferredDuringSchedul
 	PodAffinityTerm *KafkaSpecEntityOperatorTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecEntityOperatorTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1959,7 +1959,7 @@ type KafkaSpecEntityOperatorTemplatePodAffinityPodAntiAffinityPreferredDuringSch
 	PodAffinityTerm *KafkaSpecEntityOperatorTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecEntityOperatorTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -2093,19 +2093,19 @@ type KafkaSpecEntityOperatorTemplatePodSecurityContextWindowsOptions struct {
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecEntityOperatorTemplatePodSecurityContext struct {
 	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int `json:"fsGroup,omitempty"`
+	FsGroup *int32 `json:"fsGroup,omitempty"`
 
 	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
 	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecEntityOperatorTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -2114,7 +2114,7 @@ type KafkaSpecEntityOperatorTemplatePodSecurityContext struct {
 	SeccompProfile *KafkaSpecEntityOperatorTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
 
 	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
 
 	// Sysctls corresponds to the JSON schema field "sysctls".
 	Sysctls []KafkaSpecEntityOperatorTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
@@ -2134,7 +2134,7 @@ type KafkaSpecEntityOperatorTemplatePodTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -2166,7 +2166,7 @@ type KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsElem struct {
 	LabelSelector *KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int `json:"maxSkew,omitempty"`
+	MaxSkew *int32 `json:"maxSkew,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -2213,7 +2213,7 @@ type KafkaSpecEntityOperatorTemplatePod struct {
 	// very large Kafka clusters, so that the Kafka brokers have enough time to
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
-	TerminationGracePeriodSeconds *int `json:"terminationGracePeriodSeconds,omitempty"`
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaSpecEntityOperatorTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -2292,13 +2292,13 @@ type KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -2389,13 +2389,13 @@ type KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContext struct
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -2486,13 +2486,13 @@ type KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext struct 
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -2536,23 +2536,23 @@ type KafkaSpecEntityOperatorTemplate struct {
 type KafkaSpecEntityOperatorTlsSidecarLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecEntityOperatorTlsSidecarLogLevel string
@@ -2608,23 +2608,23 @@ const KafkaSpecEntityOperatorTlsSidecarLogLevelDebug KafkaSpecEntityOperatorTlsS
 type KafkaSpecEntityOperatorTlsSidecarReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecEntityOperatorTlsSidecarResourcesLimits map[string]string
@@ -2669,7 +2669,7 @@ type KafkaSpecEntityOperatorTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -2710,23 +2710,23 @@ type KafkaSpecEntityOperatorTopicOperatorJvmOptions struct {
 type KafkaSpecEntityOperatorTopicOperatorLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // A Map from logger name to logger level.
@@ -2811,23 +2811,23 @@ func (j *KafkaSpecEntityOperatorTopicOperatorLogging) UnmarshalJSON(b []byte) er
 type KafkaSpecEntityOperatorTopicOperatorReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecEntityOperatorTopicOperatorResourcesLimits map[string]string
@@ -2861,19 +2861,19 @@ type KafkaSpecEntityOperatorTopicOperator struct {
 	ReadinessProbe *KafkaSpecEntityOperatorTopicOperatorReadinessProbe `json:"readinessProbe,omitempty"`
 
 	// Interval between periodic reconciliations.
-	ReconciliationIntervalSeconds *int `json:"reconciliationIntervalSeconds,omitempty"`
+	ReconciliationIntervalSeconds *int32 `json:"reconciliationIntervalSeconds,omitempty"`
 
 	// CPU and memory resources to reserve.
 	Resources *KafkaSpecEntityOperatorTopicOperatorResources `json:"resources,omitempty"`
 
 	// The number of attempts at getting topic metadata.
-	TopicMetadataMaxAttempts *int `json:"topicMetadataMaxAttempts,omitempty"`
+	TopicMetadataMaxAttempts *int32 `json:"topicMetadataMaxAttempts,omitempty"`
 
 	// The namespace the Topic Operator should watch.
 	WatchedNamespace *string `json:"watchedNamespace,omitempty"`
 
 	// Timeout for the ZooKeeper session.
-	ZookeeperSessionTimeoutSeconds *int `json:"zookeeperSessionTimeoutSeconds,omitempty"`
+	ZookeeperSessionTimeoutSeconds *int32 `json:"zookeeperSessionTimeoutSeconds,omitempty"`
 }
 
 // A map of -XX options to the JVM.
@@ -2911,23 +2911,23 @@ type KafkaSpecEntityOperatorUserOperatorJvmOptions struct {
 type KafkaSpecEntityOperatorUserOperatorLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // A Map from logger name to logger level.
@@ -2992,23 +2992,23 @@ func (j *KafkaSpecEntityOperatorUserOperatorLogging) UnmarshalJSON(b []byte) err
 type KafkaSpecEntityOperatorUserOperatorReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecEntityOperatorUserOperatorResourcesLimits map[string]string
@@ -3042,7 +3042,7 @@ type KafkaSpecEntityOperatorUserOperator struct {
 	ReadinessProbe *KafkaSpecEntityOperatorUserOperatorReadinessProbe `json:"readinessProbe,omitempty"`
 
 	// Interval between periodic reconciliations.
-	ReconciliationIntervalSeconds *int `json:"reconciliationIntervalSeconds,omitempty"`
+	ReconciliationIntervalSeconds *int32 `json:"reconciliationIntervalSeconds,omitempty"`
 
 	// CPU and memory resources to reserve.
 	Resources *KafkaSpecEntityOperatorUserOperatorResources `json:"resources,omitempty"`
@@ -3055,7 +3055,7 @@ type KafkaSpecEntityOperatorUserOperator struct {
 	WatchedNamespace *string `json:"watchedNamespace,omitempty"`
 
 	// Timeout for the ZooKeeper session.
-	ZookeeperSessionTimeoutSeconds *int `json:"zookeeperSessionTimeoutSeconds,omitempty"`
+	ZookeeperSessionTimeoutSeconds *int32 `json:"zookeeperSessionTimeoutSeconds,omitempty"`
 }
 
 // Configuration of the Entity Operator.
@@ -3121,7 +3121,7 @@ func (j *KafkaSpecJmxTransKafkaQueriesElem) UnmarshalJSON(b []byte) error {
 
 type KafkaSpecJmxTransOutputDefinitionsElem struct {
 	// How many seconds the JmxTrans waits before pushing a new set of data out.
-	FlushDelayInSeconds *int `json:"flushDelayInSeconds,omitempty"`
+	FlushDelayInSeconds *int32 `json:"flushDelayInSeconds,omitempty"`
 
 	// The DNS/hostname of the remote host that the data is pushed to.
 	Host *string `json:"host,omitempty"`
@@ -3137,7 +3137,7 @@ type KafkaSpecJmxTransOutputDefinitionsElem struct {
 	OutputType string `json:"outputType"`
 
 	// The port of the remote host that the data is pushed to.
-	Port *int `json:"port,omitempty"`
+	Port *int32 `json:"port,omitempty"`
 
 	// Template for filtering data to be included in response to a wildcard query. For
 	// more information see https://github.com/jmxtrans/jmxtrans/wiki/Queries[JmxTrans
@@ -3249,13 +3249,13 @@ type KafkaSpecJmxTransTemplateContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecJmxTransTemplateContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -3336,7 +3336,7 @@ type KafkaSpecJmxTransTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIg
 	Preference *KafkaSpecJmxTransTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecJmxTransTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
@@ -3421,7 +3421,7 @@ type KafkaSpecJmxTransTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgn
 	PodAffinityTerm *KafkaSpecJmxTransTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecJmxTransTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -3503,7 +3503,7 @@ type KafkaSpecJmxTransTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulin
 	PodAffinityTerm *KafkaSpecJmxTransTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecJmxTransTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -3637,19 +3637,19 @@ type KafkaSpecJmxTransTemplatePodSecurityContextWindowsOptions struct {
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecJmxTransTemplatePodSecurityContext struct {
 	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int `json:"fsGroup,omitempty"`
+	FsGroup *int32 `json:"fsGroup,omitempty"`
 
 	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
 	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecJmxTransTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -3658,7 +3658,7 @@ type KafkaSpecJmxTransTemplatePodSecurityContext struct {
 	SeccompProfile *KafkaSpecJmxTransTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
 
 	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
 
 	// Sysctls corresponds to the JSON schema field "sysctls".
 	Sysctls []KafkaSpecJmxTransTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
@@ -3678,7 +3678,7 @@ type KafkaSpecJmxTransTemplatePodTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -3710,7 +3710,7 @@ type KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsElem struct {
 	LabelSelector *KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int `json:"maxSkew,omitempty"`
+	MaxSkew *int32 `json:"maxSkew,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -3757,7 +3757,7 @@ type KafkaSpecJmxTransTemplatePod struct {
 	// very large Kafka clusters, so that the Kafka brokers have enough time to
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
-	TerminationGracePeriodSeconds *int `json:"terminationGracePeriodSeconds,omitempty"`
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaSpecJmxTransTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -3865,7 +3865,7 @@ type KafkaSpecKafkaAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExe
 	Preference *KafkaSpecKafkaAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
@@ -3950,7 +3950,7 @@ type KafkaSpecKafkaAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExec
 	PodAffinityTerm *KafkaSpecKafkaAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -4032,7 +4032,7 @@ type KafkaSpecKafkaAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuring
 	PodAffinityTerm *KafkaSpecKafkaAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -4188,25 +4188,25 @@ type KafkaSpecKafkaAuthorization struct {
 	// Open Policy Agent for every request. Defines how often the cached authorization
 	// decisions are reloaded from the Open Policy Agent server. In milliseconds.
 	// Defaults to `3600000`.
-	ExpireAfterMs *int `json:"expireAfterMs,omitempty"`
+	ExpireAfterMs *int32 `json:"expireAfterMs,omitempty"`
 
 	// The time between two consecutive grants refresh runs in seconds. The default
 	// value is 60.
-	GrantsRefreshPeriodSeconds *int `json:"grantsRefreshPeriodSeconds,omitempty"`
+	GrantsRefreshPeriodSeconds *int32 `json:"grantsRefreshPeriodSeconds,omitempty"`
 
 	// The number of threads to use to refresh grants for active sessions. The more
 	// threads, the more parallelism, so the sooner the job completes. However, using
 	// more threads places a heavier load on the authorization server. The default
 	// value is 5.
-	GrantsRefreshPoolSize *int `json:"grantsRefreshPoolSize,omitempty"`
+	GrantsRefreshPoolSize *int32 `json:"grantsRefreshPoolSize,omitempty"`
 
 	// Initial capacity of the local cache used by the authorizer to avoid querying
 	// the Open Policy Agent for every request Defaults to `5000`.
-	InitialCacheCapacity *int `json:"initialCacheCapacity,omitempty"`
+	InitialCacheCapacity *int32 `json:"initialCacheCapacity,omitempty"`
 
 	// Maximum capacity of the local cache used by the authorizer to avoid querying
 	// the Open Policy Agent for every request. Defaults to `50000`.
-	MaximumCacheSize *int `json:"maximumCacheSize,omitempty"`
+	MaximumCacheSize *int32 `json:"maximumCacheSize,omitempty"`
 
 	// List of super users. Should contain list of user principals which should get
 	// unlimited access rights.
@@ -4526,17 +4526,17 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 	// Configures how often are the JWKS certificates considered valid. The expiry
 	// interval has to be at least 60 seconds longer then the refresh interval
 	// specified in `jwksRefreshSeconds`. Defaults to 360 seconds.
-	JwksExpirySeconds *int `json:"jwksExpirySeconds,omitempty"`
+	JwksExpirySeconds *int32 `json:"jwksExpirySeconds,omitempty"`
 
 	// The minimum pause between two consecutive refreshes. When an unknown signing
 	// key is encountered the refresh is scheduled immediately, but will always wait
 	// for this minimum pause. Defaults to 1 second.
-	JwksMinRefreshPauseSeconds *int `json:"jwksMinRefreshPauseSeconds,omitempty"`
+	JwksMinRefreshPauseSeconds *int32 `json:"jwksMinRefreshPauseSeconds,omitempty"`
 
 	// Configures how often are the JWKS certificates refreshed. The refresh interval
 	// has to be at least 60 seconds shorter then the expiry interval specified in
 	// `jwksExpirySeconds`. Defaults to 300 seconds.
-	JwksRefreshSeconds *int `json:"jwksRefreshSeconds,omitempty"`
+	JwksRefreshSeconds *int32 `json:"jwksRefreshSeconds,omitempty"`
 
 	// Maximum number of seconds the authenticated session remains valid without
 	// re-authentication. This enables Apache Kafka re-authentication feature, and
@@ -4545,7 +4545,7 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 	// re-authenticate, otherwise the server will drop the connection. Not set by
 	// default - the authenticated session does not expire when the access token
 	// expires.
-	MaxSecondsWithoutReauthentication *int `json:"maxSecondsWithoutReauthentication,omitempty"`
+	MaxSecondsWithoutReauthentication *int32 `json:"maxSecondsWithoutReauthentication,omitempty"`
 
 	// Trusted certificates for TLS connection to the OAuth server.
 	TlsTrustedCertificates []KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
@@ -4621,7 +4621,7 @@ type KafkaSpecKafkaListenersElemConfigurationBootstrap struct {
 
 	// Node port for the bootstrap service. This field can be used only with
 	// `nodeport` type listener.
-	NodePort *int `json:"nodePort,omitempty"`
+	NodePort *int32 `json:"nodePort,omitempty"`
 }
 
 // Reference to the `Secret` which holds the certificate and private key pair which
@@ -4672,7 +4672,7 @@ type KafkaSpecKafkaListenersElemConfigurationBrokersElem struct {
 	AdvertisedHost *string `json:"advertisedHost,omitempty"`
 
 	// The port number which will be used in the brokers' `advertised.brokers`.
-	AdvertisedPort *int `json:"advertisedPort,omitempty"`
+	AdvertisedPort *int32 `json:"advertisedPort,omitempty"`
 
 	// Annotations that will be added to the `Ingress` or `Service` resource. You can
 	// use this field to configure DNS providers such as External DNS. This field can
@@ -4681,7 +4681,7 @@ type KafkaSpecKafkaListenersElemConfigurationBrokersElem struct {
 
 	// ID of the kafka broker (broker identifier). Broker IDs start from 0 and
 	// correspond to the number of broker replicas.
-	Broker int `json:"broker"`
+	Broker int32 `json:"broker"`
 
 	// The broker host. This field will be used in the Ingress resource or in the
 	// Route resource to specify the desired hostname. This field can be used only
@@ -4697,7 +4697,7 @@ type KafkaSpecKafkaListenersElemConfigurationBrokersElem struct {
 
 	// Node port for the per-broker service. This field can be used only with
 	// `nodeport` type listener.
-	NodePort *int `json:"nodePort,omitempty"`
+	NodePort *int32 `json:"nodePort,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -5005,7 +5005,7 @@ type KafkaSpecKafkaListenersElem struct {
 	// exception of ports 9404 and 9999, which are already used for Prometheus and
 	// JMX. Depending on the listener type, the port number might not be the same as
 	// the port number that connects Kafka clients.
-	Port int `json:"port"`
+	Port int32 `json:"port"`
 
 	// Enables TLS encryption on the listener. This is a required property.
 	Tls bool `json:"tls"`
@@ -5053,23 +5053,23 @@ func (j *KafkaSpecKafkaListenersElem) UnmarshalJSON(b []byte) error {
 type KafkaSpecKafkaLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // A Map from logger name to logger level.
@@ -5292,23 +5292,23 @@ func (j *KafkaSpecKafkaRack) UnmarshalJSON(b []byte) error {
 type KafkaSpecKafkaReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecKafkaResourcesLimits map[string]string
@@ -5326,7 +5326,7 @@ type KafkaSpecKafkaResources struct {
 
 type KafkaSpecKafkaStorageOverridesElem struct {
 	// Id of the kafka broker (broker identifier).
-	Broker *int `json:"broker,omitempty"`
+	Broker *int32 `json:"broker,omitempty"`
 
 	// The storage class to use for dynamic volume allocation for this broker.
 	Class *string `json:"class,omitempty"`
@@ -5432,7 +5432,7 @@ type KafkaSpecKafkaExporterTemplatePod struct {
 	// very large Kafka clusters, so that the Kafka brokers have enough time to
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
-	TerminationGracePeriodSeconds *int `json:"terminationGracePeriodSeconds,omitempty"`
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaSpecKafkaExporterTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -5446,7 +5446,7 @@ type KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsElem struct {
 	LabelSelector *KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int `json:"maxSkew,omitempty"`
+	MaxSkew *int32 `json:"maxSkew,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -5507,7 +5507,7 @@ type KafkaSpecKafkaExporterTemplatePodTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -5516,19 +5516,19 @@ type KafkaSpecKafkaExporterTemplatePodTolerationsElem struct {
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecKafkaExporterTemplatePodSecurityContext struct {
 	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int `json:"fsGroup,omitempty"`
+	FsGroup *int32 `json:"fsGroup,omitempty"`
 
 	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
 	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecKafkaExporterTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -5537,7 +5537,7 @@ type KafkaSpecKafkaExporterTemplatePodSecurityContext struct {
 	SeccompProfile *KafkaSpecKafkaExporterTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
 
 	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
 
 	// Sysctls corresponds to the JSON schema field "sysctls".
 	Sysctls []KafkaSpecKafkaExporterTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
@@ -5575,7 +5575,7 @@ type KafkaSpecKafkaStorage struct {
 
 	// Storage identification number. It is mandatory only for storage volumes defined
 	// in a storage of type 'jbod'.
-	Id *int `json:"id,omitempty"`
+	Id *int32 `json:"id,omitempty"`
 
 	// Overrides for individual brokers. The `overrides` field allows to specify a
 	// different configuration for different brokers.
@@ -5751,7 +5751,7 @@ type KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinityPreferredDuringSche
 	PodAffinityTerm *KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -5853,7 +5853,7 @@ type KafkaSpecKafkaExporterTemplatePodAffinityPodAffinityPreferredDuringScheduli
 	PodAffinityTerm *KafkaSpecKafkaExporterTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaExporterTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -5938,7 +5938,7 @@ type KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinityPreferredDuringSchedul
 	Preference *KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
@@ -6025,13 +6025,13 @@ type KafkaSpecKafkaExporterTemplateContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecKafkaExporterTemplateContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -6130,46 +6130,46 @@ type KafkaSpecKafkaExporterResourcesLimits map[string]string
 type KafkaSpecKafkaExporterReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // Pod liveness check.
 type KafkaSpecKafkaExporterLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -6255,7 +6255,7 @@ type KafkaSpecKafka struct {
 	ReadinessProbe *KafkaSpecKafkaReadinessProbe `json:"readinessProbe,omitempty"`
 
 	// The number of pods in the cluster.
-	Replicas int `json:"replicas"`
+	Replicas int32 `json:"replicas"`
 
 	// CPU and memory resources to reserve.
 	Resources *KafkaSpecKafkaResources `json:"resources,omitempty"`
@@ -6319,7 +6319,7 @@ type KafkaSpecKafkaStorageVolumesElem struct {
 
 	// Storage identification number. It is mandatory only for storage volumes defined
 	// in a storage of type 'jbod'.
-	Id *int `json:"id,omitempty"`
+	Id *int32 `json:"id,omitempty"`
 
 	// Overrides for individual brokers. The `overrides` field allows to specify a
 	// different configuration for different brokers.
@@ -6343,7 +6343,7 @@ type KafkaSpecKafkaStorageVolumesElem struct {
 
 type KafkaSpecKafkaStorageVolumesElemOverridesElem struct {
 	// Id of the kafka broker (broker identifier).
-	Broker *int `json:"broker,omitempty"`
+	Broker *int32 `json:"broker,omitempty"`
 
 	// The storage class to use for dynamic volume allocation for this broker.
 	Class *string `json:"class,omitempty"`
@@ -6621,13 +6621,13 @@ type KafkaSpecKafkaTemplateInitContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecKafkaTemplateInitContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -6718,13 +6718,13 @@ type KafkaSpecKafkaTemplateKafkaContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -6939,7 +6939,7 @@ type KafkaSpecKafkaTemplatePod struct {
 	// very large Kafka clusters, so that the Kafka brokers have enough time to
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
-	TerminationGracePeriodSeconds *int `json:"terminationGracePeriodSeconds,omitempty"`
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaSpecKafkaTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -6975,7 +6975,7 @@ type KafkaSpecKafkaTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnor
 	Preference *KafkaSpecKafkaTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
@@ -7058,7 +7058,7 @@ type KafkaSpecKafkaTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnore
 	PodAffinityTerm *KafkaSpecKafkaTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -7140,7 +7140,7 @@ type KafkaSpecKafkaTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIg
 	PodAffinityTerm *KafkaSpecKafkaTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecKafkaTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -7213,7 +7213,7 @@ type KafkaSpecKafkaTemplatePodDisruptionBudget struct {
 	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
 	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
 	// evictions, so the pods must be evicted manually. Defaults to 1.
-	MaxUnavailable *int `json:"maxUnavailable,omitempty"`
+	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
 	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
 	Metadata *KafkaSpecKafkaTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
@@ -7273,19 +7273,19 @@ type KafkaSpecKafkaTemplatePodMetadataLabels map[string]string
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecKafkaTemplatePodSecurityContext struct {
 	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int `json:"fsGroup,omitempty"`
+	FsGroup *int32 `json:"fsGroup,omitempty"`
 
 	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
 	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecKafkaTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -7294,7 +7294,7 @@ type KafkaSpecKafkaTemplatePodSecurityContext struct {
 	SeccompProfile *KafkaSpecKafkaTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
 
 	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
 
 	// Sysctls corresponds to the JSON schema field "sysctls".
 	Sysctls []KafkaSpecKafkaTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
@@ -7356,7 +7356,7 @@ type KafkaSpecKafkaTemplatePodTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -7367,7 +7367,7 @@ type KafkaSpecKafkaTemplatePodTopologySpreadConstraintsElem struct {
 	LabelSelector *KafkaSpecKafkaTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int `json:"maxSkew,omitempty"`
+	MaxSkew *int32 `json:"maxSkew,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -7468,13 +7468,13 @@ type KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -7550,23 +7550,23 @@ type KafkaSpecKafkaTlsSidecar struct {
 type KafkaSpecKafkaTlsSidecarLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecKafkaTlsSidecarLogLevel string
@@ -7584,23 +7584,23 @@ const KafkaSpecKafkaTlsSidecarLogLevelWarning KafkaSpecKafkaTlsSidecarLogLevel =
 type KafkaSpecKafkaTlsSidecarReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // CPU and memory resources to reserve.
@@ -7627,7 +7627,7 @@ type KafkaSpecKafkaTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -7654,7 +7654,7 @@ type KafkaSpecTopicOperator struct {
 	ReadinessProbe *KafkaSpecTopicOperatorReadinessProbe `json:"readinessProbe,omitempty"`
 
 	// Interval between periodic reconciliations.
-	ReconciliationIntervalSeconds *int `json:"reconciliationIntervalSeconds,omitempty"`
+	ReconciliationIntervalSeconds *int32 `json:"reconciliationIntervalSeconds,omitempty"`
 
 	// CPU and memory resources to reserve.
 	Resources *KafkaSpecTopicOperatorResources `json:"resources,omitempty"`
@@ -7663,13 +7663,13 @@ type KafkaSpecTopicOperator struct {
 	TlsSidecar *KafkaSpecTopicOperatorTlsSidecar `json:"tlsSidecar,omitempty"`
 
 	// The number of attempts at getting topic metadata.
-	TopicMetadataMaxAttempts *int `json:"topicMetadataMaxAttempts,omitempty"`
+	TopicMetadataMaxAttempts *int32 `json:"topicMetadataMaxAttempts,omitempty"`
 
 	// The namespace the Topic Operator should watch.
 	WatchedNamespace *string `json:"watchedNamespace,omitempty"`
 
 	// Timeout for the ZooKeeper session.
-	ZookeeperSessionTimeoutSeconds *int `json:"zookeeperSessionTimeoutSeconds,omitempty"`
+	ZookeeperSessionTimeoutSeconds *int32 `json:"zookeeperSessionTimeoutSeconds,omitempty"`
 }
 
 // Pod affinity rules.
@@ -7699,7 +7699,7 @@ type KafkaSpecTopicOperatorAffinityNodeAffinityPreferredDuringSchedulingIgnoredD
 	Preference *KafkaSpecTopicOperatorAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecTopicOperatorAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
@@ -7782,7 +7782,7 @@ type KafkaSpecTopicOperatorAffinityPodAffinityPreferredDuringSchedulingIgnoredDu
 	PodAffinityTerm *KafkaSpecTopicOperatorAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecTopicOperatorAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -7864,7 +7864,7 @@ type KafkaSpecTopicOperatorAffinityPodAntiAffinityPreferredDuringSchedulingIgnor
 	PodAffinityTerm *KafkaSpecTopicOperatorAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecTopicOperatorAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -7966,23 +7966,23 @@ type KafkaSpecTopicOperatorJvmOptionsXX map[string]string
 type KafkaSpecTopicOperatorLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // Logging configuration.
@@ -8009,23 +8009,23 @@ const KafkaSpecTopicOperatorLoggingTypeInline KafkaSpecTopicOperatorLoggingType 
 type KafkaSpecTopicOperatorReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // CPU and memory resources to reserve.
@@ -8063,23 +8063,23 @@ type KafkaSpecTopicOperatorTlsSidecar struct {
 type KafkaSpecTopicOperatorTlsSidecarLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecTopicOperatorTlsSidecarLogLevel string
@@ -8097,23 +8097,23 @@ const KafkaSpecTopicOperatorTlsSidecarLogLevelWarning KafkaSpecTopicOperatorTlsS
 type KafkaSpecTopicOperatorTlsSidecarReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // CPU and memory resources to reserve.
@@ -8168,7 +8168,7 @@ type KafkaSpecZookeeper struct {
 	ReadinessProbe *KafkaSpecZookeeperReadinessProbe `json:"readinessProbe,omitempty"`
 
 	// The number of pods in the cluster.
-	Replicas int `json:"replicas"`
+	Replicas int32 `json:"replicas"`
 
 	// CPU and memory resources to reserve.
 	Resources *KafkaSpecZookeeperResources `json:"resources,omitempty"`
@@ -8215,7 +8215,7 @@ type KafkaSpecZookeeperAffinityNodeAffinityPreferredDuringSchedulingIgnoredDurin
 	Preference *KafkaSpecZookeeperAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecZookeeperAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
@@ -8298,7 +8298,7 @@ type KafkaSpecZookeeperAffinityPodAffinityPreferredDuringSchedulingIgnoredDuring
 	PodAffinityTerm *KafkaSpecZookeeperAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecZookeeperAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -8380,7 +8380,7 @@ type KafkaSpecZookeeperAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDu
 	PodAffinityTerm *KafkaSpecZookeeperAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecZookeeperAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -8492,23 +8492,23 @@ type KafkaSpecZookeeperJvmOptionsXX map[string]string
 type KafkaSpecZookeeperLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // Logging configuration for ZooKeeper.
@@ -8573,23 +8573,23 @@ type KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef struct {
 type KafkaSpecZookeeperReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // CPU and memory resources to reserve.
@@ -8616,7 +8616,7 @@ type KafkaSpecZookeeperStorage struct {
 
 	// Storage identification number. It is mandatory only for storage volumes defined
 	// in a storage of type 'jbod'.
-	Id *int `json:"id,omitempty"`
+	Id *int32 `json:"id,omitempty"`
 
 	// Overrides for individual brokers. The `overrides` field allows to specify a
 	// different configuration for different brokers.
@@ -8640,7 +8640,7 @@ type KafkaSpecZookeeperStorage struct {
 
 type KafkaSpecZookeeperStorageOverridesElem struct {
 	// Id of the kafka broker (broker identifier).
-	Broker *int `json:"broker,omitempty"`
+	Broker *int32 `json:"broker,omitempty"`
 
 	// The storage class to use for dynamic volume allocation for this broker.
 	Class *string `json:"class,omitempty"`
@@ -8797,7 +8797,7 @@ type KafkaSpecZookeeperTemplatePod struct {
 	// very large Kafka clusters, so that the Kafka brokers have enough time to
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
-	TerminationGracePeriodSeconds *int `json:"terminationGracePeriodSeconds,omitempty"`
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaSpecZookeeperTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -8833,7 +8833,7 @@ type KafkaSpecZookeeperTemplatePodAffinityNodeAffinityPreferredDuringSchedulingI
 	Preference *KafkaSpecZookeeperTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecZookeeperTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
@@ -8916,7 +8916,7 @@ type KafkaSpecZookeeperTemplatePodAffinityPodAffinityPreferredDuringSchedulingIg
 	PodAffinityTerm *KafkaSpecZookeeperTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecZookeeperTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -8998,7 +8998,7 @@ type KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinityPreferredDuringScheduli
 	PodAffinityTerm *KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
 
 	// Weight corresponds to the JSON schema field "weight".
-	Weight *int `json:"weight,omitempty"`
+	Weight *int32 `json:"weight,omitempty"`
 }
 
 type KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
@@ -9071,7 +9071,7 @@ type KafkaSpecZookeeperTemplatePodDisruptionBudget struct {
 	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
 	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
 	// evictions, so the pods must be evicted manually. Defaults to 1.
-	MaxUnavailable *int `json:"maxUnavailable,omitempty"`
+	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
 	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
 	Metadata *KafkaSpecZookeeperTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
@@ -9131,19 +9131,19 @@ type KafkaSpecZookeeperTemplatePodMetadataLabels map[string]string
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecZookeeperTemplatePodSecurityContext struct {
 	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int `json:"fsGroup,omitempty"`
+	FsGroup *int32 `json:"fsGroup,omitempty"`
 
 	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
 	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecZookeeperTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -9152,7 +9152,7 @@ type KafkaSpecZookeeperTemplatePodSecurityContext struct {
 	SeccompProfile *KafkaSpecZookeeperTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
 
 	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int `json:"supplementalGroups,omitempty"`
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
 
 	// Sysctls corresponds to the JSON schema field "sysctls".
 	Sysctls []KafkaSpecZookeeperTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
@@ -9214,7 +9214,7 @@ type KafkaSpecZookeeperTemplatePodTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -9225,7 +9225,7 @@ type KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsElem struct {
 	LabelSelector *KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int `json:"maxSkew,omitempty"`
+	MaxSkew *int32 `json:"maxSkew,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -9327,13 +9327,13 @@ type KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -9424,13 +9424,13 @@ type KafkaSpecZookeeperTemplateZookeeperContainerSecurityContext struct {
 	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
 
 	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int `json:"runAsGroup,omitempty"`
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
 
 	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
 	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
 
 	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int `json:"runAsUser,omitempty"`
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
 
 	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
 	SeLinuxOptions *KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
@@ -9507,23 +9507,23 @@ type KafkaSpecZookeeperTlsSidecar struct {
 type KafkaSpecZookeeperTlsSidecarLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 type KafkaSpecZookeeperTlsSidecarLogLevel string
@@ -9541,23 +9541,23 @@ const KafkaSpecZookeeperTlsSidecarLogLevelWarning KafkaSpecZookeeperTlsSidecarLo
 type KafkaSpecZookeeperTlsSidecarReadinessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
 	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int `json:"failureThreshold,omitempty"`
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
 
 	// The initial delay before first the health is first checked. Default to 15
 	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int `json:"initialDelaySeconds,omitempty"`
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
 
 	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
 	// value is 1.
-	PeriodSeconds *int `json:"periodSeconds,omitempty"`
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
 
 	// Minimum consecutive successes for the probe to be considered successful after
 	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int `json:"successThreshold,omitempty"`
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
 
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
-	TimeoutSeconds *int `json:"timeoutSeconds,omitempty"`
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
 // CPU and memory resources to reserve.
@@ -9584,7 +9584,7 @@ type KafkaSpecZookeeperTolerationsElem struct {
 	Operator *string `json:"operator,omitempty"`
 
 	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int `json:"tolerationSeconds,omitempty"`
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty"`
@@ -9602,7 +9602,7 @@ type KafkaStatus struct {
 	Listeners []KafkaStatusListenersElem `json:"listeners,omitempty"`
 
 	// The generation of the CRD that was last reconciled by the operator.
-	ObservedGeneration *int `json:"observedGeneration,omitempty"`
+	ObservedGeneration *int32 `json:"observedGeneration,omitempty"`
 }
 
 type KafkaStatusConditionsElem struct {
@@ -9648,7 +9648,7 @@ type KafkaStatusListenersElemAddressesElem struct {
 	Host *string `json:"host,omitempty"`
 
 	// The port of the Kafka bootstrap service.
-	Port *int `json:"port,omitempty"`
+	Port *int32 `json:"port,omitempty"`
 }
 
 var enumValues_KafkaSpecClientsCaCertificateExpirationPolicy = []interface{}{

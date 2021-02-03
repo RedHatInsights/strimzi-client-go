@@ -152,12 +152,12 @@ func (in *KafkaSpecClientsCa) DeepCopyInto(out *KafkaSpecClientsCa) {
 	}
 	if in.RenewalDays != nil {
 		in, out := &in.RenewalDays, &out.RenewalDays
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.ValidityDays != nil {
 		in, out := &in.ValidityDays, &out.ValidityDays
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -192,12 +192,12 @@ func (in *KafkaSpecClusterCa) DeepCopyInto(out *KafkaSpecClusterCa) {
 	}
 	if in.RenewalDays != nil {
 		in, out := &in.RenewalDays, &out.RenewalDays
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.ValidityDays != nil {
 		in, out := &in.ValidityDays, &out.ValidityDays
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -296,7 +296,7 @@ func (in *KafkaSpecCruiseControlBrokerCapacity) DeepCopyInto(out *KafkaSpecCruis
 	*out = *in
 	if in.CpuUtilization != nil {
 		in, out := &in.CpuUtilization, &out.CpuUtilization
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Disk != nil {
@@ -442,27 +442,27 @@ func (in *KafkaSpecCruiseControlLivenessProbe) DeepCopyInto(out *KafkaSpecCruise
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -617,27 +617,27 @@ func (in *KafkaSpecCruiseControlReadinessProbe) DeepCopyInto(out *KafkaSpecCruis
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -941,7 +941,7 @@ func (in *KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContext) D
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -951,7 +951,7 @@ func (in *KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContext) D
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -1231,7 +1231,7 @@ func (in *KafkaSpecCruiseControlTemplatePod) DeepCopyInto(out *KafkaSpecCruiseCo
 	}
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Tolerations != nil {
@@ -1327,7 +1327,7 @@ func (in *KafkaSpecCruiseControlTemplatePodAffinityNodeAffinityPreferredDuringSc
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -1581,7 +1581,7 @@ func (in *KafkaSpecCruiseControlTemplatePodAffinityPodAffinityPreferredDuringSch
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -1855,7 +1855,7 @@ func (in *KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinityPreferredDurin
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -2095,7 +2095,7 @@ func (in *KafkaSpecCruiseControlTemplatePodDisruptionBudget) DeepCopyInto(out *K
 	*out = *in
 	if in.MaxUnavailable != nil {
 		in, out := &in.MaxUnavailable, &out.MaxUnavailable
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Metadata != nil {
@@ -2307,7 +2307,7 @@ func (in *KafkaSpecCruiseControlTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	*out = *in
 	if in.FsGroup != nil {
 		in, out := &in.FsGroup, &out.FsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.FsGroupChangePolicy != nil {
@@ -2317,7 +2317,7 @@ func (in *KafkaSpecCruiseControlTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -2327,7 +2327,7 @@ func (in *KafkaSpecCruiseControlTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -2342,7 +2342,7 @@ func (in *KafkaSpecCruiseControlTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	}
 	if in.SupplementalGroups != nil {
 		in, out := &in.SupplementalGroups, &out.SupplementalGroups
-		*out = make([]int, len(*in))
+		*out = make([]int32, len(*in))
 		copy(*out, *in)
 	}
 	if in.Sysctls != nil {
@@ -2504,7 +2504,7 @@ func (in *KafkaSpecCruiseControlTemplatePodTolerationsElem) DeepCopyInto(out *Ka
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -2534,7 +2534,7 @@ func (in *KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsElem) DeepCo
 	}
 	if in.MaxSkew != nil {
 		in, out := &in.MaxSkew, &out.MaxSkew
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TopologyKey != nil {
@@ -2721,7 +2721,7 @@ func (in *KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContext) Deep
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -2731,7 +2731,7 @@ func (in *KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContext) Deep
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -2921,27 +2921,27 @@ func (in *KafkaSpecCruiseControlTlsSidecarLivenessProbe) DeepCopyInto(out *Kafka
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -2961,27 +2961,27 @@ func (in *KafkaSpecCruiseControlTlsSidecarReadinessProbe) DeepCopyInto(out *Kafk
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -3181,7 +3181,7 @@ func (in *KafkaSpecEntityOperatorAffinityNodeAffinityPreferredDuringSchedulingIg
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -3435,7 +3435,7 @@ func (in *KafkaSpecEntityOperatorAffinityPodAffinityPreferredDuringSchedulingIgn
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -3709,7 +3709,7 @@ func (in *KafkaSpecEntityOperatorAffinityPodAntiAffinityPreferredDuringSchedulin
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -4119,7 +4119,7 @@ func (in *KafkaSpecEntityOperatorTemplatePod) DeepCopyInto(out *KafkaSpecEntityO
 	}
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Tolerations != nil {
@@ -4215,7 +4215,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodAffinityNodeAffinityPreferredDuringS
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -4469,7 +4469,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodAffinityPodAffinityPreferredDuringSc
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -4743,7 +4743,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodAffinityPodAntiAffinityPreferredDuri
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -5099,7 +5099,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodSecurityContext) DeepCopyInto(out *K
 	*out = *in
 	if in.FsGroup != nil {
 		in, out := &in.FsGroup, &out.FsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.FsGroupChangePolicy != nil {
@@ -5109,7 +5109,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodSecurityContext) DeepCopyInto(out *K
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -5119,7 +5119,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodSecurityContext) DeepCopyInto(out *K
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -5134,7 +5134,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodSecurityContext) DeepCopyInto(out *K
 	}
 	if in.SupplementalGroups != nil {
 		in, out := &in.SupplementalGroups, &out.SupplementalGroups
-		*out = make([]int, len(*in))
+		*out = make([]int32, len(*in))
 		copy(*out, *in)
 	}
 	if in.Sysctls != nil {
@@ -5296,7 +5296,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodTolerationsElem) DeepCopyInto(out *K
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -5326,7 +5326,7 @@ func (in *KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsElem) DeepC
 	}
 	if in.MaxSkew != nil {
 		in, out := &in.MaxSkew, &out.MaxSkew
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TopologyKey != nil {
@@ -5513,7 +5513,7 @@ func (in *KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContext) Dee
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -5523,7 +5523,7 @@ func (in *KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContext) Dee
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -5750,7 +5750,7 @@ func (in *KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContext) 
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -5760,7 +5760,7 @@ func (in *KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContext) 
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -5987,7 +5987,7 @@ func (in *KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext) D
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -5997,7 +5997,7 @@ func (in *KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext) D
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -6187,27 +6187,27 @@ func (in *KafkaSpecEntityOperatorTlsSidecarLivenessProbe) DeepCopyInto(out *Kafk
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6227,27 +6227,27 @@ func (in *KafkaSpecEntityOperatorTlsSidecarReadinessProbe) DeepCopyInto(out *Kaf
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6353,7 +6353,7 @@ func (in *KafkaSpecEntityOperatorTolerationsElem) DeepCopyInto(out *KafkaSpecEnt
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -6403,7 +6403,7 @@ func (in *KafkaSpecEntityOperatorTopicOperator) DeepCopyInto(out *KafkaSpecEntit
 	}
 	if in.ReconciliationIntervalSeconds != nil {
 		in, out := &in.ReconciliationIntervalSeconds, &out.ReconciliationIntervalSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Resources != nil {
@@ -6413,7 +6413,7 @@ func (in *KafkaSpecEntityOperatorTopicOperator) DeepCopyInto(out *KafkaSpecEntit
 	}
 	if in.TopicMetadataMaxAttempts != nil {
 		in, out := &in.TopicMetadataMaxAttempts, &out.TopicMetadataMaxAttempts
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.WatchedNamespace != nil {
@@ -6423,7 +6423,7 @@ func (in *KafkaSpecEntityOperatorTopicOperator) DeepCopyInto(out *KafkaSpecEntit
 	}
 	if in.ZookeeperSessionTimeoutSeconds != nil {
 		in, out := &in.ZookeeperSessionTimeoutSeconds, &out.ZookeeperSessionTimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6533,27 +6533,27 @@ func (in *KafkaSpecEntityOperatorTopicOperatorLivenessProbe) DeepCopyInto(out *K
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6621,27 +6621,27 @@ func (in *KafkaSpecEntityOperatorTopicOperatorReadinessProbe) DeepCopyInto(out *
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6757,7 +6757,7 @@ func (in *KafkaSpecEntityOperatorUserOperator) DeepCopyInto(out *KafkaSpecEntity
 	}
 	if in.ReconciliationIntervalSeconds != nil {
 		in, out := &in.ReconciliationIntervalSeconds, &out.ReconciliationIntervalSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Resources != nil {
@@ -6777,7 +6777,7 @@ func (in *KafkaSpecEntityOperatorUserOperator) DeepCopyInto(out *KafkaSpecEntity
 	}
 	if in.ZookeeperSessionTimeoutSeconds != nil {
 		in, out := &in.ZookeeperSessionTimeoutSeconds, &out.ZookeeperSessionTimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6887,27 +6887,27 @@ func (in *KafkaSpecEntityOperatorUserOperatorLivenessProbe) DeepCopyInto(out *Ka
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -6975,27 +6975,27 @@ func (in *KafkaSpecEntityOperatorUserOperatorReadinessProbe) DeepCopyInto(out *K
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -7160,7 +7160,7 @@ func (in *KafkaSpecJmxTransOutputDefinitionsElem) DeepCopyInto(out *KafkaSpecJmx
 	*out = *in
 	if in.FlushDelayInSeconds != nil {
 		in, out := &in.FlushDelayInSeconds, &out.FlushDelayInSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Host != nil {
@@ -7170,7 +7170,7 @@ func (in *KafkaSpecJmxTransOutputDefinitionsElem) DeepCopyInto(out *KafkaSpecJmx
 	}
 	if in.Port != nil {
 		in, out := &in.Port, &out.Port
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TypeNames != nil {
@@ -7373,7 +7373,7 @@ func (in *KafkaSpecJmxTransTemplateContainerSecurityContext) DeepCopyInto(out *K
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -7383,7 +7383,7 @@ func (in *KafkaSpecJmxTransTemplateContainerSecurityContext) DeepCopyInto(out *K
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -7663,7 +7663,7 @@ func (in *KafkaSpecJmxTransTemplatePod) DeepCopyInto(out *KafkaSpecJmxTransTempl
 	}
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Tolerations != nil {
@@ -7759,7 +7759,7 @@ func (in *KafkaSpecJmxTransTemplatePodAffinityNodeAffinityPreferredDuringSchedul
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -8013,7 +8013,7 @@ func (in *KafkaSpecJmxTransTemplatePodAffinityPodAffinityPreferredDuringScheduli
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -8287,7 +8287,7 @@ func (in *KafkaSpecJmxTransTemplatePodAffinityPodAntiAffinityPreferredDuringSche
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -8643,7 +8643,7 @@ func (in *KafkaSpecJmxTransTemplatePodSecurityContext) DeepCopyInto(out *KafkaSp
 	*out = *in
 	if in.FsGroup != nil {
 		in, out := &in.FsGroup, &out.FsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.FsGroupChangePolicy != nil {
@@ -8653,7 +8653,7 @@ func (in *KafkaSpecJmxTransTemplatePodSecurityContext) DeepCopyInto(out *KafkaSp
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -8663,7 +8663,7 @@ func (in *KafkaSpecJmxTransTemplatePodSecurityContext) DeepCopyInto(out *KafkaSp
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -8678,7 +8678,7 @@ func (in *KafkaSpecJmxTransTemplatePodSecurityContext) DeepCopyInto(out *KafkaSp
 	}
 	if in.SupplementalGroups != nil {
 		in, out := &in.SupplementalGroups, &out.SupplementalGroups
-		*out = make([]int, len(*in))
+		*out = make([]int32, len(*in))
 		copy(*out, *in)
 	}
 	if in.Sysctls != nil {
@@ -8840,7 +8840,7 @@ func (in *KafkaSpecJmxTransTemplatePodTolerationsElem) DeepCopyInto(out *KafkaSp
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -8870,7 +8870,7 @@ func (in *KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsElem) DeepCopyInt
 	}
 	if in.MaxSkew != nil {
 		in, out := &in.MaxSkew, &out.MaxSkew
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TopologyKey != nil {
@@ -9161,7 +9161,7 @@ func (in *KafkaSpecKafkaAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuri
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -9415,7 +9415,7 @@ func (in *KafkaSpecKafkaAffinityPodAffinityPreferredDuringSchedulingIgnoredDurin
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -9689,7 +9689,7 @@ func (in *KafkaSpecKafkaAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredD
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -9949,27 +9949,27 @@ func (in *KafkaSpecKafkaAuthorization) DeepCopyInto(out *KafkaSpecKafkaAuthoriza
 	}
 	if in.ExpireAfterMs != nil {
 		in, out := &in.ExpireAfterMs, &out.ExpireAfterMs
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.GrantsRefreshPeriodSeconds != nil {
 		in, out := &in.GrantsRefreshPeriodSeconds, &out.GrantsRefreshPeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.GrantsRefreshPoolSize != nil {
 		in, out := &in.GrantsRefreshPoolSize, &out.GrantsRefreshPoolSize
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialCacheCapacity != nil {
 		in, out := &in.InitialCacheCapacity, &out.InitialCacheCapacity
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.MaximumCacheSize != nil {
 		in, out := &in.MaximumCacheSize, &out.MaximumCacheSize
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuperUsers != nil {
@@ -10105,27 +10105,27 @@ func (in *KafkaSpecKafkaExporterLivenessProbe) DeepCopyInto(out *KafkaSpecKafkaE
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -10145,27 +10145,27 @@ func (in *KafkaSpecKafkaExporterReadinessProbe) DeepCopyInto(out *KafkaSpecKafka
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -10368,7 +10368,7 @@ func (in *KafkaSpecKafkaExporterTemplateContainerSecurityContext) DeepCopyInto(o
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -10378,7 +10378,7 @@ func (in *KafkaSpecKafkaExporterTemplateContainerSecurityContext) DeepCopyInto(o
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -10658,7 +10658,7 @@ func (in *KafkaSpecKafkaExporterTemplatePod) DeepCopyInto(out *KafkaSpecKafkaExp
 	}
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Tolerations != nil {
@@ -10754,7 +10754,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinityPreferredDuringSc
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -11008,7 +11008,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodAffinityPodAffinityPreferredDuringSch
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -11282,7 +11282,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinityPreferredDurin
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -11638,7 +11638,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	*out = *in
 	if in.FsGroup != nil {
 		in, out := &in.FsGroup, &out.FsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.FsGroupChangePolicy != nil {
@@ -11648,7 +11648,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -11658,7 +11658,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -11673,7 +11673,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodSecurityContext) DeepCopyInto(out *Ka
 	}
 	if in.SupplementalGroups != nil {
 		in, out := &in.SupplementalGroups, &out.SupplementalGroups
-		*out = make([]int, len(*in))
+		*out = make([]int32, len(*in))
 		copy(*out, *in)
 	}
 	if in.Sysctls != nil {
@@ -11835,7 +11835,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodTolerationsElem) DeepCopyInto(out *Ka
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -11865,7 +11865,7 @@ func (in *KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsElem) DeepCo
 	}
 	if in.MaxSkew != nil {
 		in, out := &in.MaxSkew, &out.MaxSkew
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TopologyKey != nil {
@@ -12278,22 +12278,22 @@ func (in *KafkaSpecKafkaListenersElemAuthentication) DeepCopyInto(out *KafkaSpec
 	}
 	if in.JwksExpirySeconds != nil {
 		in, out := &in.JwksExpirySeconds, &out.JwksExpirySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.JwksMinRefreshPauseSeconds != nil {
 		in, out := &in.JwksMinRefreshPauseSeconds, &out.JwksMinRefreshPauseSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.JwksRefreshSeconds != nil {
 		in, out := &in.JwksRefreshSeconds, &out.JwksRefreshSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.MaxSecondsWithoutReauthentication != nil {
 		in, out := &in.MaxSecondsWithoutReauthentication, &out.MaxSecondsWithoutReauthentication
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TlsTrustedCertificates != nil {
@@ -12447,7 +12447,7 @@ func (in *KafkaSpecKafkaListenersElemConfigurationBootstrap) DeepCopyInto(out *K
 	}
 	if in.NodePort != nil {
 		in, out := &in.NodePort, &out.NodePort
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -12508,7 +12508,7 @@ func (in *KafkaSpecKafkaListenersElemConfigurationBrokersElem) DeepCopyInto(out 
 	}
 	if in.AdvertisedPort != nil {
 		in, out := &in.AdvertisedPort, &out.AdvertisedPort
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Annotations != nil {
@@ -12530,7 +12530,7 @@ func (in *KafkaSpecKafkaListenersElemConfigurationBrokersElem) DeepCopyInto(out 
 	}
 	if in.NodePort != nil {
 		in, out := &in.NodePort, &out.NodePort
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -12786,27 +12786,27 @@ func (in *KafkaSpecKafkaLivenessProbe) DeepCopyInto(out *KafkaSpecKafkaLivenessP
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -12976,27 +12976,27 @@ func (in *KafkaSpecKafkaReadinessProbe) DeepCopyInto(out *KafkaSpecKafkaReadines
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -13097,7 +13097,7 @@ func (in *KafkaSpecKafkaStorage) DeepCopyInto(out *KafkaSpecKafkaStorage) {
 	}
 	if in.Id != nil {
 		in, out := &in.Id, &out.Id
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Overrides != nil {
@@ -13148,7 +13148,7 @@ func (in *KafkaSpecKafkaStorageOverridesElem) DeepCopyInto(out *KafkaSpecKafkaSt
 	*out = *in
 	if in.Broker != nil {
 		in, out := &in.Broker, &out.Broker
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Class != nil {
@@ -13204,7 +13204,7 @@ func (in *KafkaSpecKafkaStorageVolumesElem) DeepCopyInto(out *KafkaSpecKafkaStor
 	}
 	if in.Id != nil {
 		in, out := &in.Id, &out.Id
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Overrides != nil {
@@ -13248,7 +13248,7 @@ func (in *KafkaSpecKafkaStorageVolumesElemOverridesElem) DeepCopyInto(out *Kafka
 	*out = *in
 	if in.Broker != nil {
 		in, out := &in.Broker, &out.Broker
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Class != nil {
@@ -14022,7 +14022,7 @@ func (in *KafkaSpecKafkaTemplateInitContainerSecurityContext) DeepCopyInto(out *
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -14032,7 +14032,7 @@ func (in *KafkaSpecKafkaTemplateInitContainerSecurityContext) DeepCopyInto(out *
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -14259,7 +14259,7 @@ func (in *KafkaSpecKafkaTemplateKafkaContainerSecurityContext) DeepCopyInto(out 
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -14269,7 +14269,7 @@ func (in *KafkaSpecKafkaTemplateKafkaContainerSecurityContext) DeepCopyInto(out 
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -14832,7 +14832,7 @@ func (in *KafkaSpecKafkaTemplatePod) DeepCopyInto(out *KafkaSpecKafkaTemplatePod
 	}
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Tolerations != nil {
@@ -14928,7 +14928,7 @@ func (in *KafkaSpecKafkaTemplatePodAffinityNodeAffinityPreferredDuringScheduling
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -15182,7 +15182,7 @@ func (in *KafkaSpecKafkaTemplatePodAffinityPodAffinityPreferredDuringSchedulingI
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -15456,7 +15456,7 @@ func (in *KafkaSpecKafkaTemplatePodAffinityPodAntiAffinityPreferredDuringSchedul
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -15696,7 +15696,7 @@ func (in *KafkaSpecKafkaTemplatePodDisruptionBudget) DeepCopyInto(out *KafkaSpec
 	*out = *in
 	if in.MaxUnavailable != nil {
 		in, out := &in.MaxUnavailable, &out.MaxUnavailable
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Metadata != nil {
@@ -15908,7 +15908,7 @@ func (in *KafkaSpecKafkaTemplatePodSecurityContext) DeepCopyInto(out *KafkaSpecK
 	*out = *in
 	if in.FsGroup != nil {
 		in, out := &in.FsGroup, &out.FsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.FsGroupChangePolicy != nil {
@@ -15918,7 +15918,7 @@ func (in *KafkaSpecKafkaTemplatePodSecurityContext) DeepCopyInto(out *KafkaSpecK
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -15928,7 +15928,7 @@ func (in *KafkaSpecKafkaTemplatePodSecurityContext) DeepCopyInto(out *KafkaSpecK
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -15943,7 +15943,7 @@ func (in *KafkaSpecKafkaTemplatePodSecurityContext) DeepCopyInto(out *KafkaSpecK
 	}
 	if in.SupplementalGroups != nil {
 		in, out := &in.SupplementalGroups, &out.SupplementalGroups
-		*out = make([]int, len(*in))
+		*out = make([]int32, len(*in))
 		copy(*out, *in)
 	}
 	if in.Sysctls != nil {
@@ -16105,7 +16105,7 @@ func (in *KafkaSpecKafkaTemplatePodTolerationsElem) DeepCopyInto(out *KafkaSpecK
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -16135,7 +16135,7 @@ func (in *KafkaSpecKafkaTemplatePodTopologySpreadConstraintsElem) DeepCopyInto(o
 	}
 	if in.MaxSkew != nil {
 		in, out := &in.MaxSkew, &out.MaxSkew
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TopologyKey != nil {
@@ -16418,7 +16418,7 @@ func (in *KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext) DeepCopyInto
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -16428,7 +16428,7 @@ func (in *KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext) DeepCopyInto
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -16618,27 +16618,27 @@ func (in *KafkaSpecKafkaTlsSidecarLivenessProbe) DeepCopyInto(out *KafkaSpecKafk
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -16658,27 +16658,27 @@ func (in *KafkaSpecKafkaTlsSidecarReadinessProbe) DeepCopyInto(out *KafkaSpecKaf
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -16784,7 +16784,7 @@ func (in *KafkaSpecKafkaTolerationsElem) DeepCopyInto(out *KafkaSpecKafkaTolerat
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -16839,7 +16839,7 @@ func (in *KafkaSpecTopicOperator) DeepCopyInto(out *KafkaSpecTopicOperator) {
 	}
 	if in.ReconciliationIntervalSeconds != nil {
 		in, out := &in.ReconciliationIntervalSeconds, &out.ReconciliationIntervalSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Resources != nil {
@@ -16854,7 +16854,7 @@ func (in *KafkaSpecTopicOperator) DeepCopyInto(out *KafkaSpecTopicOperator) {
 	}
 	if in.TopicMetadataMaxAttempts != nil {
 		in, out := &in.TopicMetadataMaxAttempts, &out.TopicMetadataMaxAttempts
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.WatchedNamespace != nil {
@@ -16864,7 +16864,7 @@ func (in *KafkaSpecTopicOperator) DeepCopyInto(out *KafkaSpecTopicOperator) {
 	}
 	if in.ZookeeperSessionTimeoutSeconds != nil {
 		in, out := &in.ZookeeperSessionTimeoutSeconds, &out.ZookeeperSessionTimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -16946,7 +16946,7 @@ func (in *KafkaSpecTopicOperatorAffinityNodeAffinityPreferredDuringSchedulingIgn
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -17200,7 +17200,7 @@ func (in *KafkaSpecTopicOperatorAffinityPodAffinityPreferredDuringSchedulingIgno
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -17474,7 +17474,7 @@ func (in *KafkaSpecTopicOperatorAffinityPodAntiAffinityPreferredDuringScheduling
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -17804,27 +17804,27 @@ func (in *KafkaSpecTopicOperatorLivenessProbe) DeepCopyInto(out *KafkaSpecTopicO
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -17892,27 +17892,27 @@ func (in *KafkaSpecTopicOperatorReadinessProbe) DeepCopyInto(out *KafkaSpecTopic
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -18043,27 +18043,27 @@ func (in *KafkaSpecTopicOperatorTlsSidecarLivenessProbe) DeepCopyInto(out *Kafka
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -18083,27 +18083,27 @@ func (in *KafkaSpecTopicOperatorTlsSidecarReadinessProbe) DeepCopyInto(out *Kafk
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -18343,7 +18343,7 @@ func (in *KafkaSpecZookeeperAffinityNodeAffinityPreferredDuringSchedulingIgnored
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -18597,7 +18597,7 @@ func (in *KafkaSpecZookeeperAffinityPodAffinityPreferredDuringSchedulingIgnoredD
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -18871,7 +18871,7 @@ func (in *KafkaSpecZookeeperAffinityPodAntiAffinityPreferredDuringSchedulingIgno
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -19222,27 +19222,27 @@ func (in *KafkaSpecZookeeperLivenessProbe) DeepCopyInto(out *KafkaSpecZookeeperL
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -19397,27 +19397,27 @@ func (in *KafkaSpecZookeeperReadinessProbe) DeepCopyInto(out *KafkaSpecZookeeper
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -19518,7 +19518,7 @@ func (in *KafkaSpecZookeeperStorage) DeepCopyInto(out *KafkaSpecZookeeperStorage
 	}
 	if in.Id != nil {
 		in, out := &in.Id, &out.Id
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Overrides != nil {
@@ -19562,7 +19562,7 @@ func (in *KafkaSpecZookeeperStorageOverridesElem) DeepCopyInto(out *KafkaSpecZoo
 	*out = *in
 	if in.Broker != nil {
 		in, out := &in.Broker, &out.Broker
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Class != nil {
@@ -19975,7 +19975,7 @@ func (in *KafkaSpecZookeeperTemplatePod) DeepCopyInto(out *KafkaSpecZookeeperTem
 	}
 	if in.TerminationGracePeriodSeconds != nil {
 		in, out := &in.TerminationGracePeriodSeconds, &out.TerminationGracePeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Tolerations != nil {
@@ -20071,7 +20071,7 @@ func (in *KafkaSpecZookeeperTemplatePodAffinityNodeAffinityPreferredDuringSchedu
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -20325,7 +20325,7 @@ func (in *KafkaSpecZookeeperTemplatePodAffinityPodAffinityPreferredDuringSchedul
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -20599,7 +20599,7 @@ func (in *KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinityPreferredDuringSch
 	}
 	if in.Weight != nil {
 		in, out := &in.Weight, &out.Weight
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -20839,7 +20839,7 @@ func (in *KafkaSpecZookeeperTemplatePodDisruptionBudget) DeepCopyInto(out *Kafka
 	*out = *in
 	if in.MaxUnavailable != nil {
 		in, out := &in.MaxUnavailable, &out.MaxUnavailable
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Metadata != nil {
@@ -21051,7 +21051,7 @@ func (in *KafkaSpecZookeeperTemplatePodSecurityContext) DeepCopyInto(out *KafkaS
 	*out = *in
 	if in.FsGroup != nil {
 		in, out := &in.FsGroup, &out.FsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.FsGroupChangePolicy != nil {
@@ -21061,7 +21061,7 @@ func (in *KafkaSpecZookeeperTemplatePodSecurityContext) DeepCopyInto(out *KafkaS
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -21071,7 +21071,7 @@ func (in *KafkaSpecZookeeperTemplatePodSecurityContext) DeepCopyInto(out *KafkaS
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -21086,7 +21086,7 @@ func (in *KafkaSpecZookeeperTemplatePodSecurityContext) DeepCopyInto(out *KafkaS
 	}
 	if in.SupplementalGroups != nil {
 		in, out := &in.SupplementalGroups, &out.SupplementalGroups
-		*out = make([]int, len(*in))
+		*out = make([]int32, len(*in))
 		copy(*out, *in)
 	}
 	if in.Sysctls != nil {
@@ -21248,7 +21248,7 @@ func (in *KafkaSpecZookeeperTemplatePodTolerationsElem) DeepCopyInto(out *KafkaS
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -21278,7 +21278,7 @@ func (in *KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsElem) DeepCopyIn
 	}
 	if in.MaxSkew != nil {
 		in, out := &in.MaxSkew, &out.MaxSkew
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TopologyKey != nil {
@@ -21561,7 +21561,7 @@ func (in *KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext) DeepCopy
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -21571,7 +21571,7 @@ func (in *KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext) DeepCopy
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -21798,7 +21798,7 @@ func (in *KafkaSpecZookeeperTemplateZookeeperContainerSecurityContext) DeepCopyI
 	}
 	if in.RunAsGroup != nil {
 		in, out := &in.RunAsGroup, &out.RunAsGroup
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RunAsNonRoot != nil {
@@ -21808,7 +21808,7 @@ func (in *KafkaSpecZookeeperTemplateZookeeperContainerSecurityContext) DeepCopyI
 	}
 	if in.RunAsUser != nil {
 		in, out := &in.RunAsUser, &out.RunAsUser
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SeLinuxOptions != nil {
@@ -21998,27 +21998,27 @@ func (in *KafkaSpecZookeeperTlsSidecarLivenessProbe) DeepCopyInto(out *KafkaSpec
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -22038,27 +22038,27 @@ func (in *KafkaSpecZookeeperTlsSidecarReadinessProbe) DeepCopyInto(out *KafkaSpe
 	*out = *in
 	if in.FailureThreshold != nil {
 		in, out := &in.FailureThreshold, &out.FailureThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.InitialDelaySeconds != nil {
 		in, out := &in.InitialDelaySeconds, &out.InitialDelaySeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.PeriodSeconds != nil {
 		in, out := &in.PeriodSeconds, &out.PeriodSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.SuccessThreshold != nil {
 		in, out := &in.SuccessThreshold, &out.SuccessThreshold
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.TimeoutSeconds != nil {
 		in, out := &in.TimeoutSeconds, &out.TimeoutSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -22164,7 +22164,7 @@ func (in *KafkaSpecZookeeperTolerationsElem) DeepCopyInto(out *KafkaSpecZookeepe
 	}
 	if in.TolerationSeconds != nil {
 		in, out := &in.TolerationSeconds, &out.TolerationSeconds
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 	if in.Value != nil {
@@ -22208,7 +22208,7 @@ func (in *KafkaStatus) DeepCopyInto(out *KafkaStatus) {
 	}
 	if in.ObservedGeneration != nil {
 		in, out := &in.ObservedGeneration, &out.ObservedGeneration
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -22310,7 +22310,7 @@ func (in *KafkaStatusListenersElemAddressesElem) DeepCopyInto(out *KafkaStatusLi
 	}
 	if in.Port != nil {
 		in, out := &in.Port, &out.Port
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }
@@ -22452,7 +22452,7 @@ func (in *KafkaTopicStatus) DeepCopyInto(out *KafkaTopicStatus) {
 	}
 	if in.ObservedGeneration != nil {
 		in, out := &in.ObservedGeneration, &out.ObservedGeneration
-		*out = new(int)
+		*out = new(int32)
 		**out = **in
 	}
 }

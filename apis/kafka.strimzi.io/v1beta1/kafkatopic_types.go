@@ -47,10 +47,10 @@ type KafkaTopicSpec struct {
 	// topic creation. It can be increased after topic creation, but it is important
 	// to understand the consequences that has, especially for topics with semantic
 	// partitioning.
-	Partitions int `json:"partitions"`
+	Partitions int32 `json:"partitions"`
 
 	// The number of replicas the topic should have.
-	Replicas int `json:"replicas"`
+	Replicas int32 `json:"replicas"`
 
 	// The name of the topic. When absent this will default to the metadata.name of
 	// the topic. It is recommended to not set this unless the topic name is not a
@@ -88,7 +88,7 @@ type KafkaTopicStatus struct {
 	Conditions []KafkaTopicStatusConditionsElem `json:"conditions,omitempty"`
 
 	// The generation of the CRD that was last reconciled by the operator.
-	ObservedGeneration *int `json:"observedGeneration,omitempty"`
+	ObservedGeneration *int32 `json:"observedGeneration,omitempty"`
 }
 
 type KafkaTopicStatusConditionsElem struct {
