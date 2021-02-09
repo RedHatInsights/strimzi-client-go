@@ -25,7 +25,6 @@ type Kafka struct {
 }
 
 // +kubebuilder:object:root=true
-
 // KafkaList contains a list of instances.
 type KafkaList struct {
 	metav1.TypeMeta `json:",inline"`
