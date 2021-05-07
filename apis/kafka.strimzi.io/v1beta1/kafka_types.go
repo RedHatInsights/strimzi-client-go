@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"reflect"
 
+	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -5149,11 +5150,6 @@ func (j *KafkaSpecKafkaLogging) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// The Prometheus JMX Exporter configuration. See
-// https://github.com/prometheus/jmx_exporter for details of the structure of this
-// configuration.
-type KafkaSpecKafkaMetrics map[string]string
-
 type KafkaSpecKafkaMetricsConfigType string
 
 // Configuration of the Kafka Exporter. Kafka Exporter can provide additional
@@ -6242,7 +6238,7 @@ type KafkaSpecKafka struct {
 	// The Prometheus JMX Exporter configuration. See
 	// https://github.com/prometheus/jmx_exporter for details of the structure of this
 	// configuration.
-	Metrics KafkaSpecKafkaMetrics `json:"metrics,omitempty"`
+	Metrics *apiextensions.JSON `json:"metrics,omitempty"`
 
 	// Metrics configuration.
 	MetricsConfig *KafkaSpecKafkaMetricsConfig `json:"metricsConfig,omitempty"`
