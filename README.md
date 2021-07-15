@@ -12,8 +12,7 @@ use does not handle those.
 3. Use [crd-codegen](https://github.com/RedHatInsights/crd-codegen) to generate types from the CRD YAML.
 4. Edit the top-level type definitions so that they implement the runtime.Object interfaces and
 add kubebuilder annotations. You may also see some of the "misc properties" type attributes defined
-as `type <name> map[string]interface{}` -- these must be changed to `type <name> map[string]string` or
-in cases where a more complex undefined object is being used, use type `apiextensions.JSON` ([example](https://github.com/RedHatInsights/strimzi-client-go/commit/c6a1bf7c1dd6299e58a82ab1748b91036ac56e8d))
+as `type <name> map[string]interface{}` -- these must be changed to type `apiextensions.JSON` ([example](https://github.com/RedHatInsights/strimzi-client-go/commit/c6a1bf7c1dd6299e58a82ab1748b91036ac56e8d))
 5. Convert int types to int32: ```sed -i 's/int `json/int32 `json'/g *```
 6. Finally run `controller-gen object paths=./...` is run to generate `DeepCopy` implementations
 
