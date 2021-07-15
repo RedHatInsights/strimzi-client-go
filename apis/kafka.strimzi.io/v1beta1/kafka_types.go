@@ -4259,7 +4259,7 @@ func (j *KafkaSpecKafkaAuthorization) UnmarshalJSON(b []byte) error {
 // cruise.control.metrics.topic.replication.factor,
 // cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries,
 // cruise.control.metrics.topic.auto.create.timeout.ms,cruise.control.metrics.topic.min.insync.replicas).
-type KafkaSpecKafkaConfig map[string]string
+type KafkaSpecKafkaConfig apiextensions.JSON
 
 type KafkaSpecKafkaJmxOptionsAuthenticationType string
 
