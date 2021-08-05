@@ -4259,7 +4259,6 @@ func (j *KafkaSpecKafkaAuthorization) UnmarshalJSON(b []byte) error {
 // cruise.control.metrics.topic.replication.factor,
 // cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries,
 // cruise.control.metrics.topic.auto.create.timeout.ms,cruise.control.metrics.topic.min.insync.replicas).
-type KafkaSpecKafkaConfig apiextensions.JSON
 
 type KafkaSpecKafkaJmxOptionsAuthenticationType string
 
@@ -6214,7 +6213,7 @@ type KafkaSpecKafka struct {
 	// cruise.control.metrics.topic.replication.factor,
 	// cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries,
 	// cruise.control.metrics.topic.auto.create.timeout.ms,cruise.control.metrics.topic.min.insync.replicas).
-	Config KafkaSpecKafkaConfig `json:"config,omitempty"`
+	Config *apiextensions.JSON `json:"config,omitempty"`
 
 	// The docker image for the pods. The default value depends on the configured
 	// `Kafka.spec.kafka.version`.
