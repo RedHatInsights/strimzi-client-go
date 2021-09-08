@@ -1075,7 +1075,7 @@ type KafkaConnectS2IList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// A list of Kafka objects.
-	Items []Kafka `json:"items,omitempty"`
+	Items []KafkaConnectS2I `json:"items,omitempty"`
 }
 
 func init() {

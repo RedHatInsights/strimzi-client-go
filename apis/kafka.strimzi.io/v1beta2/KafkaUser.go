@@ -30,7 +30,7 @@ type KafkaUserList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// A list of Kafka objects.
-	Items []Kafka `json:"items,omitempty"`
+	Items []KafkaUser `json:"items,omitempty"`
 }
 
 func init() {

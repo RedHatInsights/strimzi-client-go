@@ -26,7 +26,7 @@ type KafkaRebalanceList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// A list of Kafka objects.
-	Items []Kafka `json:"items,omitempty"`
+	Items []KafkaRebalance `json:"items,omitempty"`
 }
 
 func init() {

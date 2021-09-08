@@ -86,7 +86,7 @@ func (in *KafkaBridgeList) DeepCopyInto(out *KafkaBridgeList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaBridge, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -2909,7 +2909,7 @@ func (in *KafkaConnectS2IList) DeepCopyInto(out *KafkaConnectS2IList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaConnectS2I, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -13512,7 +13512,7 @@ func (in *KafkaConnectorList) DeepCopyInto(out *KafkaConnectorList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaConnector, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -13763,7 +13763,7 @@ func (in *KafkaMirrorMaker2List) DeepCopyInto(out *KafkaMirrorMaker2List) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaMirrorMaker2, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -19078,7 +19078,7 @@ func (in *KafkaMirrorMakerList) DeepCopyInto(out *KafkaMirrorMakerList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaMirrorMaker, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -21992,7 +21992,7 @@ func (in *KafkaRebalanceList) DeepCopyInto(out *KafkaRebalanceList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaRebalance, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -38769,7 +38769,7 @@ func (in *KafkaTopicList) DeepCopyInto(out *KafkaTopicList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaTopic, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -38943,7 +38943,7 @@ func (in *KafkaUserList) DeepCopyInto(out *KafkaUserList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Kafka, len(*in))
+		*out = make([]KafkaUser, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
