@@ -376,7 +376,7 @@ type KafkaMirrorMakerList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// A list of Kafka objects.
-	Items []Kafka `json:"items,omitempty"`
+	Items []KafkaMirrorMaker `json:"items,omitempty"`
 }
 
 func init() {

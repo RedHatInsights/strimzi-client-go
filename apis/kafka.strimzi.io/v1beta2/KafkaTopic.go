@@ -26,7 +26,7 @@ type KafkaTopicList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// A list of Kafka objects.
-	Items []Kafka `json:"items,omitempty"`
+	Items []KafkaTopic `json:"items,omitempty"`
 }
 
 func init() {
