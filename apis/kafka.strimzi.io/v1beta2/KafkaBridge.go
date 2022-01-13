@@ -946,6 +946,9 @@ type KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions struct 
 	// "gmsaCredentialSpecName".
 	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
 
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty"`
+
 	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
 }
@@ -1027,6 +1030,10 @@ type KafkaBridgeSpecTemplatePod struct {
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
 	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
+
+	// Defines the total amount (for example `1Gi`) of local storage required for
+	// temporary EmptyDir volume (`/tmp`). Default value is `1Mi`.
+	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaBridgeSpecTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -1523,6 +1530,9 @@ type KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions struct {
 	// GmsaCredentialSpecName corresponds to the JSON schema field
 	// "gmsaCredentialSpecName".
 	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty"`
 
 	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
 	RunAsUserName *string `json:"runAsUserName,omitempty"`

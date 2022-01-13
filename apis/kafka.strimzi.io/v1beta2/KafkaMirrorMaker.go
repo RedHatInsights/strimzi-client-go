@@ -602,8 +602,8 @@ type KafkaMirrorMakerSpec struct {
 
 	// List of topics which are included for mirroring. This option allows any regular
 	// expression using Java-style regular expressions. Mirroring two topics named A
-	// and B is achieved by using the expression `'A\|B'`. Or, as a special case, you
-	// can mirror all topics using the regular expression '*'. You can also specify
+	// and B is achieved by using the expression `A\|B`. Or, as a special case, you
+	// can mirror all topics using the regular expression `*`. You can also specify
 	// multiple regular expressions separated by commas.
 	Include *string `json:"include,omitempty"`
 
@@ -645,8 +645,8 @@ type KafkaMirrorMakerSpec struct {
 
 	// List of topics which are included for mirroring. This option allows any regular
 	// expression using Java-style regular expressions. Mirroring two topics named A
-	// and B is achieved by using the expression `'A\|B'`. Or, as a special case, you
-	// can mirror all topics using the regular expression '*'. You can also specify
+	// and B is achieved by using the expression `A\|B`. Or, as a special case, you
+	// can mirror all topics using the regular expression `*`. You can also specify
 	// multiple regular expressions separated by commas.
 	Whitelist *string `json:"whitelist,omitempty"`
 }
@@ -1338,6 +1338,9 @@ type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptio
 	// "gmsaCredentialSpecName".
 	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
 
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty"`
+
 	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
 }
@@ -1385,6 +1388,10 @@ type KafkaMirrorMakerSpecTemplatePod struct {
 	// transfer their work to another broker before they are terminated. Defaults to
 	// 30 seconds.
 	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
+
+	// Defines the total amount (for example `1Gi`) of local storage required for
+	// temporary EmptyDir volume (`/tmp`). Default value is `1Mi`.
+	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
 
 	// The pod's tolerations.
 	Tolerations []KafkaMirrorMakerSpecTemplatePodTolerationsElem `json:"tolerations,omitempty"`
@@ -1881,6 +1888,9 @@ type KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions struct {
 	// GmsaCredentialSpecName corresponds to the JSON schema field
 	// "gmsaCredentialSpecName".
 	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty"`
 
 	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
