@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	kafka "github.com/RedHatInsights/strimzi-client-go/apis/kafka.strimzi.io/v1beta1"
 	"io/ioutil"
+
+	kafka "github.com/RedHatInsights/strimzi-client-go/apis/kafka.strimzi.io/v1beta2"
 )
 
 func main() {
