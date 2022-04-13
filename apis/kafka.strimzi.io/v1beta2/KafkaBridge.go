@@ -10,20 +10,22 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecTracing) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+func (j *KafkaBridgeSpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+	var ok bool
+	for _, expected := range enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
 	}
-	type Plain KafkaBridgeSpecTracing
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem, v)
 	}
-	*j = KafkaBridgeSpecTracing(plain)
+	*j = KafkaBridgeSpecTemplateApiServiceIpFamiliesElem(v)
 	return nil
 }
 
@@ -258,8 +260,8 @@ func (j *KafkaBridgeSpecAuthenticationType) UnmarshalJSON(b []byte) error {
 }
 
 const KafkaBridgeSpecAuthenticationTypeTls KafkaBridgeSpecAuthenticationType = "tls"
+const KafkaBridgeSpecAuthenticationTypeScramSha256 KafkaBridgeSpecAuthenticationType = "scram-sha-256"
 const KafkaBridgeSpecAuthenticationTypeScramSha512 KafkaBridgeSpecAuthenticationType = "scram-sha-512"
-const KafkaBridgeSpecAuthenticationTypePlain KafkaBridgeSpecAuthenticationType = "plain"
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
@@ -288,6 +290,7 @@ type KafkaBridgeList struct {
 func init() {
 	SchemeBuilder.Register(&KafkaBridge{}, &KafkaBridgeList{})
 }
+const KafkaBridgeSpecAuthenticationTypeOauth KafkaBridgeSpecAuthenticationType = "oauth"
 
 // Authentication configuration for connecting to the cluster.
 type KafkaBridgeSpecAuthentication struct {
@@ -318,6 +321,10 @@ type KafkaBridgeSpecAuthentication struct {
 	// endpoint URI.
 	ClientSecret *KafkaBridgeSpecAuthenticationClientSecret `json:"clientSecret,omitempty"`
 
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
@@ -327,6 +334,10 @@ type KafkaBridgeSpecAuthentication struct {
 
 	// Reference to the `Secret` which holds the password.
 	PasswordSecret *KafkaBridgeSpecAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
 
 	// Link to Kubernetes Secret containing the refresh token which can be used to
 	// obtain access token from the authorization server.
@@ -345,10 +356,11 @@ type KafkaBridgeSpecAuthentication struct {
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
 	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-512`, and `plain`. `scram-sha-512` type uses SASL SCRAM-SHA-512
-	// Authentication. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
+	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
+	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
+	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
+	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
+	// Client Authentication. The `tls` type is supported only over TLS connections.
 	Type KafkaBridgeSpecAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -615,8 +627,6 @@ func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const KafkaBridgeSpecAuthenticationTypeOauth KafkaBridgeSpecAuthenticationType = "oauth"
-
 // Link to Kubernetes Secret containing the refresh token which can be used to
 // obtain access token from the authorization server.
 type KafkaBridgeSpecAuthenticationRefreshToken struct {
@@ -626,6 +636,18 @@ type KafkaBridgeSpecAuthenticationRefreshToken struct {
 	// The name of the Kubernetes Secret containing the secret value.
 	SecretName string `json:"secretName"`
 }
+
+// Kafka producer related configuration.
+type KafkaBridgeSpecProducer struct {
+	// The Kafka producer configuration used for producer instances created by the
+	// bridge. Properties with the following prefixes cannot be set: ssl.,
+	// bootstrap.servers, sasl., security. (with the exception of:
+	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+	// ssl.enabled.protocols).
+	Config *apiextensions.JSON `json:"config,omitempty"`
+}
+
+const KafkaBridgeSpecAuthenticationTypePlain KafkaBridgeSpecAuthenticationType = "plain"
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
@@ -709,33 +731,21 @@ func (j *KafkaBridgeSpecTracingType) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
+func (j *KafkaBridgeSpecTracing) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	var ok bool
-	for _, expected := range enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
 	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem, v)
+	type Plain KafkaBridgeSpecTracing
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
 	}
-	*j = KafkaBridgeSpecTemplateApiServiceIpFamiliesElem(v)
+	*j = KafkaBridgeSpecTracing(plain)
 	return nil
-}
-
-// Kafka producer related configuration.
-type KafkaBridgeSpecProducer struct {
-	// The Kafka producer configuration used for producer instances created by the
-	// bridge. Properties with the following prefixes cannot be set: ssl.,
-	// bootstrap.servers, sasl., security. (with the exception of:
-	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-	// ssl.enabled.protocols).
-	Config *apiextensions.JSON `json:"config,omitempty"`
 }
 
 // The Kafka producer configuration used for producer instances created by the
@@ -1405,11 +1415,11 @@ type KafkaBridgeSpecTemplatePodDisruptionBudget struct {
 	// evictions, so the pods must be evicted manually. Defaults to 1.
 	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
 }
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -1680,6 +1690,7 @@ type KafkaBridgeStatusConditionsElem struct {
 
 var enumValues_KafkaBridgeSpecAuthenticationType = []interface{}{
 	"tls",
+	"scram-sha-256",
 	"scram-sha-512",
 	"plain",
 	"oauth",

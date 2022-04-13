@@ -10,22 +10,23 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecMetricsConfigType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecMetricsConfigType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate: required")
 	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecMetricsConfigType, v)
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName: required")
 	}
-	*j = KafkaMirrorMakerSpecMetricsConfigType(v)
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem(plain)
 	return nil
 }
 
@@ -255,17 +256,8 @@ func (j *KafkaMirrorMakerSpecConsumerAuthenticationType) UnmarshalJSON(b []byte)
 }
 
 const KafkaMirrorMakerSpecConsumerAuthenticationTypeTls KafkaMirrorMakerSpecConsumerAuthenticationType = "tls"
-
-// Link to Kubernetes Secret containing the access token which was obtained from
-// the authorization server.
-type KafkaMirrorMakerSpecConsumerAuthenticationAccessToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
+const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha256 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-256"
+const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-512"
 const KafkaMirrorMakerSpecConsumerAuthenticationTypePlain KafkaMirrorMakerSpecConsumerAuthenticationType = "plain"
 const KafkaMirrorMakerSpecConsumerAuthenticationTypeOauth KafkaMirrorMakerSpecConsumerAuthenticationType = "oauth"
 
@@ -298,6 +290,10 @@ type KafkaMirrorMakerSpecConsumerAuthentication struct {
 	// endpoint URI.
 	ClientSecret *KafkaMirrorMakerSpecConsumerAuthenticationClientSecret `json:"clientSecret,omitempty"`
 
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
@@ -307,6 +303,10 @@ type KafkaMirrorMakerSpecConsumerAuthentication struct {
 
 	// Reference to the `Secret` which holds the password.
 	PasswordSecret *KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
 
 	// Link to Kubernetes Secret containing the refresh token which can be used to
 	// obtain access token from the authorization server.
@@ -325,10 +325,11 @@ type KafkaMirrorMakerSpecConsumerAuthentication struct {
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
 	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-512`, and `plain`. `scram-sha-512` type uses SASL SCRAM-SHA-512
-	// Authentication. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
+	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
+	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
+	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
+	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
+	// Client Authentication. The `tls` type is supported only over TLS connections.
 	Type KafkaMirrorMakerSpecConsumerAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -353,34 +354,22 @@ func (j *KafkaMirrorMakerSpecConsumerAuthentication) UnmarshalJSON(b []byte) err
 	return nil
 }
 
-const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-512"
+// Link to Kubernetes Secret containing the access token which was obtained from
+// the authorization server.
+type KafkaMirrorMakerSpecConsumerAuthenticationAccessToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key"`
 
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// KafkaMirrorMaker
-type KafkaMirrorMaker struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// The specification of Kafka MirrorMaker.
-	Spec *KafkaMirrorMakerSpec `json:"spec,omitempty"`
-
-	// The status of Kafka MirrorMaker.
-	Status *KafkaMirrorMakerStatus `json:"status,omitempty"`
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName"`
 }
 
-// +kubebuilder:object:root=true
-// KafkaMirrorMakerList contains a list of instances.
-type KafkaMirrorMakerList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+type KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate"`
 
-	// A list of Kafka objects.
-	Items []KafkaMirrorMaker `json:"items,omitempty"`
-}
-
-func init() {
-	SchemeBuilder.Register(&KafkaMirrorMaker{}, &KafkaMirrorMakerList{})
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -404,24 +393,10 @@ func (j *KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem) UnmarshalJSON(b
 	return nil
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy, v)
-	}
-	*j = KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy(v)
-	return nil
+// TLS configuration for connecting MirrorMaker to the cluster.
+type KafkaMirrorMakerSpecConsumerTls struct {
+	// Trusted certificates for TLS connection.
+	TrustedCertificates []KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty"`
 }
 
 // Configuration of source cluster.
@@ -474,123 +449,64 @@ func (j *KafkaMirrorMakerSpecConsumer) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducer) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
-		return fmt.Errorf("field bootstrapServers: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducer
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducer(plain)
-	return nil
+// A map of -XX options to the JVM.
+//type KafkaMirrorMakerSpecJvmOptionsXX map[string]interface{}
+
+type KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem struct {
+	// The system property name.
+	Name *string `json:"name,omitempty"`
+
+	// The system property value.
+	Value *string `json:"value,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem(plain)
-	return nil
+// JVM Options for pods.
+type KafkaMirrorMakerSpecJvmOptions struct {
+	// A map of -XX options to the JVM.
+	XX *apiextensions.JSON `json:"-XX,omitempty"`
+
+	// -Xms option to to the JVM.
+	Xms *string `json:"-Xms,omitempty"`
+
+	// -Xmx option to to the JVM.
+	Xmx *string `json:"-Xmx,omitempty"`
+
+	// Specifies whether the Garbage Collection logging is enabled. The default is
+	// false.
+	GcLoggingEnabled *bool `json:"gcLoggingEnabled,omitempty"`
+
+	// A map of additional system properties which will be passed using the `-D`
+	// option to the JVM.
+	JavaSystemProperties []KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem `json:"javaSystemProperties,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthentication) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthentication
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducerAuthentication(plain)
-	return nil
+// Pod liveness checking.
+type KafkaMirrorMakerSpecLivenessProbe struct {
+	// Minimum consecutive failures for the probe to be considered failed after having
+	// succeeded. Defaults to 3. Minimum value is 1.
+	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
+
+	// The initial delay before first the health is first checked. Default to 15
+	// seconds. Minimum value is 0.
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
+
+	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
+	// value is 1.
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
+
+	// Minimum consecutive successes for the probe to be considered successful after
+	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
+
+	// The timeout for each attempted health check. Default to 5 seconds. Minimum
+	// value is 1.
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecProducerAuthenticationType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecProducerAuthenticationType, v)
-	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationType(v)
-	return nil
-}
+// A Map from logger name to logger level.
+//type KafkaMirrorMakerSpecLoggingLoggers map[string]interface{}
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecTracingType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecTracingType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecTracingType, v)
-	}
-	*j = KafkaMirrorMakerSpecTracingType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem(plain)
-	return nil
-}
+type KafkaMirrorMakerSpecLoggingType string
 
 // The specification of Kafka MirrorMaker.
 type KafkaMirrorMakerSpec struct {
@@ -671,8 +587,202 @@ func (j *KafkaMirrorMakerSpecLoggingType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+const KafkaMirrorMakerSpecLoggingTypeInline KafkaMirrorMakerSpecLoggingType = "inline"
+const KafkaMirrorMakerSpecLoggingTypeExternal KafkaMirrorMakerSpecLoggingType = "external"
+
+// Reference to the key in the ConfigMap containing the configuration.
+type KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty"`
+
+	// Optional corresponds to the JSON schema field "optional".
+	Optional *bool `json:"optional,omitempty"`
+}
+
+// `ConfigMap` entry where the logging configuration is stored.
+type KafkaMirrorMakerSpecLoggingValueFrom struct {
+	// Reference to the key in the ConfigMap containing the configuration.
+	ConfigMapKeyRef *KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
+}
+
+// Logging configuration for MirrorMaker.
+type KafkaMirrorMakerSpecLogging struct {
+	// A Map from logger name to logger level.
+	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
+
+	// Logging type, must be either 'inline' or 'external'.
+	Type KafkaMirrorMakerSpecLoggingType `json:"type"`
+
+	// `ConfigMap` entry where the logging configuration is stored.
+	ValueFrom *KafkaMirrorMakerSpecLoggingValueFrom `json:"valueFrom,omitempty"`
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecLogging) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	type Plain KafkaMirrorMakerSpecLogging
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecLogging(plain)
+	return nil
+}
+
+type KafkaMirrorMakerSpecMetricsConfigType string
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecTracing) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	type Plain KafkaMirrorMakerSpecTracing
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecTracing(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecMetricsConfigType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMakerSpecMetricsConfigType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecMetricsConfigType, v)
+	}
+	*j = KafkaMirrorMakerSpecMetricsConfigType(v)
+	return nil
+}
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// KafkaMirrorMaker
+type KafkaMirrorMaker struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// The specification of Kafka MirrorMaker.
+	Spec *KafkaMirrorMakerSpec `json:"spec,omitempty"`
+
+	// The status of Kafka MirrorMaker.
+	Status *KafkaMirrorMakerStatus `json:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// KafkaMirrorMakerList contains a list of instances.
+type KafkaMirrorMakerList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// A list of Kafka objects.
+	Items []KafkaMirrorMaker `json:"items,omitempty"`
+}
+
+func init() {
+	SchemeBuilder.Register(&KafkaMirrorMaker{}, &KafkaMirrorMakerList{})
+}
+
+// The MirrorMaker consumer config. Properties with the following prefixes cannot
+// be set: ssl., bootstrap.servers, group.id, sasl., security., interceptor.classes
+// (with the exception of: ssl.endpoint.identification.algorithm,
+// ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols).
+//type KafkaMirrorMakerSpecConsumerConfig map[string]interface{}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy, v)
+	}
+	*j = KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy(v)
+	return nil
+}
+
+// Metrics configuration.
+type KafkaMirrorMakerSpecMetricsConfig struct {
+	// Metrics type. Only 'jmxPrometheusExporter' supported currently.
+	Type KafkaMirrorMakerSpecMetricsConfigType `json:"type"`
+
+	// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
+	// details of the structure of this configuration, see the {JMXExporter}.
+	ValueFrom KafkaMirrorMakerSpecMetricsConfigValueFrom `json:"valueFrom"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecMetricsConfig) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	if v, ok := raw["valueFrom"]; !ok || v == nil {
+		return fmt.Errorf("field valueFrom: required")
+	}
+	type Plain KafkaMirrorMakerSpecMetricsConfig
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecMetricsConfig(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecProducer) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
+		return fmt.Errorf("field bootstrapServers: required")
+	}
+	type Plain KafkaMirrorMakerSpecProducer
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecProducer(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecProducerAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
@@ -683,54 +793,33 @@ func (j *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken) UnmarshalJSON(b
 	if v, ok := raw["secretName"]; !ok || v == nil {
 		return fmt.Errorf("field secretName: required")
 	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationRefreshToken
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationAccessToken
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationRefreshToken(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationAccessToken(plain)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["password"]; !ok || v == nil {
-		return fmt.Errorf("field password: required")
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
 		return fmt.Errorf("field secretName: required")
 	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret
+	type Plain KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationClientSecret
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationClientSecret(plain)
+	*j = KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem(plain)
 	return nil
 }
 
@@ -759,7 +848,25 @@ func (j *KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey) UnmarshalJ
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthentication) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	type Plain KafkaMirrorMakerSpecProducerAuthentication
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecProducerAuthentication(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecProducerAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
@@ -770,195 +877,96 @@ func (j *KafkaMirrorMakerSpecProducerAuthenticationAccessToken) UnmarshalJSON(b 
 	if v, ok := raw["secretName"]; !ok || v == nil {
 		return fmt.Errorf("field secretName: required")
 	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationAccessToken
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationClientSecret
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationAccessToken(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationClientSecret(plain)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecLogging) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMakerSpecProducerAuthenticationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
 	}
-	type Plain KafkaMirrorMakerSpecLogging
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecProducerAuthenticationType, v)
 	}
-	*j = KafkaMirrorMakerSpecLogging(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationType(v)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecMetricsConfig) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+	if v, ok := raw["password"]; !ok || v == nil {
+		return fmt.Errorf("field password: required")
 	}
-	if v, ok := raw["valueFrom"]; !ok || v == nil {
-		return fmt.Errorf("field valueFrom: required")
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName: required")
 	}
-	type Plain KafkaMirrorMakerSpecMetricsConfig
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecMetricsConfig(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret(plain)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecTracing) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecTracingType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMakerSpecTracingType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecTracingType, v)
+	}
+	*j = KafkaMirrorMakerSpecTracingType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key: required")
 	}
-	type Plain KafkaMirrorMakerSpecTracing
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName: required")
+	}
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationRefreshToken
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecTracing(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationRefreshToken(plain)
 	return nil
 }
-
-// The MirrorMaker consumer config. Properties with the following prefixes cannot
-// be set: ssl., bootstrap.servers, group.id, sasl., security., interceptor.classes
-// (with the exception of: ssl.endpoint.identification.algorithm,
-// ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols).
-//type KafkaMirrorMakerSpecConsumerConfig map[string]interface{}
-
-// TLS configuration for connecting MirrorMaker to the cluster.
-type KafkaMirrorMakerSpecConsumerTls struct {
-	// Trusted certificates for TLS connection.
-	TrustedCertificates []KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty"`
-}
-
-type KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// JVM Options for pods.
-type KafkaMirrorMakerSpecJvmOptions struct {
-	// A map of -XX options to the JVM.
-	XX *apiextensions.JSON `json:"-XX,omitempty"`
-
-	// -Xms option to to the JVM.
-	Xms *string `json:"-Xms,omitempty"`
-
-	// -Xmx option to to the JVM.
-	Xmx *string `json:"-Xmx,omitempty"`
-
-	// Specifies whether the Garbage Collection logging is enabled. The default is
-	// false.
-	GcLoggingEnabled *bool `json:"gcLoggingEnabled,omitempty"`
-
-	// A map of additional system properties which will be passed using the `-D`
-	// option to the JVM.
-	JavaSystemProperties []KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem `json:"javaSystemProperties,omitempty"`
-}
-
-type KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem struct {
-	// The system property name.
-	Name *string `json:"name,omitempty"`
-
-	// The system property value.
-	Value *string `json:"value,omitempty"`
-}
-
-// A map of -XX options to the JVM.
-//type KafkaMirrorMakerSpecJvmOptionsXX map[string]interface{}
-
-// Pod liveness checking.
-type KafkaMirrorMakerSpecLivenessProbe struct {
-	// Minimum consecutive failures for the probe to be considered failed after having
-	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
-
-	// The initial delay before first the health is first checked. Default to 15
-	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
-
-	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
-	// value is 1.
-	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
-
-	// Minimum consecutive successes for the probe to be considered successful after
-	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
-
-	// The timeout for each attempted health check. Default to 5 seconds. Minimum
-	// value is 1.
-	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
-}
-
-// Logging configuration for MirrorMaker.
-type KafkaMirrorMakerSpecLogging struct {
-	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
-
-	// Logging type, must be either 'inline' or 'external'.
-	Type KafkaMirrorMakerSpecLoggingType `json:"type"`
-
-	// `ConfigMap` entry where the logging configuration is stored.
-	ValueFrom *KafkaMirrorMakerSpecLoggingValueFrom `json:"valueFrom,omitempty"`
-}
-
-// A Map from logger name to logger level.
-//type KafkaMirrorMakerSpecLoggingLoggers map[string]interface{}
-
-type KafkaMirrorMakerSpecLoggingType string
-
-const KafkaMirrorMakerSpecLoggingTypeExternal KafkaMirrorMakerSpecLoggingType = "external"
-const KafkaMirrorMakerSpecLoggingTypeInline KafkaMirrorMakerSpecLoggingType = "inline"
-
-// `ConfigMap` entry where the logging configuration is stored.
-type KafkaMirrorMakerSpecLoggingValueFrom struct {
-	// Reference to the key in the ConfigMap containing the configuration.
-	ConfigMapKeyRef *KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
-}
-
-// Reference to the key in the ConfigMap containing the configuration.
-type KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Optional corresponds to the JSON schema field "optional".
-	Optional *bool `json:"optional,omitempty"`
-}
-
-// Metrics configuration.
-type KafkaMirrorMakerSpecMetricsConfig struct {
-	// Metrics type. Only 'jmxPrometheusExporter' supported currently.
-	Type KafkaMirrorMakerSpecMetricsConfigType `json:"type"`
-
-	// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
-	// details of the structure of this configuration, see the {JMXExporter}.
-	ValueFrom KafkaMirrorMakerSpecMetricsConfigValueFrom `json:"valueFrom"`
-}
-
-type KafkaMirrorMakerSpecMetricsConfigType string
 
 const KafkaMirrorMakerSpecMetricsConfigTypeJmxPrometheusExporter KafkaMirrorMakerSpecMetricsConfigType = "jmxPrometheusExporter"
 
@@ -1032,6 +1040,10 @@ type KafkaMirrorMakerSpecProducerAuthentication struct {
 	// endpoint URI.
 	ClientSecret *KafkaMirrorMakerSpecProducerAuthenticationClientSecret `json:"clientSecret,omitempty"`
 
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
@@ -1041,6 +1053,10 @@ type KafkaMirrorMakerSpecProducerAuthentication struct {
 
 	// Reference to the `Secret` which holds the password.
 	PasswordSecret *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
 
 	// Link to Kubernetes Secret containing the refresh token which can be used to
 	// obtain access token from the authorization server.
@@ -1059,10 +1075,11 @@ type KafkaMirrorMakerSpecProducerAuthentication struct {
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
 	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-512`, and `plain`. `scram-sha-512` type uses SASL SCRAM-SHA-512
-	// Authentication. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
+	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
+	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
+	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
+	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
+	// Client Authentication. The `tls` type is supported only over TLS connections.
 	Type KafkaMirrorMakerSpecProducerAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -1133,6 +1150,7 @@ type KafkaMirrorMakerSpecProducerAuthenticationType string
 
 const KafkaMirrorMakerSpecProducerAuthenticationTypeOauth KafkaMirrorMakerSpecProducerAuthenticationType = "oauth"
 const KafkaMirrorMakerSpecProducerAuthenticationTypePlain KafkaMirrorMakerSpecProducerAuthenticationType = "plain"
+const KafkaMirrorMakerSpecProducerAuthenticationTypeScramSha256 KafkaMirrorMakerSpecProducerAuthenticationType = "scram-sha-256"
 const KafkaMirrorMakerSpecProducerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecProducerAuthenticationType = "scram-sha-512"
 const KafkaMirrorMakerSpecProducerAuthenticationTypeTls KafkaMirrorMakerSpecProducerAuthenticationType = "tls"
 
@@ -1763,11 +1781,11 @@ type KafkaMirrorMakerSpecTemplatePodDisruptionBudget struct {
 	// evictions, so the pods must be evicted manually. Defaults to 1.
 	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
 }
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -2021,6 +2039,7 @@ type KafkaMirrorMakerStatusConditionsElem struct {
 
 var enumValues_KafkaMirrorMakerSpecConsumerAuthenticationType = []interface{}{
 	"tls",
+	"scram-sha-256",
 	"scram-sha-512",
 	"plain",
 	"oauth",
@@ -2034,6 +2053,7 @@ var enumValues_KafkaMirrorMakerSpecMetricsConfigType = []interface{}{
 }
 var enumValues_KafkaMirrorMakerSpecProducerAuthenticationType = []interface{}{
 	"tls",
+	"scram-sha-256",
 	"scram-sha-512",
 	"plain",
 	"oauth",

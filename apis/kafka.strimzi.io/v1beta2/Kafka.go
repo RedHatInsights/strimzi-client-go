@@ -202,15 +202,20 @@ type KafkaSpecCruiseControlBrokerCapacity struct {
 	// Broker capacity for CPU resource utilization as a percentage (0 - 100).
 	CpuUtilization *int32 `json:"cpuUtilization,omitempty"`
 
-	// Broker capacity for disk in bytes, for example, 100Gi.
+	// Broker capacity for disk in bytes. Use a number value with either standard
+	// Kubernetes byte units (K, M, G, or T), their bibyte (power of two) equivalents
+	// (Ki, Mi, Gi, or Ti), or a byte value with or without E notation. For example,
+	// 100000M, 100000Mi, 104857600000, or 1e+11.
 	Disk *string `json:"disk,omitempty"`
 
-	// Broker capacity for inbound network throughput in bytes per second, for
-	// example, 10000KB/s.
+	// Broker capacity for inbound network throughput in bytes per second. Use an
+	// integer value with standard Kubernetes byte units (K, M, G) or their bibyte
+	// (power of two) equivalents (Ki, Mi, Gi) per second. For example, 10000KiB/s.
 	InboundNetwork *string `json:"inboundNetwork,omitempty"`
 
-	// Broker capacity for outbound network throughput in bytes per second, for
-	// example 10000KB/s.
+	// Broker capacity for outbound network throughput in bytes per second. Use an
+	// integer value with standard Kubernetes byte units (K, M, G) or their bibyte
+	// (power of two) equivalents (Ki, Mi, Gi) per second. For example, 10000KiB/s.
 	OutboundNetwork *string `json:"outboundNetwork,omitempty"`
 }
 
@@ -1182,7 +1187,20 @@ type KafkaSpecCruiseControlTemplatePodSecurityContextSysctlsElem struct {
 	Value *string `json:"value,omitempty"`
 }
 
-type KafkaSpecClientsCaCertificateExpirationPolicy string
+type KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty"`
+}
 
 // Configures pod-level security attributes and common container settings.
 type KafkaSpecCruiseControlTemplatePodSecurityContext struct {
@@ -1217,22 +1235,7 @@ type KafkaSpecCruiseControlTemplatePodSecurityContext struct {
 	WindowsOptions *KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
 }
 
-type KafkaSpecCruiseControlTemplatePodTolerationsElem struct {
-	// Effect corresponds to the JSON schema field "effect".
-	Effect *string `json:"effect,omitempty"`
-
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty"`
-}
+type KafkaSpecClientsCaCertificateExpirationPolicy string
 
 type KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
 	// Key corresponds to the JSON schema field "key".
@@ -1332,7 +1335,7 @@ type KafkaSpecCruiseControlTemplatePod struct {
 // such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 //type KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -1351,7 +1354,7 @@ type KafkaSpecCruiseControlTemplatePodDisruptionBudget struct {
 	// evictions, so the pods must be evicted manually. Defaults to 1.
 	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
 }
 
@@ -3634,18 +3637,16 @@ type KafkaSpecJmxTransTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgno
 	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
 }
 
-// Kafka broker config properties with the following prefixes cannot be set:
-// listeners, advertised., broker., listener., host.name, port,
-// inter.broker.listener.name, sasl., ssl., security., password.,
-// principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl,
-// zookeeper.ssl, zookeeper.clientCnxnSocket, authorizer., super.user,
-// cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers
-// (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites,
-// ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions,
-// cruise.control.metrics.topic.replication.factor,
-// cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries,
-// cruise.control.metrics.topic.auto.create.timeout.ms,cruise.control.metrics.topic.min.insync.replicas).
-//type KafkaSpecKafkaConfig map[string]interface{}
+type KafkaSpecJmxTransTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty"`
+}
 
 //type KafkaSpecJmxTransTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
 
@@ -4222,6 +4223,10 @@ type KafkaSpecKafkaAuthorization struct {
 	// OAuth server and use the token endpoint URI.
 	ClientId *string `json:"clientId,omitempty"`
 
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
 	// Whether authorization decision should be delegated to the 'Simple' authorizer
 	// if DENIED by Keycloak Authorization Services policies. Default value is
 	// `false`.
@@ -4229,6 +4234,10 @@ type KafkaSpecKafkaAuthorization struct {
 
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
+
+	// Defines whether the Open Policy Agent authorizer plugin should provide metrics.
+	// Defaults to `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty"`
 
 	// The expiration of the records kept in the local cache to avoid querying the
 	// Open Policy Agent for every request. Defines how often the cached authorization
@@ -4253,6 +4262,10 @@ type KafkaSpecKafkaAuthorization struct {
 	// Maximum capacity of the local cache used by the authorizer to avoid querying
 	// the Open Policy Agent for every request. Defaults to `50000`.
 	MaximumCacheSize *int32 `json:"maximumCacheSize,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
 
 	// List of super users, which are user principals with unlimited access rights.
 	SuperUsers []string `json:"superUsers,omitempty"`
@@ -4298,20 +4311,18 @@ func (j *KafkaSpecKafkaAuthorization) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty"`
-}
+// Kafka broker config properties with the following prefixes cannot be set:
+// listeners, advertised., broker., listener., host.name, port,
+// inter.broker.listener.name, sasl., ssl., security., password., log.dir,
+// zookeeper.connect, zookeeper.set.acl, zookeeper.ssl, zookeeper.clientCnxnSocket,
+// authorizer., super.user, cruise.control.metrics.topic,
+// cruise.control.metrics.reporter.bootstrap.servers (with the exception of:
+// zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol,
+// ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions,
+// cruise.control.metrics.topic.replication.factor,
+// cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries,
+// cruise.control.metrics.topic.auto.create.timeout.ms,cruise.control.metrics.topic.min.insync.replicas).
+//type KafkaSpecKafkaConfig map[string]interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecZookeeperMetricsConfig) UnmarshalJSON(b []byte) error {
@@ -4607,6 +4618,44 @@ type KafkaSpecKafkaExporterTemplatePodAffinity struct {
 	PodAntiAffinity *KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinity `json:"podAntiAffinity,omitempty"`
 }
 
+// Template for Kafka Exporter `Deployment`.
+type KafkaSpecKafkaExporterTemplateDeployment struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaSpecKafkaExporterTemplateDeploymentMetadata `json:"metadata,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemAuthenticationSecretsElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName: required")
+	}
+	type Plain KafkaSpecKafkaListenersElemAuthenticationSecretsElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaSpecKafkaListenersElemAuthenticationSecretsElem(plain)
+	return nil
+}
+
+// Metadata applied to the resource.
+type KafkaSpecKafkaExporterTemplateDeploymentMetadata struct {
+	// Annotations added to the resource template. Can be applied to different
+	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
+
+	// Labels added to the resource template. Can be applied to different resources
+	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Labels *apiextensions.JSON `json:"labels,omitempty"`
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -4628,22 +4677,13 @@ func (j *KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem) Un
 	return nil
 }
 
-// Template for Kafka Exporter `Deployment`.
-type KafkaSpecKafkaExporterTemplateDeployment struct {
-	// Metadata applied to the resource.
-	Metadata *KafkaSpecKafkaExporterTemplateDeploymentMetadata `json:"metadata,omitempty"`
-}
+// Labels added to the resource template. Can be applied to different resources
+// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaSpecKafkaExporterTemplateDeploymentMetadataLabels map[string]interface{}
 
-// Metadata applied to the resource.
-type KafkaSpecKafkaExporterTemplateDeploymentMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
+// Annotations added to the resource template. Can be applied to different
+// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaSpecKafkaExporterTemplateDeploymentMetadataAnnotations map[string]interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecKafkaListenersElemAuthenticationType) UnmarshalJSON(b []byte) error {
@@ -4664,14 +4704,6 @@ func (j *KafkaSpecKafkaListenersElemAuthenticationType) UnmarshalJSON(b []byte) 
 	*j = KafkaSpecKafkaListenersElemAuthenticationType(v)
 	return nil
 }
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaSpecKafkaExporterTemplateDeploymentMetadataLabels map[string]interface{}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaSpecKafkaExporterTemplateDeploymentMetadataAnnotations map[string]interface{}
 
 // Template for the Kafka Exporter container.
 type KafkaSpecKafkaExporterTemplateContainer struct {
@@ -4720,24 +4752,6 @@ type KafkaSpecKafkaExporterTemplateContainerSecurityContext struct {
 	WindowsOptions *KafkaSpecKafkaExporterTemplateContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemAuthentication) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	type Plain KafkaSpecKafkaListenersElemAuthentication
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaSpecKafkaListenersElemAuthentication(plain)
-	return nil
-}
-
 type KafkaSpecKafkaExporterTemplateContainerSecurityContextWindowsOptions struct {
 	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
 	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
@@ -4775,36 +4789,30 @@ type KafkaSpecKafkaExporterTemplateContainerSecurityContextSeLinuxOptions struct
 	User *string `json:"user,omitempty"`
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemAuthentication) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	type Plain KafkaSpecKafkaListenersElemAuthentication
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaSpecKafkaListenersElemAuthentication(plain)
+	return nil
+}
+
 type KafkaSpecKafkaExporterTemplateContainerSecurityContextCapabilities struct {
 	// Add corresponds to the JSON schema field "add".
 	Add []string `json:"add,omitempty"`
 
 	// Drop corresponds to the JSON schema field "drop".
 	Drop []string `json:"drop,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemConfigurationBrokerCertChainAndKey) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaSpecKafkaListenersElemConfigurationBrokerCertChainAndKey
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaSpecKafkaListenersElemConfigurationBrokerCertChainAndKey(plain)
-	return nil
 }
 
 type KafkaSpecKafkaExporterTemplateContainerEnvElem struct {
@@ -4827,20 +4835,26 @@ type KafkaSpecKafkaExporterResources struct {
 //type KafkaSpecKafkaExporterResourcesRequests map[string]interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemConfigurationBrokersElem) UnmarshalJSON(b []byte) error {
+func (j *KafkaSpecKafkaListenersElemConfigurationBrokerCertChainAndKey) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["broker"]; !ok || v == nil {
-		return fmt.Errorf("field broker: required")
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate: required")
 	}
-	type Plain KafkaSpecKafkaListenersElemConfigurationBrokersElem
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName: required")
+	}
+	type Plain KafkaSpecKafkaListenersElemConfigurationBrokerCertChainAndKey
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaSpecKafkaListenersElemConfigurationBrokersElem(plain)
+	*j = KafkaSpecKafkaListenersElemConfigurationBrokerCertChainAndKey(plain)
 	return nil
 }
 
@@ -4869,26 +4883,6 @@ type KafkaSpecKafkaExporterReadinessProbe struct {
 	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy, v)
-	}
-	*j = KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy(v)
-	return nil
-}
-
 // Pod liveness check.
 type KafkaSpecKafkaExporterLivenessProbe struct {
 	// Minimum consecutive failures for the probe to be considered failed after having
@@ -4910,6 +4904,24 @@ type KafkaSpecKafkaExporterLivenessProbe struct {
 	// The timeout for each attempted health check. Default to 5 seconds. Minimum
 	// value is 1.
 	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemConfigurationBrokersElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["broker"]; !ok || v == nil {
+		return fmt.Errorf("field broker: required")
+	}
+	type Plain KafkaSpecKafkaListenersElemConfigurationBrokersElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaSpecKafkaListenersElemConfigurationBrokersElem(plain)
+	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -4946,9 +4958,9 @@ type KafkaSpecKafka struct {
 
 	// Kafka broker config properties with the following prefixes cannot be set:
 	// listeners, advertised., broker., listener., host.name, port,
-	// inter.broker.listener.name, sasl., ssl., security., password.,
-	// principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl,
-	// zookeeper.ssl, zookeeper.clientCnxnSocket, authorizer., super.user,
+	// inter.broker.listener.name, sasl., ssl., security., password., log.dir,
+	// zookeeper.connect, zookeeper.set.acl, zookeeper.ssl,
+	// zookeeper.clientCnxnSocket, authorizer., super.user,
 	// cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers
 	// (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites,
 	// ssl.protocol,
@@ -5006,6 +5018,26 @@ type KafkaSpecKafka struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy, v)
+	}
+	*j = KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecKafkaTemplateStatefulsetPodManagementPolicy) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -5022,26 +5054,6 @@ func (j *KafkaSpecKafkaTemplateStatefulsetPodManagementPolicy) UnmarshalJSON(b [
 		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaTemplateStatefulsetPodManagementPolicy, v)
 	}
 	*j = KafkaSpecKafkaTemplateStatefulsetPodManagementPolicy(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem, v)
-	}
-	*j = KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem(v)
 	return nil
 }
 
@@ -5106,6 +5118,26 @@ func (j *KafkaSpecKafkaTemplateBootstrapServiceIpFamilyPolicy) UnmarshalJSON(b [
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem, v)
+	}
+	*j = KafkaSpecKafkaListenersElemConfigurationIpFamiliesElem(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecKafkaTemplateBootstrapServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -5122,26 +5154,6 @@ func (j *KafkaSpecKafkaTemplateBootstrapServiceIpFamiliesElem) UnmarshalJSON(b [
 		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaTemplateBootstrapServiceIpFamiliesElem, v)
 	}
 	*j = KafkaSpecKafkaTemplateBootstrapServiceIpFamiliesElem(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy, v)
-	}
-	*j = KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy(v)
 	return nil
 }
 
@@ -5202,6 +5214,26 @@ func (j *KafkaSpecKafkaStorageVolumesElemType) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy, v)
+	}
+	*j = KafkaSpecKafkaListenersElemConfigurationIpFamilyPolicy(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecKafkaStorageType) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -5236,26 +5268,6 @@ func (j *KafkaSpecKafkaRack) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*j = KafkaSpecKafkaRack(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType, v)
-	}
-	*j = KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType(v)
 	return nil
 }
 
@@ -5319,6 +5331,26 @@ func (j *KafkaSpecKafkaLogging) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType, v)
+	}
+	*j = KafkaSpecKafkaListenersElemConfigurationPreferredNodePortAddressType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaSpecKafkaLoggingType) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -5365,15 +5397,21 @@ func (j *KafkaSpecKafkaListenersElem) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type KafkaSpecJmxTransTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
+type KafkaSpecCruiseControlTemplatePodTolerationsElem struct {
+	// Effect corresponds to the JSON schema field "effect".
+	Effect *string `json:"effect,omitempty"`
+
 	// Key corresponds to the JSON schema field "key".
 	Key *string `json:"key,omitempty"`
 
 	// Operator corresponds to the JSON schema field "operator".
 	Operator *string `json:"operator,omitempty"`
 
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
+	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty"`
 }
 
 type KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinity struct {
@@ -6062,6 +6100,10 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 	// introspect endpoint URI.
 	ClientSecret *KafkaSpecKafkaListenersElemAuthenticationClientSecret `json:"clientSecret,omitempty"`
 
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
 	// JsonPath filter query to be applied to the JWT token or to the response of the
 	// introspection endpoint for additional token validation. Not set by default.
 	CustomClaimCheck *string `json:"customClaimCheck,omitempty"`
@@ -6095,6 +6137,15 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 	// user id space is useful in preventing name collisions.
 	FallbackUserNamePrefix *string `json:"fallbackUserNamePrefix,omitempty"`
 
+	// JsonPath query used to extract groups for the user during authentication.
+	// Extracted groups can be used by a custom authorizer. By default no groups are
+	// extracted.
+	GroupsClaim *string `json:"groupsClaim,omitempty"`
+
+	// A delimiter used to parse groups when they are extracted as a single String
+	// value rather than a JSON array. Default value is ',' (comma).
+	GroupsClaimDelimiter *string `json:"groupsClaimDelimiter,omitempty"`
+
 	// URI of the token introspection endpoint which can be used to validate opaque
 	// non-JWT tokens.
 	IntrospectionEndpointUri *string `json:"introspectionEndpointUri,omitempty"`
@@ -6118,6 +6169,10 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 	// `jwksExpirySeconds`. Defaults to 300 seconds.
 	JwksRefreshSeconds *int32 `json:"jwksRefreshSeconds,omitempty"`
 
+	// Configuration to be used for a specific listener. All values are prefixed with
+	// listener.name._<listener_name>_.
+	ListenerConfig *apiextensions.JSON `json:"listenerConfig,omitempty"`
+
 	// Maximum number of seconds the authenticated session remains valid without
 	// re-authentication. This enables Apache Kafka re-authentication feature, and
 	// causes sessions to expire when the access token expires. If the access token
@@ -6127,6 +6182,17 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 	// expires. This option only applies to SASL_OAUTHBEARER authentication mechanism
 	// (when `enableOauthBearer` is `true`).
 	MaxSecondsWithoutReauthentication *int32 `json:"maxSecondsWithoutReauthentication,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
+
+	// Enable or disable SASL on this listener.
+	Sasl *bool `json:"sasl,omitempty"`
+
+	// Secrets to be mounted to
+	// /opt/kafka/custom-authn-secrets/custom-listener-_<listener_name>-<port>_/_<secret_name>_.
+	Secrets []KafkaSpecKafkaListenersElemAuthenticationSecretsElem `json:"secrets,omitempty"`
 
 	// Trusted certificates for TLS connection to the OAuth server.
 	TlsTrustedCertificates []KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
@@ -6143,7 +6209,8 @@ type KafkaSpecKafkaListenersElemAuthentication struct {
 
 	// Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication.
 	// `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses
-	// TLS Client Authentication. `tls` type is supported only on TLS listeners.
+	// TLS Client Authentication. `tls` type is supported only on TLS
+	// listeners.`custom` type allows for any authentication type to be used.
 	Type KafkaSpecKafkaListenersElemAuthenticationType `json:"type"`
 
 	// URI of the User Info Endpoint to use as a fallback to obtaining the user id
@@ -6175,6 +6242,18 @@ type KafkaSpecKafkaListenersElemAuthenticationClientSecret struct {
 	SecretName string `json:"secretName"`
 }
 
+// Configuration to be used for a specific listener. All values are prefixed with
+// listener.name._<listener_name>_.
+//type KafkaSpecKafkaListenersElemAuthenticationListenerConfig map[string]interface{}
+
+type KafkaSpecKafkaListenersElemAuthenticationSecretsElem struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName"`
+}
+
 type KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem struct {
 	// The name of the file certificate in the Secret.
 	Certificate string `json:"certificate"`
@@ -6185,6 +6264,7 @@ type KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem struct 
 
 type KafkaSpecKafkaListenersElemAuthenticationType string
 
+const KafkaSpecKafkaListenersElemAuthenticationTypeCustom KafkaSpecKafkaListenersElemAuthenticationType = "custom"
 const KafkaSpecKafkaListenersElemAuthenticationTypeOauth KafkaSpecKafkaListenersElemAuthenticationType = "oauth"
 const KafkaSpecKafkaListenersElemAuthenticationTypeScramSha512 KafkaSpecKafkaListenersElemAuthenticationType = "scram-sha-512"
 const KafkaSpecKafkaListenersElemAuthenticationTypeTls KafkaSpecKafkaListenersElemAuthenticationType = "tls"
@@ -6207,6 +6287,11 @@ type KafkaSpecKafkaListenersElemConfiguration struct {
 	// used. This field can be used only with `ingress` type listener. If not
 	// specified, the default Ingress controller will be used.
 	Class *string `json:"class,omitempty"`
+
+	// Whether to create the bootstrap service or not. The bootstrap service is
+	// created by default (if not specified differently). This field can be used with
+	// the `loadBalancer` type listener.
+	CreateBootstrapService *bool `json:"createBootstrapService,omitempty"`
 
 	// Specifies whether the service routes external traffic to node-local or
 	// cluster-wide endpoints. `Cluster` may cause a second hop to another node and
@@ -6775,6 +6860,9 @@ type KafkaSpecKafkaTemplate struct {
 
 	// Template for Kafka `PodDisruptionBudget`.
 	PodDisruptionBudget *KafkaSpecKafkaTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty"`
+
+	// Template for Kafka `StrimziPodSet` resource.
+	PodSet *KafkaSpecKafkaTemplatePodSet `json:"podSet,omitempty"`
 
 	// Template for the Kafka service account.
 	ServiceAccount *KafkaSpecKafkaTemplateServiceAccount `json:"serviceAccount,omitempty"`
@@ -7752,11 +7840,11 @@ type KafkaSpecKafkaTemplatePodDisruptionBudget struct {
 	// evictions, so the pods must be evicted manually. Defaults to 1.
 	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaSpecKafkaTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
 }
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaSpecKafkaTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -7884,6 +7972,31 @@ type KafkaSpecKafkaTemplatePodSecurityContextWindowsOptions struct {
 	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
 }
+
+// Template for Kafka `StrimziPodSet` resource.
+type KafkaSpecKafkaTemplatePodSet struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaSpecKafkaTemplatePodSetMetadata `json:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaSpecKafkaTemplatePodSetMetadata struct {
+	// Annotations added to the resource template. Can be applied to different
+	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
+
+	// Labels added to the resource template. Can be applied to different resources
+	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Labels *apiextensions.JSON `json:"labels,omitempty"`
+}
+
+// Annotations added to the resource template. Can be applied to different
+// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaSpecKafkaTemplatePodSetMetadataAnnotations map[string]interface{}
+
+// Labels added to the resource template. Can be applied to different resources
+// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaSpecKafkaTemplatePodSetMetadataLabels map[string]interface{}
 
 type KafkaSpecKafkaTemplatePodTolerationsElem struct {
 	// Effect corresponds to the JSON schema field "effect".
@@ -8301,6 +8414,9 @@ type KafkaSpecZookeeperTemplate struct {
 
 	// Template for ZooKeeper `PodDisruptionBudget`.
 	PodDisruptionBudget *KafkaSpecZookeeperTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty"`
+
+	// Template for ZooKeeper `StrimziPodSet` resource.
+	PodSet *KafkaSpecZookeeperTemplatePodSet `json:"podSet,omitempty"`
 
 	// Template for the ZooKeeper service account.
 	ServiceAccount *KafkaSpecZookeeperTemplateServiceAccount `json:"serviceAccount,omitempty"`
@@ -8880,11 +8996,11 @@ type KafkaSpecZookeeperTemplatePodDisruptionBudget struct {
 	// evictions, so the pods must be evicted manually. Defaults to 1.
 	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaSpecZookeeperTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
 }
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaSpecZookeeperTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -9012,6 +9128,31 @@ type KafkaSpecZookeeperTemplatePodSecurityContextWindowsOptions struct {
 	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
 }
+
+// Template for ZooKeeper `StrimziPodSet` resource.
+type KafkaSpecZookeeperTemplatePodSet struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaSpecZookeeperTemplatePodSetMetadata `json:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaSpecZookeeperTemplatePodSetMetadata struct {
+	// Annotations added to the resource template. Can be applied to different
+	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
+
+	// Labels added to the resource template. Can be applied to different resources
+	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Labels *apiextensions.JSON `json:"labels,omitempty"`
+}
+
+// Annotations added to the resource template. Can be applied to different
+// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaSpecZookeeperTemplatePodSetMetadataAnnotations map[string]interface{}
+
+// Labels added to the resource template. Can be applied to different resources
+// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaSpecZookeeperTemplatePodSetMetadataLabels map[string]interface{}
 
 type KafkaSpecZookeeperTemplatePodTolerationsElem struct {
 	// Effect corresponds to the JSON schema field "effect".
@@ -9272,8 +9413,11 @@ type KafkaStatusListenersElem struct {
 	// listeners.
 	Certificates []string `json:"certificates,omitempty"`
 
-	// The type of the listener. Can be one of the following three types: `plain`,
-	// `tls`, and `external`.
+	// The name of the listener.
+	Name *string `json:"name,omitempty"`
+
+	// *The `type` property has been deprecated, and should now be configured using
+	// `name`.* The name of the listener.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -9350,6 +9494,7 @@ var enumValues_KafkaSpecKafkaListenersElemAuthenticationType = []interface{}{
 	"tls",
 	"scram-sha-512",
 	"oauth",
+	"custom",
 }
 var enumValues_KafkaSpecKafkaListenersElemConfigurationExternalTrafficPolicy = []interface{}{
 	"Local",

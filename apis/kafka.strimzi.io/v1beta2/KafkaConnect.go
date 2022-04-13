@@ -250,8 +250,19 @@ func (j *KafkaConnectSpecAuthenticationType) UnmarshalJSON(b []byte) error {
 }
 
 const KafkaConnectSpecAuthenticationTypeTls KafkaConnectSpecAuthenticationType = "tls"
+const KafkaConnectSpecAuthenticationTypeScramSha256 KafkaConnectSpecAuthenticationType = "scram-sha-256"
 const KafkaConnectSpecAuthenticationTypeScramSha512 KafkaConnectSpecAuthenticationType = "scram-sha-512"
-const KafkaConnectSpecAuthenticationTypePlain KafkaConnectSpecAuthenticationType = "plain"
+
+// Link to Kubernetes Secret containing the access token which was obtained from
+// the authorization server.
+type KafkaConnectSpecAuthenticationAccessToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName"`
+}
+
 const KafkaConnectSpecAuthenticationTypeOauth KafkaConnectSpecAuthenticationType = "oauth"
 
 // Authentication configuration for Kafka Connect.
@@ -283,6 +294,10 @@ type KafkaConnectSpecAuthentication struct {
 	// endpoint URI.
 	ClientSecret *KafkaConnectSpecAuthenticationClientSecret `json:"clientSecret,omitempty"`
 
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
@@ -292,6 +307,10 @@ type KafkaConnectSpecAuthentication struct {
 
 	// Reference to the `Secret` which holds the password.
 	PasswordSecret *KafkaConnectSpecAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
 
 	// Link to Kubernetes Secret containing the refresh token which can be used to
 	// obtain access token from the authorization server.
@@ -310,10 +329,11 @@ type KafkaConnectSpecAuthentication struct {
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
 	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-512`, and `plain`. `scram-sha-512` type uses SASL SCRAM-SHA-512
-	// Authentication. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
+	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
+	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
+	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
+	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
+	// Client Authentication. The `tls` type is supported only over TLS connections.
 	Type KafkaConnectSpecAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -346,7 +366,7 @@ type KafkaConnectSpec struct {
 	Authentication *KafkaConnectSpecAuthentication `json:"authentication,omitempty"`
 
 	// Bootstrap servers to connect to. This should be given as a comma separated list
-	// of _<hostname>_:‍_<port>_ pairs.
+	// of _<hostname>_:_<port>_ pairs.
 	BootstrapServers string `json:"bootstrapServers"`
 
 	// Configures how the Connect container image should be built. Optional.
@@ -532,34 +552,6 @@ const KafkaConnectSpecBuildPluginsElemArtifactsElemTypeZip KafkaConnectSpecBuild
 const KafkaConnectSpecBuildPluginsElemArtifactsElemTypeMaven KafkaConnectSpecBuildPluginsElemArtifactsElemType = "maven"
 const KafkaConnectSpecBuildPluginsElemArtifactsElemTypeOther KafkaConnectSpecBuildPluginsElemArtifactsElemType = "other"
 
-// Link to Kubernetes Secret containing the access token which was obtained from
-// the authorization server.
-type KafkaConnectSpecAuthenticationAccessToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaConnectSpecBuildPluginsElemArtifactsElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	type Plain KafkaConnectSpecBuildPluginsElemArtifactsElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaConnectSpecBuildPluginsElemArtifactsElem(plain)
-	return nil
-}
-
 type KafkaConnectSpecBuildPluginsElemArtifactsElem struct {
 	// Maven artifact id. Applicable to the `maven` artifact type only.
 	Artifact *string `json:"artifact,omitempty"`
@@ -599,6 +591,35 @@ type KafkaConnectSpecBuildPluginsElemArtifactsElem struct {
 
 	// Maven version number. Applicable to the `maven` artifact type only.
 	Version *string `json:"version,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaConnectSpecBuildPluginsElemArtifactsElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	type Plain KafkaConnectSpecBuildPluginsElemArtifactsElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaConnectSpecBuildPluginsElemArtifactsElem(plain)
+	return nil
+}
+
+type KafkaConnectSpecBuildPluginsElem struct {
+	// List of artifacts which belong to this connector plugin. Required.
+	Artifacts []KafkaConnectSpecBuildPluginsElemArtifactsElem `json:"artifacts"`
+
+	// The unique name of the connector plugin. Will be used to generate the path
+	// where the connector artifacts will be stored. The name has to be unique within
+	// the KafkaConnect resource. The name has to follow the following pattern:
+	// `^[a-z][-_a-z0-9]*[a-z]$`. Required.
+	Name string `json:"name"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1015,9 +1036,6 @@ func (j *KafkaConnectSpecLoggingType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const KafkaConnectSpecLoggingTypeInline KafkaConnectSpecLoggingType = "inline"
-const KafkaConnectSpecLoggingTypeExternal KafkaConnectSpecLoggingType = "external"
-
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaConnectSpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
 	var v string
@@ -1038,46 +1056,7 @@ func (j *KafkaConnectSpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byt
 	return nil
 }
 
-type KafkaConnectSpecBuildPluginsElem struct {
-	// List of artifacts which belong to this connector plugin. Required.
-	Artifacts []KafkaConnectSpecBuildPluginsElemArtifactsElem `json:"artifacts"`
-
-	// The unique name of the connector plugin. Will be used to generate the path
-	// where the connector artifacts will be stored. The name has to be unique within
-	// the KafkaConnect resource. The name has to follow the following pattern:
-	// `^[a-z][-_a-z0-9]*[a-z]$`. Required.
-	Name string `json:"name"`
-}
-
-// Logging configuration for Kafka Connect.
-type KafkaConnectSpecLogging struct {
-	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
-
-	// Logging type, must be either 'inline' or 'external'.
-	Type KafkaConnectSpecLoggingType `json:"type"`
-
-	// `ConfigMap` entry where the logging configuration is stored.
-	ValueFrom *KafkaConnectSpecLoggingValueFrom `json:"valueFrom,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaConnectSpecLogging) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	type Plain KafkaConnectSpecLogging
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaConnectSpecLogging(plain)
-	return nil
-}
+const KafkaConnectSpecAuthenticationTypePlain KafkaConnectSpecAuthenticationType = "plain"
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaConnectSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
@@ -1119,23 +1098,33 @@ func (j *KafkaConnectSpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byt
 	return nil
 }
 
+// Logging configuration for Kafka Connect.
+type KafkaConnectSpecLogging struct {
+	// A Map from logger name to logger level.
+	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
+
+	// Logging type, must be either 'inline' or 'external'.
+	Type KafkaConnectSpecLoggingType `json:"type"`
+
+	// `ConfigMap` entry where the logging configuration is stored.
+	ValueFrom *KafkaConnectSpecLoggingValueFrom `json:"valueFrom,omitempty"`
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaConnectSpecMetricsConfigType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
+func (j *KafkaConnectSpecLogging) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	var ok bool
-	for _, expected := range enumValues_KafkaConnectSpecMetricsConfigType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
 	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaConnectSpecMetricsConfigType, v)
+	type Plain KafkaConnectSpecLogging
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
 	}
-	*j = KafkaConnectSpecMetricsConfigType(v)
+	*j = KafkaConnectSpecLogging(plain)
 	return nil
 }
 
@@ -1184,6 +1173,29 @@ func (j *KafkaConnectSpecRack) UnmarshalJSON(b []byte) error {
 	*j = KafkaConnectSpecRack(plain)
 	return nil
 }
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaConnectSpecMetricsConfigType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaConnectSpecMetricsConfigType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaConnectSpecMetricsConfigType, v)
+	}
+	*j = KafkaConnectSpecMetricsConfigType(v)
+	return nil
+}
+
+const KafkaConnectSpecLoggingTypeExternal KafkaConnectSpecLoggingType = "external"
+const KafkaConnectSpecLoggingTypeInline KafkaConnectSpecLoggingType = "inline"
 
 // `ConfigMap` entry where the logging configuration is stored.
 type KafkaConnectSpecLoggingValueFrom struct {
@@ -1382,14 +1394,14 @@ type KafkaConnectSpecTemplateApiServiceMetadata struct {
 // Template for the Kafka Connect BuildConfig used to build new container images.
 // The BuildConfig is used only on OpenShift.
 type KafkaConnectSpecTemplateBuildConfig struct {
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaConnectSpecTemplateBuildConfigMetadata `json:"metadata,omitempty"`
 
 	// Container Registry Secret with the credentials for pulling the base image.
 	PullSecret *string `json:"pullSecret,omitempty"`
 }
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaConnectSpecTemplateBuildConfigMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -2809,11 +2821,11 @@ type KafkaConnectSpecTemplatePodDisruptionBudget struct {
 	// evictions, so the pods must be evicted manually. Defaults to 1.
 	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
 
-	// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 	Metadata *KafkaConnectSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
 }
 
-// Metadata to apply to the `PodDistruptionBugetTemplate` resource.
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaConnectSpecTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the resource template. Can be applied to different
 	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
@@ -3099,6 +3111,7 @@ type KafkaConnectStatusConnectorPluginsElem struct {
 
 var enumValues_KafkaConnectSpecAuthenticationType = []interface{}{
 	"tls",
+	"scram-sha-256",
 	"scram-sha-512",
 	"plain",
 	"oauth",

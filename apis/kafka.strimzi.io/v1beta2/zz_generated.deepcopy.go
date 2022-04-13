@@ -259,6 +259,11 @@ func (in *KafkaBridgeSpecAuthentication) DeepCopyInto(out *KafkaBridgeSpecAuthen
 		*out = new(KafkaBridgeSpecAuthenticationClientSecret)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.DisableTlsHostnameVerification != nil {
 		in, out := &in.DisableTlsHostnameVerification, &out.DisableTlsHostnameVerification
 		*out = new(bool)
@@ -272,6 +277,11 @@ func (in *KafkaBridgeSpecAuthentication) DeepCopyInto(out *KafkaBridgeSpecAuthen
 	if in.PasswordSecret != nil {
 		in, out := &in.PasswordSecret, &out.PasswordSecret
 		*out = new(KafkaBridgeSpecAuthenticationPasswordSecret)
+		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RefreshToken != nil {
@@ -3025,6 +3035,11 @@ func (in *KafkaConnectSpecAuthentication) DeepCopyInto(out *KafkaConnectSpecAuth
 		*out = new(KafkaConnectSpecAuthenticationClientSecret)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.DisableTlsHostnameVerification != nil {
 		in, out := &in.DisableTlsHostnameVerification, &out.DisableTlsHostnameVerification
 		*out = new(bool)
@@ -3038,6 +3053,11 @@ func (in *KafkaConnectSpecAuthentication) DeepCopyInto(out *KafkaConnectSpecAuth
 	if in.PasswordSecret != nil {
 		in, out := &in.PasswordSecret, &out.PasswordSecret
 		*out = new(KafkaConnectSpecAuthenticationPasswordSecret)
+		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RefreshToken != nil {
@@ -8725,6 +8745,11 @@ func (in *KafkaMirrorMaker2SpecClustersElemAuthentication) DeepCopyInto(out *Kaf
 		*out = new(KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.DisableTlsHostnameVerification != nil {
 		in, out := &in.DisableTlsHostnameVerification, &out.DisableTlsHostnameVerification
 		*out = new(bool)
@@ -8738,6 +8763,11 @@ func (in *KafkaMirrorMaker2SpecClustersElemAuthentication) DeepCopyInto(out *Kaf
 	if in.PasswordSecret != nil {
 		in, out := &in.PasswordSecret, &out.PasswordSecret
 		*out = new(KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret)
+		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RefreshToken != nil {
@@ -14123,6 +14153,11 @@ func (in *KafkaMirrorMakerSpecConsumerAuthentication) DeepCopyInto(out *KafkaMir
 		*out = new(KafkaMirrorMakerSpecConsumerAuthenticationClientSecret)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.DisableTlsHostnameVerification != nil {
 		in, out := &in.DisableTlsHostnameVerification, &out.DisableTlsHostnameVerification
 		*out = new(bool)
@@ -14136,6 +14171,11 @@ func (in *KafkaMirrorMakerSpecConsumerAuthentication) DeepCopyInto(out *KafkaMir
 	if in.PasswordSecret != nil {
 		in, out := &in.PasswordSecret, &out.PasswordSecret
 		*out = new(KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret)
+		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RefreshToken != nil {
@@ -14616,6 +14656,11 @@ func (in *KafkaMirrorMakerSpecProducerAuthentication) DeepCopyInto(out *KafkaMir
 		*out = new(KafkaMirrorMakerSpecProducerAuthenticationClientSecret)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.DisableTlsHostnameVerification != nil {
 		in, out := &in.DisableTlsHostnameVerification, &out.DisableTlsHostnameVerification
 		*out = new(bool)
@@ -14629,6 +14674,11 @@ func (in *KafkaMirrorMakerSpecProducerAuthentication) DeepCopyInto(out *KafkaMir
 	if in.PasswordSecret != nil {
 		in, out := &in.PasswordSecret, &out.PasswordSecret
 		*out = new(KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret)
+		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
+		*out = new(int32)
 		**out = **in
 	}
 	if in.RefreshToken != nil {
@@ -16929,6 +16979,11 @@ func (in *KafkaRebalanceSpec) DeepCopyInto(out *KafkaRebalanceSpec) {
 		in, out := &in.Goals, &out.Goals
 		*out = make([]string, len(*in))
 		copy(*out, *in)
+	}
+	if in.RebalanceDisk != nil {
+		in, out := &in.RebalanceDisk, &out.RebalanceDisk
+		*out = new(bool)
+		**out = **in
 	}
 	if in.ReplicaMovementStrategies != nil {
 		in, out := &in.ReplicaMovementStrategies, &out.ReplicaMovementStrategies
@@ -25154,6 +25209,11 @@ func (in *KafkaSpecKafkaAuthorization) DeepCopyInto(out *KafkaSpecKafkaAuthoriza
 		*out = new(string)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.DelegateToKafkaAcls != nil {
 		in, out := &in.DelegateToKafkaAcls, &out.DelegateToKafkaAcls
 		*out = new(bool)
@@ -25161,6 +25221,11 @@ func (in *KafkaSpecKafkaAuthorization) DeepCopyInto(out *KafkaSpecKafkaAuthoriza
 	}
 	if in.DisableTlsHostnameVerification != nil {
 		in, out := &in.DisableTlsHostnameVerification, &out.DisableTlsHostnameVerification
+		*out = new(bool)
+		**out = **in
+	}
+	if in.EnableMetrics != nil {
+		in, out := &in.EnableMetrics, &out.EnableMetrics
 		*out = new(bool)
 		**out = **in
 	}
@@ -25186,6 +25251,11 @@ func (in *KafkaSpecKafkaAuthorization) DeepCopyInto(out *KafkaSpecKafkaAuthoriza
 	}
 	if in.MaximumCacheSize != nil {
 		in, out := &in.MaximumCacheSize, &out.MaximumCacheSize
+		*out = new(int32)
+		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
 		*out = new(int32)
 		**out = **in
 	}
@@ -27458,6 +27528,11 @@ func (in *KafkaSpecKafkaListenersElemAuthentication) DeepCopyInto(out *KafkaSpec
 		*out = new(KafkaSpecKafkaListenersElemAuthenticationClientSecret)
 		**out = **in
 	}
+	if in.ConnectTimeoutSeconds != nil {
+		in, out := &in.ConnectTimeoutSeconds, &out.ConnectTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
 	if in.CustomClaimCheck != nil {
 		in, out := &in.CustomClaimCheck, &out.CustomClaimCheck
 		*out = new(string)
@@ -27493,6 +27568,16 @@ func (in *KafkaSpecKafkaListenersElemAuthentication) DeepCopyInto(out *KafkaSpec
 		*out = new(string)
 		**out = **in
 	}
+	if in.GroupsClaim != nil {
+		in, out := &in.GroupsClaim, &out.GroupsClaim
+		*out = new(string)
+		**out = **in
+	}
+	if in.GroupsClaimDelimiter != nil {
+		in, out := &in.GroupsClaimDelimiter, &out.GroupsClaimDelimiter
+		*out = new(string)
+		**out = **in
+	}
 	if in.IntrospectionEndpointUri != nil {
 		in, out := &in.IntrospectionEndpointUri, &out.IntrospectionEndpointUri
 		*out = new(string)
@@ -27518,10 +27603,30 @@ func (in *KafkaSpecKafkaListenersElemAuthentication) DeepCopyInto(out *KafkaSpec
 		*out = new(int32)
 		**out = **in
 	}
+	if in.ListenerConfig != nil {
+		in, out := &in.ListenerConfig, &out.ListenerConfig
+		*out = new(v1.JSON)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.MaxSecondsWithoutReauthentication != nil {
 		in, out := &in.MaxSecondsWithoutReauthentication, &out.MaxSecondsWithoutReauthentication
 		*out = new(int32)
 		**out = **in
+	}
+	if in.ReadTimeoutSeconds != nil {
+		in, out := &in.ReadTimeoutSeconds, &out.ReadTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.Sasl != nil {
+		in, out := &in.Sasl, &out.Sasl
+		*out = new(bool)
+		**out = **in
+	}
+	if in.Secrets != nil {
+		in, out := &in.Secrets, &out.Secrets
+		*out = make([]KafkaSpecKafkaListenersElemAuthenticationSecretsElem, len(*in))
+		copy(*out, *in)
 	}
 	if in.TlsTrustedCertificates != nil {
 		in, out := &in.TlsTrustedCertificates, &out.TlsTrustedCertificates
@@ -27581,6 +27686,21 @@ func (in *KafkaSpecKafkaListenersElemAuthenticationClientSecret) DeepCopy() *Kaf
 }
 
 // DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *KafkaSpecKafkaListenersElemAuthenticationSecretsElem) DeepCopyInto(out *KafkaSpecKafkaListenersElemAuthenticationSecretsElem) {
+	*out = *in
+}
+
+// DeepCopy is an autogenerated deepcopy function, copying the receiver, creating a new KafkaSpecKafkaListenersElemAuthenticationSecretsElem.
+func (in *KafkaSpecKafkaListenersElemAuthenticationSecretsElem) DeepCopy() *KafkaSpecKafkaListenersElemAuthenticationSecretsElem {
+	if in == nil {
+		return nil
+	}
+	out := new(KafkaSpecKafkaListenersElemAuthenticationSecretsElem)
+	in.DeepCopyInto(out)
+	return out
+}
+
+// DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem) DeepCopyInto(out *KafkaSpecKafkaListenersElemAuthenticationTlsTrustedCertificatesElem) {
 	*out = *in
 }
@@ -27618,6 +27738,11 @@ func (in *KafkaSpecKafkaListenersElemConfiguration) DeepCopyInto(out *KafkaSpecK
 	if in.Class != nil {
 		in, out := &in.Class, &out.Class
 		*out = new(string)
+		**out = **in
+	}
+	if in.CreateBootstrapService != nil {
+		in, out := &in.CreateBootstrapService, &out.CreateBootstrapService
+		*out = new(bool)
 		**out = **in
 	}
 	if in.ExternalTrafficPolicy != nil {
@@ -28459,6 +28584,11 @@ func (in *KafkaSpecKafkaTemplate) DeepCopyInto(out *KafkaSpecKafkaTemplate) {
 	if in.PodDisruptionBudget != nil {
 		in, out := &in.PodDisruptionBudget, &out.PodDisruptionBudget
 		*out = new(KafkaSpecKafkaTemplatePodDisruptionBudget)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.PodSet != nil {
+		in, out := &in.PodSet, &out.PodSet
+		*out = new(KafkaSpecKafkaTemplatePodSet)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.ServiceAccount != nil {
@@ -30904,6 +31034,51 @@ func (in *KafkaSpecKafkaTemplatePodSecurityContextWindowsOptions) DeepCopy() *Ka
 }
 
 // DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *KafkaSpecKafkaTemplatePodSet) DeepCopyInto(out *KafkaSpecKafkaTemplatePodSet) {
+	*out = *in
+	if in.Metadata != nil {
+		in, out := &in.Metadata, &out.Metadata
+		*out = new(KafkaSpecKafkaTemplatePodSetMetadata)
+		(*in).DeepCopyInto(*out)
+	}
+}
+
+// DeepCopy is an autogenerated deepcopy function, copying the receiver, creating a new KafkaSpecKafkaTemplatePodSet.
+func (in *KafkaSpecKafkaTemplatePodSet) DeepCopy() *KafkaSpecKafkaTemplatePodSet {
+	if in == nil {
+		return nil
+	}
+	out := new(KafkaSpecKafkaTemplatePodSet)
+	in.DeepCopyInto(out)
+	return out
+}
+
+// DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *KafkaSpecKafkaTemplatePodSetMetadata) DeepCopyInto(out *KafkaSpecKafkaTemplatePodSetMetadata) {
+	*out = *in
+	if in.Annotations != nil {
+		in, out := &in.Annotations, &out.Annotations
+		*out = new(v1.JSON)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.Labels != nil {
+		in, out := &in.Labels, &out.Labels
+		*out = new(v1.JSON)
+		(*in).DeepCopyInto(*out)
+	}
+}
+
+// DeepCopy is an autogenerated deepcopy function, copying the receiver, creating a new KafkaSpecKafkaTemplatePodSetMetadata.
+func (in *KafkaSpecKafkaTemplatePodSetMetadata) DeepCopy() *KafkaSpecKafkaTemplatePodSetMetadata {
+	if in == nil {
+		return nil
+	}
+	out := new(KafkaSpecKafkaTemplatePodSetMetadata)
+	in.DeepCopyInto(out)
+	return out
+}
+
+// DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *KafkaSpecKafkaTemplatePodTolerationsElem) DeepCopyInto(out *KafkaSpecKafkaTemplatePodTolerationsElem) {
 	*out = *in
 	if in.Effect != nil {
@@ -31652,6 +31827,11 @@ func (in *KafkaSpecZookeeperTemplate) DeepCopyInto(out *KafkaSpecZookeeperTempla
 	if in.PodDisruptionBudget != nil {
 		in, out := &in.PodDisruptionBudget, &out.PodDisruptionBudget
 		*out = new(KafkaSpecZookeeperTemplatePodDisruptionBudget)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.PodSet != nil {
+		in, out := &in.PodSet, &out.PodSet
+		*out = new(KafkaSpecZookeeperTemplatePodSet)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.ServiceAccount != nil {
@@ -33258,6 +33438,51 @@ func (in *KafkaSpecZookeeperTemplatePodSecurityContextWindowsOptions) DeepCopy()
 }
 
 // DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *KafkaSpecZookeeperTemplatePodSet) DeepCopyInto(out *KafkaSpecZookeeperTemplatePodSet) {
+	*out = *in
+	if in.Metadata != nil {
+		in, out := &in.Metadata, &out.Metadata
+		*out = new(KafkaSpecZookeeperTemplatePodSetMetadata)
+		(*in).DeepCopyInto(*out)
+	}
+}
+
+// DeepCopy is an autogenerated deepcopy function, copying the receiver, creating a new KafkaSpecZookeeperTemplatePodSet.
+func (in *KafkaSpecZookeeperTemplatePodSet) DeepCopy() *KafkaSpecZookeeperTemplatePodSet {
+	if in == nil {
+		return nil
+	}
+	out := new(KafkaSpecZookeeperTemplatePodSet)
+	in.DeepCopyInto(out)
+	return out
+}
+
+// DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
+func (in *KafkaSpecZookeeperTemplatePodSetMetadata) DeepCopyInto(out *KafkaSpecZookeeperTemplatePodSetMetadata) {
+	*out = *in
+	if in.Annotations != nil {
+		in, out := &in.Annotations, &out.Annotations
+		*out = new(v1.JSON)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.Labels != nil {
+		in, out := &in.Labels, &out.Labels
+		*out = new(v1.JSON)
+		(*in).DeepCopyInto(*out)
+	}
+}
+
+// DeepCopy is an autogenerated deepcopy function, copying the receiver, creating a new KafkaSpecZookeeperTemplatePodSetMetadata.
+func (in *KafkaSpecZookeeperTemplatePodSetMetadata) DeepCopy() *KafkaSpecZookeeperTemplatePodSetMetadata {
+	if in == nil {
+		return nil
+	}
+	out := new(KafkaSpecZookeeperTemplatePodSetMetadata)
+	in.DeepCopyInto(out)
+	return out
+}
+
+// DeepCopyInto is an autogenerated deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *KafkaSpecZookeeperTemplatePodTolerationsElem) DeepCopyInto(out *KafkaSpecZookeeperTemplatePodTolerationsElem) {
 	*out = *in
 	if in.Effect != nil {
@@ -33824,6 +34049,11 @@ func (in *KafkaStatusListenersElem) DeepCopyInto(out *KafkaStatusListenersElem) 
 		in, out := &in.Certificates, &out.Certificates
 		*out = make([]string, len(*in))
 		copy(*out, *in)
+	}
+	if in.Name != nil {
+		in, out := &in.Name, &out.Name
+		*out = new(string)
+		**out = **in
 	}
 	if in.Type != nil {
 		in, out := &in.Type, &out.Type

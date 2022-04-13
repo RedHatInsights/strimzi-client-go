@@ -48,7 +48,7 @@ type KafkaRebalanceSpec struct {
 
 	// A regular expression where any matching topics will be excluded from the
 	// calculation of optimization proposals. This expression will be parsed by the
-	// java.util.regex.Pattern class; for more information on the supported formar
+	// java.util.regex.Pattern class; for more information on the supported format
 	// consult the documentation for that class.
 	ExcludedTopics *string `json:"excludedTopics,omitempty"`
 
@@ -58,6 +58,12 @@ type KafkaRebalanceSpec struct {
 	// provided, the goals declared in the default.goals Cruise Control configuration
 	// parameter are used.
 	Goals []string `json:"goals,omitempty"`
+
+	// Enables intra-broker disk balancing, which balances disk space utilization
+	// between disks on the same broker. Only applies to Kafka deployments that use
+	// JBOD storage with multiple disks. When enabled, inter-broker balancing is
+	// disabled. Default is false.
+	RebalanceDisk *bool `json:"rebalanceDisk,omitempty"`
 
 	// A list of strategy class names used to determine the execution order for the
 	// replica movements in the generated optimization proposal. By default
