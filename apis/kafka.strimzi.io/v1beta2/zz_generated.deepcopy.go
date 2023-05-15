@@ -34490,6 +34490,11 @@ func (in *KafkaUserSpecAuthorizationAclsElem) DeepCopyInto(out *KafkaUserSpecAut
 		*out = new(string)
 		**out = **in
 	}
+	if in.Operations != nil {
+		in, out := &in.Operations, &out.Operations
+		*out = make([]KafkaUserSpecAuthorizationAclsElemOperation, len(*in))
+		copy(*out, *in)
+	}
 	in.Resource.DeepCopyInto(&out.Resource)
 	if in.Type != nil {
 		in, out := &in.Type, &out.Type

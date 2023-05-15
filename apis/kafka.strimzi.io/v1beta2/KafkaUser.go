@@ -202,7 +202,6 @@ func (j *KafkaUserSpecAuthentication) UnmarshalJSON(b []byte) error {
 
 type KafkaUserSpecAuthorizationAclsElemOperation string
 
-
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaUserSpecAuthorizationAclsElemOperation) UnmarshalJSON(b []byte) error {
 	var v string
@@ -334,10 +333,17 @@ type KafkaUserSpecAuthorizationAclsElem struct {
 	// The host from which the action described in the ACL rule is allowed or denied.
 	Host *string `json:"host,omitempty"`
 
-	// Operation which will be allowed or denied. Supported operations are: Read,
+	// Deprecated: Operation which will be allowed or denied. Supported operations are: Read,
 	// Write, Create, Delete, Alter, Describe, ClusterAction, AlterConfigs,
 	// DescribeConfigs, IdempotentWrite and All.
-	Operation KafkaUserSpecAuthorizationAclsElemOperation `json:"operation"`
+	// +optional
+	Operation KafkaUserSpecAuthorizationAclsElemOperation `json:"operation,omitempty"`
+
+	// Operations which will be allowed or denied. Supported operations are: Read,
+	// Write, Create, Delete, Alter, Describe, ClusterAction, AlterConfigs,
+	// DescribeConfigs, IdempotentWrite and All.
+	// +optional
+	Operations []KafkaUserSpecAuthorizationAclsElemOperation `json:"operations,omitempty"`
 
 	// Indicates the resource for which given ACL rule applies.
 	Resource KafkaUserSpecAuthorizationAclsElemResource `json:"resource"`
