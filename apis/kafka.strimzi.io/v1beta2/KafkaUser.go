@@ -2,12 +2,15 @@
 
 package v1beta2
 
-import "fmt"
-import "encoding/json"
-import "reflect"
+import (
+	"encoding/json"
+	"fmt"
+	"reflect"
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+)
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
@@ -162,7 +165,9 @@ const KafkaUserSpecAuthenticationTypeScramSha512 KafkaUserSpecAuthenticationType
 // * `tls-external` does not generate a user certificate.   But prepares the user
 // for using mutual TLS authentication using a user certificate generated outside
 // the User Operator.
-//   ACLs and quotas set for this user are configured in the `CN=<username>`
+//
+//	ACLs and quotas set for this user are configured in the `CN=<username>`
+//
 // format.
 //
 // Authentication is optional. If authentication is not configured, no credentials
@@ -196,7 +201,6 @@ func (j *KafkaUserSpecAuthentication) UnmarshalJSON(b []byte) error {
 }
 
 type KafkaUserSpecAuthorizationAclsElemOperation string
-
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaUserSpecAuthorizationAclsElemOperation) UnmarshalJSON(b []byte) error {
@@ -308,9 +312,14 @@ func (j *KafkaUserSpecAuthorizationAclsElem) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["operation"]; !ok || v == nil {
-		return fmt.Errorf("field operation: required")
+
+	op, opOK := raw["operation"]
+	ops, opsOK := raw["operations"]
+
+	if !opOK && !opsOK && op == nil && ops == nil {
+		return fmt.Errorf("either field operation or operations: required")
 	}
+
 	if v, ok := raw["resource"]; !ok || v == nil {
 		return fmt.Errorf("field resource: required")
 	}
@@ -329,10 +338,17 @@ type KafkaUserSpecAuthorizationAclsElem struct {
 	// The host from which the action described in the ACL rule is allowed or denied.
 	Host *string `json:"host,omitempty"`
 
-	// Operation which will be allowed or denied. Supported operations are: Read,
+	// Deprecated: Operation which will be allowed or denied. Supported operations are: Read,
 	// Write, Create, Delete, Alter, Describe, ClusterAction, AlterConfigs,
 	// DescribeConfigs, IdempotentWrite and All.
-	Operation KafkaUserSpecAuthorizationAclsElemOperation `json:"operation"`
+	// +optional
+	Operation KafkaUserSpecAuthorizationAclsElemOperation `json:"operation,omitempty"`
+
+	// Operations which will be allowed or denied. Supported operations are: Read,
+	// Write, Create, Delete, Alter, Describe, ClusterAction, AlterConfigs,
+	// DescribeConfigs, IdempotentWrite and All.
+	// +optional
+	Operations []KafkaUserSpecAuthorizationAclsElemOperation `json:"operations,omitempty"`
 
 	// Indicates the resource for which given ACL rule applies.
 	Resource KafkaUserSpecAuthorizationAclsElemResource `json:"resource"`
