@@ -2,12 +2,15 @@
 
 package v1beta2
 
-import "fmt"
-import "encoding/json"
-import "reflect"
+import (
+	"encoding/json"
+	"fmt"
+	"reflect"
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+)
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
@@ -162,7 +165,9 @@ const KafkaUserSpecAuthenticationTypeScramSha512 KafkaUserSpecAuthenticationType
 // * `tls-external` does not generate a user certificate.   But prepares the user
 // for using mutual TLS authentication using a user certificate generated outside
 // the User Operator.
-//   ACLs and quotas set for this user are configured in the `CN=<username>`
+//
+//	ACLs and quotas set for this user are configured in the `CN=<username>`
+//
 // format.
 //
 // Authentication is optional. If authentication is not configured, no credentials
