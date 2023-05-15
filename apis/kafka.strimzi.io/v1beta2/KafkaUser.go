@@ -312,9 +312,14 @@ func (j *KafkaUserSpecAuthorizationAclsElem) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["operation"]; !ok || v == nil {
-		return fmt.Errorf("field operation: required")
+
+	op, opOK := raw["operation"]
+	ops, opsOK := raw["operations"]
+
+	if !opOK && !opsOK && op == nil && ops == nil {
+		return fmt.Errorf("either field operation or operations: required")
 	}
+
 	if v, ok := raw["resource"]; !ok || v == nil {
 		return fmt.Errorf("field resource: required")
 	}
