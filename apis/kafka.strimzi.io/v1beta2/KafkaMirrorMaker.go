@@ -297,6 +297,17 @@ type KafkaMirrorMakerSpecConsumerAuthentication struct {
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
+
 	// Set or limit time-to-live of the access tokens to the specified number of
 	// seconds. This should be set if the authorization server returns opaque tokens.
 	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
@@ -324,12 +335,12 @@ type KafkaMirrorMakerSpecConsumerAuthentication struct {
 	// Authorization server token endpoint URI.
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
-	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
-	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
-	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
-	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
-	// Client Authentication. The `tls` type is supported only over TLS connections.
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
 	Type KafkaMirrorMakerSpecConsumerAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -702,10 +713,6 @@ type KafkaMirrorMakerList struct {
 	Items []KafkaMirrorMaker `json:"items,omitempty"`
 }
 
-func init() {
-	SchemeBuilder.Register(&KafkaMirrorMaker{}, &KafkaMirrorMakerList{})
-}
-
 // The MirrorMaker consumer config. Properties with the following prefixes cannot
 // be set: ssl., bootstrap.servers, group.id, sasl., security., interceptor.classes
 // (with the exception of: ssl.endpoint.identification.algorithm,
@@ -1047,6 +1054,17 @@ type KafkaMirrorMakerSpecProducerAuthentication struct {
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
+
 	// Set or limit time-to-live of the access tokens to the specified number of
 	// seconds. This should be set if the authorization server returns opaque tokens.
 	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
@@ -1074,12 +1092,12 @@ type KafkaMirrorMakerSpecProducerAuthentication struct {
 	// Authorization server token endpoint URI.
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
-	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
-	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
-	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
-	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
-	// Client Authentication. The `tls` type is supported only over TLS connections.
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
 	Type KafkaMirrorMakerSpecProducerAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -1231,7 +1249,7 @@ type KafkaMirrorMakerSpecTemplate struct {
 
 // Template for Kafka MirrorMaker `Deployment`.
 type KafkaMirrorMakerSpecTemplateDeployment struct {
-	// DeploymentStrategy which will be used for this Deployment. Valid values are
+	// Pod replacement strategy for deployment configuration changes. Valid values are
 	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
 	DeploymentStrategy *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty"`
 
@@ -1408,7 +1426,7 @@ type KafkaMirrorMakerSpecTemplatePod struct {
 	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// Defines the total amount (for example `1Gi`) of local storage required for
-	// temporary EmptyDir volume (`/tmp`). Default value is `1Mi`.
+	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
 	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
 
 	// The pod's tolerations.
@@ -1935,8 +1953,20 @@ type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty"`
+
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
 	MaxSkew *int32 `json:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -1993,14 +2023,16 @@ type KafkaMirrorMakerSpecTemplateServiceAccountMetadata struct {
 
 // The configuration of tracing in Kafka MirrorMaker.
 type KafkaMirrorMakerSpecTracing struct {
-	// Type of the tracing used. Currently the only supported type is `jaeger` for
-	// Jaeger tracing.
+	// Type of the tracing used. Currently the only supported types are `jaeger` for
+	// OpenTracing (Jaeger) tracing and `opentelemetry` for OpenTelemetry tracing. The
+	// OpenTracing (Jaeger) tracing is deprecated.
 	Type KafkaMirrorMakerSpecTracingType `json:"type"`
 }
 
 type KafkaMirrorMakerSpecTracingType string
 
 const KafkaMirrorMakerSpecTracingTypeJaeger KafkaMirrorMakerSpecTracingType = "jaeger"
+const KafkaMirrorMakerSpecTracingTypeOpentelemetry KafkaMirrorMakerSpecTracingType = "opentelemetry"
 
 // The status of Kafka MirrorMaker.
 type KafkaMirrorMakerStatus struct {
@@ -2064,4 +2096,5 @@ var enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = []inte
 }
 var enumValues_KafkaMirrorMakerSpecTracingType = []interface{}{
 	"jaeger",
+	"opentelemetry",
 }

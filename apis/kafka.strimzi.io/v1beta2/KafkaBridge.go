@@ -165,9 +165,15 @@ func (j *KafkaBridgeSpecAuthenticationPasswordSecret) UnmarshalJSON(b []byte) er
 	return nil
 }
 
-// The Kafka AdminClient configuration used for AdminClient instances created by
-// the bridge.
-//type KafkaBridgeSpecAdminClientConfig map[string]interface{}
+// Link to Kubernetes Secret containing the refresh token which can be used to
+// obtain access token from the authorization server.
+type KafkaBridgeSpecAuthenticationRefreshToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName"`
+}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
@@ -262,6 +268,11 @@ func (j *KafkaBridgeSpecAuthenticationType) UnmarshalJSON(b []byte) error {
 const KafkaBridgeSpecAuthenticationTypeTls KafkaBridgeSpecAuthenticationType = "tls"
 const KafkaBridgeSpecAuthenticationTypeScramSha256 KafkaBridgeSpecAuthenticationType = "scram-sha-256"
 const KafkaBridgeSpecAuthenticationTypeScramSha512 KafkaBridgeSpecAuthenticationType = "scram-sha-512"
+const KafkaBridgeSpecAuthenticationTypePlain KafkaBridgeSpecAuthenticationType = "plain"
+
+// The Kafka AdminClient configuration used for AdminClient instances created by
+// the bridge.
+//type KafkaBridgeSpecAdminClientConfig map[string]interface{}
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
@@ -285,86 +296,6 @@ type KafkaBridgeList struct {
 
 	// A list of Kafka objects.
 	Items []KafkaBridge `json:"items,omitempty"`
-}
-
-func init() {
-	SchemeBuilder.Register(&KafkaBridge{}, &KafkaBridgeList{})
-}
-const KafkaBridgeSpecAuthenticationTypeOauth KafkaBridgeSpecAuthenticationType = "oauth"
-
-// Authentication configuration for connecting to the cluster.
-type KafkaBridgeSpecAuthentication struct {
-	// Link to Kubernetes Secret containing the access token which was obtained from
-	// the authorization server.
-	AccessToken *KafkaBridgeSpecAuthenticationAccessToken `json:"accessToken,omitempty"`
-
-	// Configure whether access token should be treated as JWT. This should be set to
-	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
-	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty"`
-
-	// OAuth audience to use when authenticating against the authorization server.
-	// Some authorization servers require the audience to be explicitly set. The
-	// possible values depend on how the authorization server is configured. By
-	// default, `audience` is not specified when performing the token endpoint
-	// request.
-	Audience *string `json:"audience,omitempty"`
-
-	// Reference to the `Secret` which holds the certificate and private key pair.
-	CertificateAndKey *KafkaBridgeSpecAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty"`
-
-	// OAuth Client ID which the Kafka client can use to authenticate against the
-	// OAuth server and use the token endpoint URI.
-	ClientId *string `json:"clientId,omitempty"`
-
-	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
-	// client can use to authenticate against the OAuth server and use the token
-	// endpoint URI.
-	ClientSecret *KafkaBridgeSpecAuthenticationClientSecret `json:"clientSecret,omitempty"`
-
-	// The connect timeout in seconds when connecting to authorization server. If not
-	// set, the effective connect timeout is 60 seconds.
-	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
-
-	// Enable or disable TLS hostname verification. Default value is `false`.
-	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
-
-	// Set or limit time-to-live of the access tokens to the specified number of
-	// seconds. This should be set if the authorization server returns opaque tokens.
-	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
-
-	// Reference to the `Secret` which holds the password.
-	PasswordSecret *KafkaBridgeSpecAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
-
-	// The read timeout in seconds when connecting to authorization server. If not
-	// set, the effective read timeout is 60 seconds.
-	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
-
-	// Link to Kubernetes Secret containing the refresh token which can be used to
-	// obtain access token from the authorization server.
-	RefreshToken *KafkaBridgeSpecAuthenticationRefreshToken `json:"refreshToken,omitempty"`
-
-	// OAuth scope to use when authenticating against the authorization server. Some
-	// authorization servers require this to be set. The possible values depend on how
-	// authorization server is configured. By default `scope` is not specified when
-	// doing the token endpoint request.
-	Scope *string `json:"scope,omitempty"`
-
-	// Trusted certificates for TLS connection to the OAuth server.
-	TlsTrustedCertificates []KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
-
-	// Authorization server token endpoint URI.
-	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
-
-	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
-	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
-	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
-	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
-	// Client Authentication. The `tls` type is supported only over TLS connections.
-	Type KafkaBridgeSpecAuthenticationType `json:"type"`
-
-	// Username used for the authentication.
-	Username *string `json:"username,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -512,6 +443,9 @@ type KafkaBridgeSpec struct {
 	// cluster.
 	BootstrapServers string `json:"bootstrapServers"`
 
+	// The image of the init container used for initializing the `client.rack`.
+	ClientRackInitImage *string `json:"clientRackInitImage,omitempty"`
+
 	// Kafka consumer related configuration.
 	Consumer *KafkaBridgeSpecConsumer `json:"consumer,omitempty"`
 
@@ -536,6 +470,10 @@ type KafkaBridgeSpec struct {
 	// Kafka producer related configuration.
 	Producer *KafkaBridgeSpecProducer `json:"producer,omitempty"`
 
+	// Configuration of the node label which will be used as the client.rack consumer
+	// configuration.
+	Rack *KafkaBridgeSpecRack `json:"rack,omitempty"`
+
 	// Pod readiness checking.
 	ReadinessProbe *KafkaBridgeSpecReadinessProbe `json:"readinessProbe,omitempty"`
 
@@ -545,8 +483,8 @@ type KafkaBridgeSpec struct {
 	// CPU and memory resources to reserve.
 	Resources *KafkaBridgeSpecResources `json:"resources,omitempty"`
 
-	// Template for Kafka Bridge resources. The template allows users to specify how
-	// is the `Deployment` and `Pods` generated.
+	// Template for Kafka Bridge resources. The template allows users to specify how a
+	// `Deployment` and `Pod` is generated.
 	Template *KafkaBridgeSpecTemplate `json:"template,omitempty"`
 
 	// TLS configuration for connecting Kafka Bridge to the cluster.
@@ -627,15 +565,12 @@ func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Link to Kubernetes Secret containing the refresh token which can be used to
-// obtain access token from the authorization server.
-type KafkaBridgeSpecAuthenticationRefreshToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
+// The Kafka producer configuration used for producer instances created by the
+// bridge. Properties with the following prefixes cannot be set: ssl.,
+// bootstrap.servers, sasl., security. (with the exception of:
+// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+// ssl.enabled.protocols).
+//type KafkaBridgeSpecProducerConfig map[string]interface{}
 
 // Kafka producer related configuration.
 type KafkaBridgeSpecProducer struct {
@@ -647,7 +582,111 @@ type KafkaBridgeSpecProducer struct {
 	Config *apiextensions.JSON `json:"config,omitempty"`
 }
 
-const KafkaBridgeSpecAuthenticationTypePlain KafkaBridgeSpecAuthenticationType = "plain"
+// Authentication configuration for connecting to the cluster.
+type KafkaBridgeSpecAuthentication struct {
+	// Link to Kubernetes Secret containing the access token which was obtained from
+	// the authorization server.
+	AccessToken *KafkaBridgeSpecAuthenticationAccessToken `json:"accessToken,omitempty"`
+
+	// Configure whether access token should be treated as JWT. This should be set to
+	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
+	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty"`
+
+	// OAuth audience to use when authenticating against the authorization server.
+	// Some authorization servers require the audience to be explicitly set. The
+	// possible values depend on how the authorization server is configured. By
+	// default, `audience` is not specified when performing the token endpoint
+	// request.
+	Audience *string `json:"audience,omitempty"`
+
+	// Reference to the `Secret` which holds the certificate and private key pair.
+	CertificateAndKey *KafkaBridgeSpecAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty"`
+
+	// OAuth Client ID which the Kafka client can use to authenticate against the
+	// OAuth server and use the token endpoint URI.
+	ClientId *string `json:"clientId,omitempty"`
+
+	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
+	// client can use to authenticate against the OAuth server and use the token
+	// endpoint URI.
+	ClientSecret *KafkaBridgeSpecAuthenticationClientSecret `json:"clientSecret,omitempty"`
+
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
+
+	// Enable or disable TLS hostname verification. Default value is `false`.
+	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
+
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
+
+	// Set or limit time-to-live of the access tokens to the specified number of
+	// seconds. This should be set if the authorization server returns opaque tokens.
+	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
+
+	// Reference to the `Secret` which holds the password.
+	PasswordSecret *KafkaBridgeSpecAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
+
+	// Link to Kubernetes Secret containing the refresh token which can be used to
+	// obtain access token from the authorization server.
+	RefreshToken *KafkaBridgeSpecAuthenticationRefreshToken `json:"refreshToken,omitempty"`
+
+	// OAuth scope to use when authenticating against the authorization server. Some
+	// authorization servers require this to be set. The possible values depend on how
+	// authorization server is configured. By default `scope` is not specified when
+	// doing the token endpoint request.
+	Scope *string `json:"scope,omitempty"`
+
+	// Trusted certificates for TLS connection to the OAuth server.
+	TlsTrustedCertificates []KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
+
+	// Authorization server token endpoint URI.
+	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
+
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
+	Type KafkaBridgeSpecAuthenticationType `json:"type"`
+
+	// Username used for the authentication.
+	Username *string `json:"username,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecRack) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["topologyKey"]; !ok || v == nil {
+		return fmt.Errorf("field topologyKey: required")
+	}
+	type Plain KafkaBridgeSpecRack
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecRack(plain)
+	return nil
+}
+
+const KafkaBridgeSpecAuthenticationTypeOauth KafkaBridgeSpecAuthenticationType = "oauth"
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
@@ -748,12 +787,14 @@ func (j *KafkaBridgeSpecTracing) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// The Kafka producer configuration used for producer instances created by the
-// bridge. Properties with the following prefixes cannot be set: ssl.,
-// bootstrap.servers, sasl., security. (with the exception of:
-// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-// ssl.enabled.protocols).
-//type KafkaBridgeSpecProducerConfig map[string]interface{}
+// Configuration of the node label which will be used as the client.rack consumer
+// configuration.
+type KafkaBridgeSpecRack struct {
+	// A key that matches labels assigned to the Kubernetes cluster nodes. The value
+	// of the label is used to set a broker's `broker.rack` config, and the
+	// `client.rack` config for Kafka Connect or MirrorMaker 2.0.
+	TopologyKey string `json:"topologyKey"`
+}
 
 // Pod readiness checking.
 type KafkaBridgeSpecReadinessProbe struct {
@@ -791,8 +832,8 @@ type KafkaBridgeSpecResources struct {
 
 //type KafkaBridgeSpecResourcesRequests map[string]interface{}
 
-// Template for Kafka Bridge resources. The template allows users to specify how is
-// the `Deployment` and `Pods` generated.
+// Template for Kafka Bridge resources. The template allows users to specify how a
+// `Deployment` and `Pod` is generated.
 type KafkaBridgeSpecTemplate struct {
 	// Template for Kafka Bridge API `Service`.
 	ApiService *KafkaBridgeSpecTemplateApiService `json:"apiService,omitempty"`
@@ -800,8 +841,14 @@ type KafkaBridgeSpecTemplate struct {
 	// Template for the Kafka Bridge container.
 	BridgeContainer *KafkaBridgeSpecTemplateBridgeContainer `json:"bridgeContainer,omitempty"`
 
+	// Template for the Kafka Bridge ClusterRoleBinding.
+	ClusterRoleBinding *KafkaBridgeSpecTemplateClusterRoleBinding `json:"clusterRoleBinding,omitempty"`
+
 	// Template for Kafka Bridge `Deployment`.
 	Deployment *KafkaBridgeSpecTemplateDeployment `json:"deployment,omitempty"`
+
+	// Template for the Kafka Bridge init container.
+	InitContainer *KafkaBridgeSpecTemplateInitContainer `json:"initContainer,omitempty"`
 
 	// Template for Kafka Bridge `Pods`.
 	Pod *KafkaBridgeSpecTemplatePod `json:"pod,omitempty"`
@@ -963,9 +1010,34 @@ type KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions struct 
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
 }
 
+// Template for the Kafka Bridge ClusterRoleBinding.
+type KafkaBridgeSpecTemplateClusterRoleBinding struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaBridgeSpecTemplateClusterRoleBindingMetadata `json:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaBridgeSpecTemplateClusterRoleBindingMetadata struct {
+	// Annotations added to the resource template. Can be applied to different
+	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
+
+	// Labels added to the resource template. Can be applied to different resources
+	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Labels *apiextensions.JSON `json:"labels,omitempty"`
+}
+
+// Annotations added to the resource template. Can be applied to different
+// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataAnnotations map[string]interface{}
+
+// Labels added to the resource template. Can be applied to different resources
+// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataLabels map[string]interface{}
+
 // Template for Kafka Bridge `Deployment`.
 type KafkaBridgeSpecTemplateDeployment struct {
-	// DeploymentStrategy which will be used for this Deployment. Valid values are
+	// Pod replacement strategy for deployment configuration changes. Valid values are
 	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
 	DeploymentStrategy *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty"`
 
@@ -996,6 +1068,106 @@ type KafkaBridgeSpecTemplateDeploymentMetadata struct {
 // Labels added to the resource template. Can be applied to different resources
 // such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 //type KafkaBridgeSpecTemplateDeploymentMetadataLabels map[string]interface{}
+
+// Template for the Kafka Bridge init container.
+type KafkaBridgeSpecTemplateInitContainer struct {
+	// Environment variables which should be applied to the container.
+	Env []KafkaBridgeSpecTemplateInitContainerEnvElem `json:"env,omitempty"`
+
+	// Security context for the container.
+	SecurityContext *KafkaBridgeSpecTemplateInitContainerSecurityContext `json:"securityContext,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerEnvElem struct {
+	// The environment variable key.
+	Name *string `json:"name,omitempty"`
+
+	// The environment variable value.
+	Value *string `json:"value,omitempty"`
+}
+
+// Security context for the container.
+type KafkaBridgeSpecTemplateInitContainerSecurityContext struct {
+	// AllowPrivilegeEscalation corresponds to the JSON schema field
+	// "allowPrivilegeEscalation".
+	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty"`
+
+	// Capabilities corresponds to the JSON schema field "capabilities".
+	Capabilities *KafkaBridgeSpecTemplateInitContainerSecurityContextCapabilities `json:"capabilities,omitempty"`
+
+	// Privileged corresponds to the JSON schema field "privileged".
+	Privileged *bool `json:"privileged,omitempty"`
+
+	// ProcMount corresponds to the JSON schema field "procMount".
+	ProcMount *string `json:"procMount,omitempty"`
+
+	// ReadOnlyRootFilesystem corresponds to the JSON schema field
+	// "readOnlyRootFilesystem".
+	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
+
+	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
+	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
+
+	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
+	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
+
+	// RunAsUser corresponds to the JSON schema field "runAsUser".
+	RunAsUser *int32 `json:"runAsUser,omitempty"`
+
+	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
+	SeLinuxOptions *KafkaBridgeSpecTemplateInitContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
+
+	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
+	SeccompProfile *KafkaBridgeSpecTemplateInitContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
+
+	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
+	WindowsOptions *KafkaBridgeSpecTemplateInitContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextCapabilities struct {
+	// Add corresponds to the JSON schema field "add".
+	Add []string `json:"add,omitempty"`
+
+	// Drop corresponds to the JSON schema field "drop".
+	Drop []string `json:"drop,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextSeLinuxOptions struct {
+	// Level corresponds to the JSON schema field "level".
+	Level *string `json:"level,omitempty"`
+
+	// Role corresponds to the JSON schema field "role".
+	Role *string `json:"role,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty"`
+
+	// User corresponds to the JSON schema field "user".
+	User *string `json:"user,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextSeccompProfile struct {
+	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
+	LocalhostProfile *string `json:"localhostProfile,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty"`
+}
 
 // Template for Kafka Bridge `Pods`.
 type KafkaBridgeSpecTemplatePod struct {
@@ -1042,7 +1214,7 @@ type KafkaBridgeSpecTemplatePod struct {
 	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// Defines the total amount (for example `1Gi`) of local storage required for
-	// temporary EmptyDir volume (`/tmp`). Default value is `1Mi`.
+	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
 	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
 
 	// The pod's tolerations.
@@ -1569,8 +1741,20 @@ type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty"`
+
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
 	MaxSkew *int32 `json:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -1641,14 +1825,16 @@ type KafkaBridgeSpecTlsTrustedCertificatesElem struct {
 
 // The configuration of tracing in Kafka Bridge.
 type KafkaBridgeSpecTracing struct {
-	// Type of the tracing used. Currently the only supported type is `jaeger` for
-	// Jaeger tracing.
+	// Type of the tracing used. Currently the only supported types are `jaeger` for
+	// OpenTracing (Jaeger) tracing and `opentelemetry` for OpenTelemetry tracing. The
+	// OpenTracing (Jaeger) tracing is deprecated.
 	Type KafkaBridgeSpecTracingType `json:"type"`
 }
 
 type KafkaBridgeSpecTracingType string
 
 const KafkaBridgeSpecTracingTypeJaeger KafkaBridgeSpecTracingType = "jaeger"
+const KafkaBridgeSpecTracingTypeOpentelemetry KafkaBridgeSpecTracingType = "opentelemetry"
 
 // The status of the Kafka Bridge.
 type KafkaBridgeStatus struct {
@@ -1714,4 +1900,5 @@ var enumValues_KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = []interface
 }
 var enumValues_KafkaBridgeSpecTracingType = []interface{}{
 	"jaeger",
+	"opentelemetry",
 }

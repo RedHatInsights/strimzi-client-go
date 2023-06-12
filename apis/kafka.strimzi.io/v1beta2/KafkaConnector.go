@@ -29,12 +29,11 @@ type KafkaConnectorList struct {
 	Items []KafkaConnector `json:"items,omitempty"`
 }
 
-func init() {
-	SchemeBuilder.Register(&KafkaConnector{}, &KafkaConnectorList{})
-}
-
 // The specification of the Kafka Connector.
 type KafkaConnectorSpec struct {
+	// Automatic restart of connector and tasks configuration.
+	AutoRestart *KafkaConnectorSpecAutoRestart `json:"autoRestart,omitempty"`
+
 	// The Class for the Kafka Connector.
 	Class *string `json:"class,omitempty"`
 
@@ -49,12 +48,22 @@ type KafkaConnectorSpec struct {
 	TasksMax *int32 `json:"tasksMax,omitempty"`
 }
 
+// Automatic restart of connector and tasks configuration.
+type KafkaConnectorSpecAutoRestart struct {
+	// Whether automatic restart for failed connectors and tasks should be enabled or
+	// disabled.
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
 // The Kafka Connector configuration. The following properties cannot be set:
 // connector.class, tasks.max.
 //type KafkaConnectorSpecConfig map[string]interface{}
 
 // The status of the Kafka Connector.
 type KafkaConnectorStatus struct {
+	// The auto restart status.
+	AutoRestart *KafkaConnectorStatusAutoRestart `json:"autoRestart,omitempty"`
+
 	// List of status conditions.
 	Conditions []KafkaConnectorStatusConditionsElem `json:"conditions,omitempty"`
 
@@ -69,6 +78,19 @@ type KafkaConnectorStatus struct {
 
 	// The list of topics used by the Kafka Connector.
 	Topics []string `json:"topics,omitempty"`
+}
+
+// The auto restart status.
+type KafkaConnectorStatusAutoRestart struct {
+	// The name of the connector being restarted.
+	ConnectorName *string `json:"connectorName,omitempty"`
+
+	// The number of times the connector or task is restarted.
+	Count *int32 `json:"count,omitempty"`
+
+	// The last time the automatic restart was attempted. The required format is
+	// 'yyyy-MM-ddTHH:mm:ssZ' in the UTC time zone.
+	LastRestartTimestamp *string `json:"lastRestartTimestamp,omitempty"`
 }
 
 type KafkaConnectorStatusConditionsElem struct {
