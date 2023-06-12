@@ -9,49 +9,23 @@ import "reflect"
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// KafkaUser
-type KafkaUser struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// The specification of the user.
-	Spec *KafkaUserSpec `json:"spec,omitempty"`
-
-	// The status of the Kafka User.
-	Status *KafkaUserStatus `json:"status,omitempty"`
-}
-
-// +kubebuilder:object:root=true
-// KafkaUserList contains a list of instances.
-type KafkaUserList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-
-	// A list of Kafka objects.
-	Items []KafkaUser `json:"items,omitempty"`
-}
-
-func init() {
-	SchemeBuilder.Register(&KafkaUser{}, &KafkaUserList{})
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaUserSpecAuthorizationAclsElemResource) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+func (j *KafkaUserSpecAuthorizationAclsElemResourceType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+	var ok bool
+	for _, expected := range enumValues_KafkaUserSpecAuthorizationAclsElemResourceType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
 	}
-	type Plain KafkaUserSpecAuthorizationAclsElemResource
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaUserSpecAuthorizationAclsElemResourceType, v)
 	}
-	*j = KafkaUserSpecAuthorizationAclsElemResource(plain)
+	*j = KafkaUserSpecAuthorizationAclsElemResourceType(v)
 	return nil
 }
 
@@ -139,6 +113,9 @@ func (j *KafkaUserSpecAuthenticationType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+const KafkaUserSpecAuthenticationTypeTls KafkaUserSpecAuthenticationType = "tls"
+const KafkaUserSpecAuthenticationTypeTlsExternal KafkaUserSpecAuthenticationType = "tls-external"
+
 // Selects a key of a Secret in the resource's namespace.
 type KafkaUserSpecAuthenticationPasswordValueFromSecretKeyRef struct {
 	// Key corresponds to the JSON schema field "key".
@@ -150,9 +127,6 @@ type KafkaUserSpecAuthenticationPasswordValueFromSecretKeyRef struct {
 	// Optional corresponds to the JSON schema field "optional".
 	Optional *bool `json:"optional,omitempty"`
 }
-
-const KafkaUserSpecAuthenticationTypeTlsExternal KafkaUserSpecAuthenticationType = "tls-external"
-const KafkaUserSpecAuthenticationTypeScramSha512 KafkaUserSpecAuthenticationType = "scram-sha-512"
 
 // Authentication mechanism enabled for this Kafka user. The supported
 // authentication mechanisms are `scram-sha-512`, `tls`, and `tls-external`.
@@ -198,6 +172,30 @@ func (j *KafkaUserSpecAuthentication) UnmarshalJSON(b []byte) error {
 type KafkaUserSpecAuthorizationAclsElemOperation string
 
 
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// KafkaUser
+type KafkaUser struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// The specification of the user.
+	Spec *KafkaUserSpec `json:"spec,omitempty"`
+
+	// The status of the Kafka User.
+	Status *KafkaUserStatus `json:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// KafkaUserList contains a list of instances.
+type KafkaUserList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// A list of Kafka objects.
+	Items []KafkaUser `json:"items,omitempty"`
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaUserSpecAuthorizationAclsElemOperation) UnmarshalJSON(b []byte) error {
 	var v string
@@ -230,6 +228,8 @@ const KafkaUserSpecAuthorizationAclsElemOperationDescribeConfigs KafkaUserSpecAu
 const KafkaUserSpecAuthorizationAclsElemOperationIdempotentWrite KafkaUserSpecAuthorizationAclsElemOperation = "IdempotentWrite"
 const KafkaUserSpecAuthorizationAclsElemOperationAll KafkaUserSpecAuthorizationAclsElemOperation = "All"
 
+type KafkaUserSpecAuthorizationAclsElemOperationsElem string
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaUserSpecAuthorization) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -251,6 +251,28 @@ func (j *KafkaUserSpecAuthorization) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaUserSpecAuthorizationAclsElemOperationsElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaUserSpecAuthorizationAclsElemOperationsElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaUserSpecAuthorizationAclsElemOperationsElem, v)
+	}
+	*j = KafkaUserSpecAuthorizationAclsElemOperationsElem(v)
+	return nil
+}
+
+const KafkaUserSpecAuthorizationAclsElemOperationsElemIdempotentWrite KafkaUserSpecAuthorizationAclsElemOperationsElem = "IdempotentWrite"
+
 // Authorization rules for this Kafka user.
 type KafkaUserSpecAuthorization struct {
 	// List of ACL rules which should be applied to this user.
@@ -262,25 +284,15 @@ type KafkaUserSpecAuthorization struct {
 	Type KafkaUserSpecAuthorizationType `json:"type"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaUserSpecAuthorizationAclsElemResourcePatternType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaUserSpecAuthorizationAclsElemResourcePatternType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaUserSpecAuthorizationAclsElemResourcePatternType, v)
-	}
-	*j = KafkaUserSpecAuthorizationAclsElemResourcePatternType(v)
-	return nil
-}
+const KafkaUserSpecAuthorizationAclsElemOperationsElemCreate KafkaUserSpecAuthorizationAclsElemOperationsElem = "Create"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemDelete KafkaUserSpecAuthorizationAclsElemOperationsElem = "Delete"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemAlter KafkaUserSpecAuthorizationAclsElemOperationsElem = "Alter"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemDescribe KafkaUserSpecAuthorizationAclsElemOperationsElem = "Describe"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemClusterAction KafkaUserSpecAuthorizationAclsElemOperationsElem = "ClusterAction"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemAlterConfigs KafkaUserSpecAuthorizationAclsElemOperationsElem = "AlterConfigs"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemDescribeConfigs KafkaUserSpecAuthorizationAclsElemOperationsElem = "DescribeConfigs"
+const KafkaUserSpecAuthenticationTypeScramSha512 KafkaUserSpecAuthenticationType = "scram-sha-512"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemAll KafkaUserSpecAuthorizationAclsElemOperationsElem = "All"
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaUserSpecAuthorizationType) UnmarshalJSON(b []byte) error {
@@ -308,9 +320,6 @@ func (j *KafkaUserSpecAuthorizationAclsElem) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["operation"]; !ok || v == nil {
-		return fmt.Errorf("field operation: required")
-	}
 	if v, ok := raw["resource"]; !ok || v == nil {
 		return fmt.Errorf("field resource: required")
 	}
@@ -323,7 +332,25 @@ func (j *KafkaUserSpecAuthorizationAclsElem) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const KafkaUserSpecAuthenticationTypeTls KafkaUserSpecAuthenticationType = "tls"
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaUserSpecAuthorizationAclsElemResourcePatternType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaUserSpecAuthorizationAclsElemResourcePatternType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaUserSpecAuthorizationAclsElemResourcePatternType, v)
+	}
+	*j = KafkaUserSpecAuthorizationAclsElemResourcePatternType(v)
+	return nil
+}
 
 type KafkaUserSpecAuthorizationAclsElem struct {
 	// The host from which the action described in the ACL rule is allowed or denied.
@@ -332,7 +359,12 @@ type KafkaUserSpecAuthorizationAclsElem struct {
 	// Operation which will be allowed or denied. Supported operations are: Read,
 	// Write, Create, Delete, Alter, Describe, ClusterAction, AlterConfigs,
 	// DescribeConfigs, IdempotentWrite and All.
-	Operation KafkaUserSpecAuthorizationAclsElemOperation `json:"operation"`
+	Operation *KafkaUserSpecAuthorizationAclsElemOperation `json:"operation,omitempty"`
+
+	// List of operations which will be allowed or denied. Supported operations are:
+	// Read, Write, Create, Delete, Alter, Describe, ClusterAction, AlterConfigs,
+	// DescribeConfigs, IdempotentWrite and All.
+	Operations []KafkaUserSpecAuthorizationAclsElemOperationsElem `json:"operations,omitempty"`
 
 	// Indicates the resource for which given ACL rule applies.
 	Resource KafkaUserSpecAuthorizationAclsElemResource `json:"resource"`
@@ -341,26 +373,6 @@ type KafkaUserSpecAuthorizationAclsElem struct {
 	// with type `allow` are used to allow user to execute the specified operations.
 	// Default value is `allow`.
 	Type *KafkaUserSpecAuthorizationAclsElemType `json:"type,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaUserSpecAuthorizationAclsElemResourceType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaUserSpecAuthorizationAclsElemResourceType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaUserSpecAuthorizationAclsElemResourceType, v)
-	}
-	*j = KafkaUserSpecAuthorizationAclsElemResourceType(v)
-	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -382,6 +394,27 @@ func (j *KafkaUserSpecAuthorizationAclsElemType) UnmarshalJSON(b []byte) error {
 	*j = KafkaUserSpecAuthorizationAclsElemType(v)
 	return nil
 }
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaUserSpecAuthorizationAclsElemResource) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
+	}
+	type Plain KafkaUserSpecAuthorizationAclsElemResource
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaUserSpecAuthorizationAclsElemResource(plain)
+	return nil
+}
+
+const KafkaUserSpecAuthorizationAclsElemOperationsElemRead KafkaUserSpecAuthorizationAclsElemOperationsElem = "Read"
+const KafkaUserSpecAuthorizationAclsElemOperationsElemWrite KafkaUserSpecAuthorizationAclsElemOperationsElem = "Write"
 
 // Indicates the resource for which given ACL rule applies.
 type KafkaUserSpecAuthorizationAclsElemResource struct {
@@ -520,6 +553,19 @@ var enumValues_KafkaUserSpecAuthenticationType = []interface{}{
 	"scram-sha-512",
 }
 var enumValues_KafkaUserSpecAuthorizationAclsElemOperation = []interface{}{
+	"Read",
+	"Write",
+	"Create",
+	"Delete",
+	"Alter",
+	"Describe",
+	"ClusterAction",
+	"AlterConfigs",
+	"DescribeConfigs",
+	"IdempotentWrite",
+	"All",
+}
+var enumValues_KafkaUserSpecAuthorizationAclsElemOperationsElem = []interface{}{
 	"Read",
 	"Write",
 	"Create",

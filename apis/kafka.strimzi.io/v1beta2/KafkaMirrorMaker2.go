@@ -10,22 +10,23 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
+func (j *KafkaMirrorMaker2SpecMetricsConfig) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type: required")
 	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem, v)
+	if v, ok := raw["valueFrom"]; !ok || v == nil {
+		return fmt.Errorf("field valueFrom: required")
 	}
-	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem(v)
+	type Plain KafkaMirrorMaker2SpecMetricsConfig
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecMetricsConfig(plain)
 	return nil
 }
 
@@ -290,6 +291,17 @@ type KafkaMirrorMaker2SpecClustersElemAuthentication struct {
 	// Enable or disable TLS hostname verification. Default value is `false`.
 	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
 
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
+
 	// Set or limit time-to-live of the access tokens to the specified number of
 	// seconds. This should be set if the authorization server returns opaque tokens.
 	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
@@ -317,12 +329,12 @@ type KafkaMirrorMaker2SpecClustersElemAuthentication struct {
 	// Authorization server token endpoint URI.
 	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
 
-	// Authentication type. Currently the only supported types are `tls`,
-	// `scram-sha-256`, `scram-sha-512`, and `plain`. `scram-sha-256` and
-	// `scram-sha-512` types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512
-	// Authentication, respectively. `plain` type uses SASL PLAIN Authentication.
-	// `oauth` type uses SASL OAUTHBEARER Authentication. The `tls` type uses TLS
-	// Client Authentication. The `tls` type is supported only over TLS connections.
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
 	Type KafkaMirrorMaker2SpecClustersElemAuthenticationType `json:"type"`
 
 	// Username used for the authentication.
@@ -432,16 +444,24 @@ func (j *KafkaMirrorMaker2SpecClustersElem) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Reference to a key in a ConfigMap.
-type KafkaMirrorMaker2SpecExternalConfigurationEnvElemValueFromConfigMapKeyRef struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Optional corresponds to the JSON schema field "optional".
-	Optional *bool `json:"optional,omitempty"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy(v)
+	return nil
 }
 
 // Reference to a key in a Secret.
@@ -527,34 +547,31 @@ type KafkaMirrorMaker2SpecExternalConfigurationVolumesElemConfigMap struct {
 	Optional *bool `json:"optional,omitempty"`
 }
 
-// Link to Kubernetes Secret containing the access token which was obtained from
-// the authorization server.
-type KafkaMirrorMaker2SpecClustersElemAuthenticationAccessToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
+type KafkaMirrorMaker2SpecExternalConfigurationVolumesElemSecretItemsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty"`
 
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
+	// Mode corresponds to the JSON schema field "mode".
+	Mode *int32 `json:"mode,omitempty"`
+
+	// Path corresponds to the JSON schema field "path".
+	Path *string `json:"path,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy(v)
-	return nil
+// Reference to a key in a Secret. Exactly one Secret or ConfigMap has to be
+// specified.
+type KafkaMirrorMaker2SpecExternalConfigurationVolumesElemSecret struct {
+	// DefaultMode corresponds to the JSON schema field "defaultMode".
+	DefaultMode *int32 `json:"defaultMode,omitempty"`
+
+	// Items corresponds to the JSON schema field "items".
+	Items []KafkaMirrorMaker2SpecExternalConfigurationVolumesElemSecretItemsElem `json:"items,omitempty"`
+
+	// Optional corresponds to the JSON schema field "optional".
+	Optional *bool `json:"optional,omitempty"`
+
+	// SecretName corresponds to the JSON schema field "secretName".
+	SecretName *string `json:"secretName,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecExternalConfigurationVolumesElem struct {
@@ -604,6 +621,9 @@ type KafkaMirrorMaker2SpecJmxOptionsAuthenticationType string
 
 // The specification of the Kafka MirrorMaker 2.0 cluster.
 type KafkaMirrorMaker2Spec struct {
+	// The image of the init container used for initializing the `client.rack`.
+	ClientRackInitImage *string `json:"clientRackInitImage,omitempty"`
+
 	// Kafka clusters for mirroring.
 	Clusters []KafkaMirrorMaker2SpecClustersElem `json:"clusters,omitempty"`
 
@@ -635,6 +655,10 @@ type KafkaMirrorMaker2Spec struct {
 
 	// Configuration of the MirrorMaker 2.0 connectors.
 	Mirrors []KafkaMirrorMaker2SpecMirrorsElem `json:"mirrors,omitempty"`
+
+	// Configuration of the node label which will be used as the `client.rack`
+	// consumer configuration.
+	Rack *KafkaMirrorMaker2SpecRack `json:"rack,omitempty"`
 
 	// Pod readiness checking.
 	ReadinessProbe *KafkaMirrorMaker2SpecReadinessProbe `json:"readinessProbe,omitempty"`
@@ -767,10 +791,45 @@ type KafkaMirrorMaker2SpecLivenessProbe struct {
 	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
 }
 
-// A Map from logger name to logger level.
-//type KafkaMirrorMaker2SpecLoggingLoggers map[string]interface{}
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem(v)
+	return nil
+}
 
-type KafkaMirrorMaker2SpecLoggingType string
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy(v)
+	return nil
+}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaMirrorMaker2SpecTracing) UnmarshalJSON(b []byte) error {
@@ -810,11 +869,82 @@ func (j *KafkaMirrorMaker2SpecLoggingType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const KafkaMirrorMaker2SpecLoggingTypeInline KafkaMirrorMaker2SpecLoggingType = "inline"
-const KafkaMirrorMaker2SpecLoggingTypeExternal KafkaMirrorMaker2SpecLoggingType = "external"
+// Link to Kubernetes Secret containing the access token which was obtained from
+// the authorization server.
+type KafkaMirrorMaker2SpecClustersElemAuthenticationAccessToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key"`
 
-// Reference to the key in the ConfigMap containing the configuration.
-type KafkaMirrorMaker2SpecLoggingValueFromConfigMapKeyRef struct {
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy(v)
+	return nil
+}
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// KafkaMirrorMaker2
+type KafkaMirrorMaker2 struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// The specification of the Kafka MirrorMaker 2.0 cluster.
+	Spec *KafkaMirrorMaker2Spec `json:"spec,omitempty"`
+
+	// The status of the Kafka MirrorMaker 2.0 cluster.
+	Status *KafkaMirrorMaker2Status `json:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// KafkaMirrorMaker2List contains a list of instances.
+type KafkaMirrorMaker2List struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// A list of Kafka objects.
+	Items []KafkaMirrorMaker2 `json:"items,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem(v)
+	return nil
+}
+
+// Reference to a key in a ConfigMap.
+type KafkaMirrorMaker2SpecExternalConfigurationEnvElemValueFromConfigMapKeyRef struct {
 	// Key corresponds to the JSON schema field "key".
 	Key *string `json:"key,omitempty"`
 
@@ -824,16 +954,6 @@ type KafkaMirrorMaker2SpecLoggingValueFromConfigMapKeyRef struct {
 	// Optional corresponds to the JSON schema field "optional".
 	Optional *bool `json:"optional,omitempty"`
 }
-
-// `ConfigMap` entry where the logging configuration is stored.
-type KafkaMirrorMaker2SpecLoggingValueFrom struct {
-	// Reference to the key in the ConfigMap containing the configuration.
-	ConfigMapKeyRef *KafkaMirrorMaker2SpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
-}
-
-// The Kafka Connector configuration. The following properties cannot be set:
-// connector.class, tasks.max.
-//type KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorConfig map[string]interface{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaMirrorMaker2SpecLogging) UnmarshalJSON(b []byte) error {
@@ -853,7 +973,23 @@ func (j *KafkaMirrorMaker2SpecLogging) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type KafkaMirrorMaker2SpecMetricsConfigType string
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecRack) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["topologyKey"]; !ok || v == nil {
+		return fmt.Errorf("field topologyKey: required")
+	}
+	type Plain KafkaMirrorMaker2SpecRack
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecRack(plain)
+	return nil
+}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaMirrorMaker2SpecTracingType) UnmarshalJSON(b []byte) error {
@@ -895,10 +1031,55 @@ func (j *KafkaMirrorMaker2SpecMetricsConfigType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const KafkaMirrorMaker2SpecMetricsConfigTypeJmxPrometheusExporter KafkaMirrorMaker2SpecMetricsConfigType = "jmxPrometheusExporter"
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecMirrorsElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["sourceCluster"]; !ok || v == nil {
+		return fmt.Errorf("field sourceCluster: required")
+	}
+	if v, ok := raw["targetCluster"]; !ok || v == nil {
+		return fmt.Errorf("field targetCluster: required")
+	}
+	type Plain KafkaMirrorMaker2SpecMirrorsElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecMirrorsElem(plain)
+	return nil
+}
+
+// Logging configuration for Kafka Connect.
+type KafkaMirrorMaker2SpecLogging struct {
+	// A Map from logger name to logger level.
+	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
+
+	// Logging type, must be either 'inline' or 'external'.
+	Type KafkaMirrorMaker2SpecLoggingType `json:"type"`
+
+	// `ConfigMap` entry where the logging configuration is stored.
+	ValueFrom *KafkaMirrorMaker2SpecLoggingValueFrom `json:"valueFrom,omitempty"`
+}
+
+// A Map from logger name to logger level.
+//type KafkaMirrorMaker2SpecLoggingLoggers map[string]interface{}
+
+type KafkaMirrorMaker2SpecLoggingType string
+
+const KafkaMirrorMaker2SpecLoggingTypeExternal KafkaMirrorMaker2SpecLoggingType = "external"
+const KafkaMirrorMaker2SpecLoggingTypeInline KafkaMirrorMaker2SpecLoggingType = "inline"
+
+// `ConfigMap` entry where the logging configuration is stored.
+type KafkaMirrorMaker2SpecLoggingValueFrom struct {
+	// Reference to the key in the ConfigMap containing the configuration.
+	ConfigMapKeyRef *KafkaMirrorMaker2SpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
+}
 
 // Reference to the key in the ConfigMap containing the configuration.
-type KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef struct {
+type KafkaMirrorMaker2SpecLoggingValueFromConfigMapKeyRef struct {
 	// Key corresponds to the JSON schema field "key".
 	Key *string `json:"key,omitempty"`
 
@@ -907,13 +1088,6 @@ type KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef struct {
 
 	// Optional corresponds to the JSON schema field "optional".
 	Optional *bool `json:"optional,omitempty"`
-}
-
-// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
-// details of the structure of this configuration, see the {JMXExporter}.
-type KafkaMirrorMaker2SpecMetricsConfigValueFrom struct {
-	// Reference to the key in the ConfigMap containing the configuration.
-	ConfigMapKeyRef *KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
 }
 
 // Metrics configuration.
@@ -926,112 +1100,27 @@ type KafkaMirrorMaker2SpecMetricsConfig struct {
 	ValueFrom KafkaMirrorMaker2SpecMetricsConfigValueFrom `json:"valueFrom"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecMetricsConfig) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	if v, ok := raw["valueFrom"]; !ok || v == nil {
-		return fmt.Errorf("field valueFrom: required")
-	}
-	type Plain KafkaMirrorMaker2SpecMetricsConfig
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecMetricsConfig(plain)
-	return nil
+type KafkaMirrorMaker2SpecMetricsConfigType string
+
+const KafkaMirrorMaker2SpecMetricsConfigTypeJmxPrometheusExporter KafkaMirrorMaker2SpecMetricsConfigType = "jmxPrometheusExporter"
+
+// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
+// details of the structure of this configuration, see the {JMXExporter}.
+type KafkaMirrorMaker2SpecMetricsConfigValueFrom struct {
+	// Reference to the key in the ConfigMap containing the configuration.
+	ConfigMapKeyRef *KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// KafkaMirrorMaker2
-type KafkaMirrorMaker2 struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+// Reference to the key in the ConfigMap containing the configuration.
+type KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty"`
 
-	// The specification of the Kafka MirrorMaker 2.0 cluster.
-	Spec *KafkaMirrorMaker2Spec `json:"spec,omitempty"`
-
-	// The status of the Kafka MirrorMaker 2.0 cluster.
-	Status *KafkaMirrorMaker2Status `json:"status,omitempty"`
-}
-
-// +kubebuilder:object:root=true
-// KafkaMirrorMaker2List contains a list of instances.
-type KafkaMirrorMaker2List struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-
-	// A list of Kafka objects.
-	Items []KafkaMirrorMaker2 `json:"items,omitempty"`
-}
-
-func init() {
-	SchemeBuilder.Register(&KafkaMirrorMaker2{}, &KafkaMirrorMaker2List{})
-}
-
-// The specification of the Kafka MirrorMaker 2.0 checkpoint connector.
-type KafkaMirrorMaker2SpecMirrorsElemCheckpointConnector struct {
-	// The Kafka Connector configuration. The following properties cannot be set:
-	// connector.class, tasks.max.
-	Config *apiextensions.JSON `json:"config,omitempty"`
-
-	// Whether the connector should be paused. Defaults to false.
-	Pause *bool `json:"pause,omitempty"`
-
-	// The maximum number of tasks for the Kafka Connector.
-	TasksMax *int32 `json:"tasksMax,omitempty"`
-}
-
-// The Kafka Connector configuration. The following properties cannot be set:
-// connector.class, tasks.max.
-//type KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnectorConfig map[string]interface{}
-
-// The specification of the Kafka MirrorMaker 2.0 heartbeat connector.
-type KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnector struct {
-	// The Kafka Connector configuration. The following properties cannot be set:
-	// connector.class, tasks.max.
-	Config *apiextensions.JSON `json:"config,omitempty"`
-
-	// Whether the connector should be paused. Defaults to false.
-	Pause *bool `json:"pause,omitempty"`
-
-	// The maximum number of tasks for the Kafka Connector.
-	TasksMax *int32 `json:"tasksMax,omitempty"`
-}
-
-// Reference to a key in a Secret. Exactly one Secret or ConfigMap has to be
-// specified.
-type KafkaMirrorMaker2SpecExternalConfigurationVolumesElemSecret struct {
-	// DefaultMode corresponds to the JSON schema field "defaultMode".
-	DefaultMode *int32 `json:"defaultMode,omitempty"`
-
-	// Items corresponds to the JSON schema field "items".
-	Items []KafkaMirrorMaker2SpecExternalConfigurationVolumesElemSecretItemsElem `json:"items,omitempty"`
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty"`
 
 	// Optional corresponds to the JSON schema field "optional".
 	Optional *bool `json:"optional,omitempty"`
-
-	// SecretName corresponds to the JSON schema field "secretName".
-	SecretName *string `json:"secretName,omitempty"`
-}
-
-// The specification of the Kafka MirrorMaker 2.0 source connector.
-type KafkaMirrorMaker2SpecMirrorsElemSourceConnector struct {
-	// The Kafka Connector configuration. The following properties cannot be set:
-	// connector.class, tasks.max.
-	Config *apiextensions.JSON `json:"config,omitempty"`
-
-	// Whether the connector should be paused. Defaults to false.
-	Pause *bool `json:"pause,omitempty"`
-
-	// The maximum number of tasks for the Kafka Connector.
-	TasksMax *int32 `json:"tasksMax,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecMirrorsElem struct {
@@ -1077,73 +1166,95 @@ type KafkaMirrorMaker2SpecMirrorsElem struct {
 	TopicsPattern *string `json:"topicsPattern,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecMirrorsElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["sourceCluster"]; !ok || v == nil {
-		return fmt.Errorf("field sourceCluster: required")
-	}
-	if v, ok := raw["targetCluster"]; !ok || v == nil {
-		return fmt.Errorf("field targetCluster: required")
-	}
-	type Plain KafkaMirrorMaker2SpecMirrorsElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecMirrorsElem(plain)
-	return nil
+// The specification of the Kafka MirrorMaker 2.0 checkpoint connector.
+type KafkaMirrorMaker2SpecMirrorsElemCheckpointConnector struct {
+	// Automatic restart of connector and tasks configuration.
+	AutoRestart *KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorAutoRestart `json:"autoRestart,omitempty"`
+
+	// The Kafka Connector configuration. The following properties cannot be set:
+	// connector.class, tasks.max.
+	Config *apiextensions.JSON `json:"config,omitempty"`
+
+	// Whether the connector should be paused. Defaults to false.
+	Pause *bool `json:"pause,omitempty"`
+
+	// The maximum number of tasks for the Kafka Connector.
+	TasksMax *int32 `json:"tasksMax,omitempty"`
 }
 
-type KafkaMirrorMaker2SpecExternalConfigurationVolumesElemSecretItemsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Mode corresponds to the JSON schema field "mode".
-	Mode *int32 `json:"mode,omitempty"`
-
-	// Path corresponds to the JSON schema field "path".
-	Path *string `json:"path,omitempty"`
+// Automatic restart of connector and tasks configuration.
+type KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorAutoRestart struct {
+	// Whether automatic restart for failed connectors and tasks should be enabled or
+	// disabled.
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy(v)
-	return nil
+// The Kafka Connector configuration. The following properties cannot be set:
+// connector.class, tasks.max.
+//type KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorConfig map[string]interface{}
+
+// The specification of the Kafka MirrorMaker 2.0 heartbeat connector.
+type KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnector struct {
+	// Automatic restart of connector and tasks configuration.
+	AutoRestart *KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnectorAutoRestart `json:"autoRestart,omitempty"`
+
+	// The Kafka Connector configuration. The following properties cannot be set:
+	// connector.class, tasks.max.
+	Config *apiextensions.JSON `json:"config,omitempty"`
+
+	// Whether the connector should be paused. Defaults to false.
+	Pause *bool `json:"pause,omitempty"`
+
+	// The maximum number of tasks for the Kafka Connector.
+	TasksMax *int32 `json:"tasksMax,omitempty"`
 }
 
-// Logging configuration for Kafka Connect.
-type KafkaMirrorMaker2SpecLogging struct {
-	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
+// Automatic restart of connector and tasks configuration.
+type KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnectorAutoRestart struct {
+	// Whether automatic restart for failed connectors and tasks should be enabled or
+	// disabled.
+	Enabled *bool `json:"enabled,omitempty"`
+}
 
-	// Logging type, must be either 'inline' or 'external'.
-	Type KafkaMirrorMaker2SpecLoggingType `json:"type"`
+// The Kafka Connector configuration. The following properties cannot be set:
+// connector.class, tasks.max.
+//type KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnectorConfig map[string]interface{}
 
-	// `ConfigMap` entry where the logging configuration is stored.
-	ValueFrom *KafkaMirrorMaker2SpecLoggingValueFrom `json:"valueFrom,omitempty"`
+// The specification of the Kafka MirrorMaker 2.0 source connector.
+type KafkaMirrorMaker2SpecMirrorsElemSourceConnector struct {
+	// Automatic restart of connector and tasks configuration.
+	AutoRestart *KafkaMirrorMaker2SpecMirrorsElemSourceConnectorAutoRestart `json:"autoRestart,omitempty"`
+
+	// The Kafka Connector configuration. The following properties cannot be set:
+	// connector.class, tasks.max.
+	Config *apiextensions.JSON `json:"config,omitempty"`
+
+	// Whether the connector should be paused. Defaults to false.
+	Pause *bool `json:"pause,omitempty"`
+
+	// The maximum number of tasks for the Kafka Connector.
+	TasksMax *int32 `json:"tasksMax,omitempty"`
+}
+
+// Automatic restart of connector and tasks configuration.
+type KafkaMirrorMaker2SpecMirrorsElemSourceConnectorAutoRestart struct {
+	// Whether automatic restart for failed connectors and tasks should be enabled or
+	// disabled.
+	Enabled *bool `json:"enabled,omitempty"`
 }
 
 // The Kafka Connector configuration. The following properties cannot be set:
 // connector.class, tasks.max.
 //type KafkaMirrorMaker2SpecMirrorsElemSourceConnectorConfig map[string]interface{}
+
+// Configuration of the node label which will be used as the `client.rack` consumer
+// configuration.
+type KafkaMirrorMaker2SpecRack struct {
+	// A key that matches labels assigned to the Kubernetes cluster nodes. The value
+	// of the label is used to set a broker's `broker.rack` config, and the
+	// `client.rack` config for Kafka Connect or MirrorMaker 2.0.
+	TopologyKey string `json:"topologyKey"`
+}
 
 // Pod readiness checking.
 type KafkaMirrorMaker2SpecReadinessProbe struct {
@@ -1213,6 +1324,9 @@ type KafkaMirrorMaker2SpecTemplate struct {
 	// Template for Kafka Connect `Deployment`.
 	Deployment *KafkaMirrorMaker2SpecTemplateDeployment `json:"deployment,omitempty"`
 
+	// Template for Kafka Connect headless `Service`.
+	HeadlessService *KafkaMirrorMaker2SpecTemplateHeadlessService `json:"headlessService,omitempty"`
+
 	// Template for the Kafka init container.
 	InitContainer *KafkaMirrorMaker2SpecTemplateInitContainer `json:"initContainer,omitempty"`
 
@@ -1224,6 +1338,9 @@ type KafkaMirrorMaker2SpecTemplate struct {
 
 	// Template for Kafka Connect `PodDisruptionBudget`.
 	PodDisruptionBudget *KafkaMirrorMaker2SpecTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty"`
+
+	// Template for Kafka Connect `StrimziPodSet` resource.
+	PodSet *KafkaMirrorMaker2SpecTemplatePodSet `json:"podSet,omitempty"`
 
 	// Template for the Kafka Connect service account.
 	ServiceAccount *KafkaMirrorMaker2SpecTemplateServiceAccount `json:"serviceAccount,omitempty"`
@@ -1455,7 +1572,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPod struct {
 	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// Defines the total amount (for example `1Gi`) of local storage required for
-	// temporary EmptyDir volume (`/tmp`). Default value is `1Mi`.
+	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
 	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
 
 	// The pod's tolerations.
@@ -1951,8 +2068,20 @@ type KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty"`
+
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
 	MaxSkew *int32 `json:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -2134,7 +2263,7 @@ type KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextWindowsOptions 
 
 // Template for Kafka Connect `Deployment`.
 type KafkaMirrorMaker2SpecTemplateDeployment struct {
-	// DeploymentStrategy which will be used for this Deployment. Valid values are
+	// Pod replacement strategy for deployment configuration changes. Valid values are
 	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
 	DeploymentStrategy *KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty"`
 
@@ -2165,6 +2294,56 @@ type KafkaMirrorMaker2SpecTemplateDeploymentMetadata struct {
 // Labels added to the resource template. Can be applied to different resources
 // such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
 //type KafkaMirrorMaker2SpecTemplateDeploymentMetadataLabels map[string]interface{}
+
+// Template for Kafka Connect headless `Service`.
+type KafkaMirrorMaker2SpecTemplateHeadlessService struct {
+	// Specifies the IP Families used by the service. Available options are `IPv4` and
+	// `IPv6. If unspecified, Kubernetes will choose the default value based on the
+	// `ipFamilyPolicy` setting. Available on Kubernetes 1.20 and newer.
+	IpFamilies []KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem `json:"ipFamilies,omitempty"`
+
+	// Specifies the IP Family Policy used by the service. Available options are
+	// `SingleStack`, `PreferDualStack` and `RequireDualStack`. `SingleStack` is for a
+	// single IP family. `PreferDualStack` is for two IP families on dual-stack
+	// configured clusters or a single IP family on single-stack clusters.
+	// `RequireDualStack` fails unless there are two IP families on dual-stack
+	// configured clusters. If unspecified, Kubernetes will choose the default value
+	// based on the service type. Available on Kubernetes 1.20 and newer.
+	IpFamilyPolicy *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy `json:"ipFamilyPolicy,omitempty"`
+
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadata `json:"metadata,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem string
+
+const KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElemIPv4 KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem = "IPv4"
+const KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElemIPv6 KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem = "IPv6"
+
+type KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy string
+
+const KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicyPreferDualStack KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy = "PreferDualStack"
+const KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicyRequireDualStack KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy = "RequireDualStack"
+const KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicySingleStack KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy = "SingleStack"
+
+// Metadata applied to the resource.
+type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadata struct {
+	// Annotations added to the resource template. Can be applied to different
+	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
+
+	// Labels added to the resource template. Can be applied to different resources
+	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Labels *apiextensions.JSON `json:"labels,omitempty"`
+}
+
+// Annotations added to the resource template. Can be applied to different
+// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataAnnotations map[string]interface{}
+
+// Labels added to the resource template. Can be applied to different resources
+// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataLabels map[string]interface{}
 
 // Template for the Kafka init container.
 type KafkaMirrorMaker2SpecTemplateInitContainer struct {
@@ -2336,7 +2515,7 @@ type KafkaMirrorMaker2SpecTemplatePod struct {
 	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
 
 	// Defines the total amount (for example `1Gi`) of local storage required for
-	// temporary EmptyDir volume (`/tmp`). Default value is `1Mi`.
+	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
 	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
 
 	// The pod's tolerations.
@@ -2842,6 +3021,31 @@ type KafkaMirrorMaker2SpecTemplatePodSecurityContextWindowsOptions struct {
 	RunAsUserName *string `json:"runAsUserName,omitempty"`
 }
 
+// Template for Kafka Connect `StrimziPodSet` resource.
+type KafkaMirrorMaker2SpecTemplatePodSet struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMaker2SpecTemplatePodSetMetadata `json:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaMirrorMaker2SpecTemplatePodSetMetadata struct {
+	// Annotations added to the resource template. Can be applied to different
+	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
+
+	// Labels added to the resource template. Can be applied to different resources
+	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+	Labels *apiextensions.JSON `json:"labels,omitempty"`
+}
+
+// Annotations added to the resource template. Can be applied to different
+// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaMirrorMaker2SpecTemplatePodSetMetadataAnnotations map[string]interface{}
+
+// Labels added to the resource template. Can be applied to different resources
+// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+//type KafkaMirrorMaker2SpecTemplatePodSetMetadataLabels map[string]interface{}
+
 type KafkaMirrorMaker2SpecTemplatePodTolerationsElem struct {
 	// Effect corresponds to the JSON schema field "effect".
 	Effect *string `json:"effect,omitempty"`
@@ -2863,8 +3067,20 @@ type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty"`
+
 	// MaxSkew corresponds to the JSON schema field "maxSkew".
 	MaxSkew *int32 `json:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty"`
 
 	// TopologyKey corresponds to the JSON schema field "topologyKey".
 	TopologyKey *string `json:"topologyKey,omitempty"`
@@ -2921,17 +3137,22 @@ type KafkaMirrorMaker2SpecTemplateServiceAccountMetadata struct {
 
 // The configuration of tracing in Kafka Connect.
 type KafkaMirrorMaker2SpecTracing struct {
-	// Type of the tracing used. Currently the only supported type is `jaeger` for
-	// Jaeger tracing.
+	// Type of the tracing used. Currently the only supported types are `jaeger` for
+	// OpenTracing (Jaeger) tracing and `opentelemetry` for OpenTelemetry tracing. The
+	// OpenTracing (Jaeger) tracing is deprecated.
 	Type KafkaMirrorMaker2SpecTracingType `json:"type"`
 }
 
 type KafkaMirrorMaker2SpecTracingType string
 
 const KafkaMirrorMaker2SpecTracingTypeJaeger KafkaMirrorMaker2SpecTracingType = "jaeger"
+const KafkaMirrorMaker2SpecTracingTypeOpentelemetry KafkaMirrorMaker2SpecTracingType = "opentelemetry"
 
 // The status of the Kafka MirrorMaker 2.0 cluster.
 type KafkaMirrorMaker2Status struct {
+	// List of MirrorMaker 2.0 connector auto restart statuses.
+	AutoRestartStatuses []KafkaMirrorMaker2StatusAutoRestartStatusesElem `json:"autoRestartStatuses,omitempty"`
+
 	// List of status conditions.
 	Conditions []KafkaMirrorMaker2StatusConditionsElem `json:"conditions,omitempty"`
 
@@ -2954,6 +3175,18 @@ type KafkaMirrorMaker2Status struct {
 	// The URL of the REST API endpoint for managing and monitoring Kafka Connect
 	// connectors.
 	Url *string `json:"url,omitempty"`
+}
+
+type KafkaMirrorMaker2StatusAutoRestartStatusesElem struct {
+	// The name of the connector being restarted.
+	ConnectorName *string `json:"connectorName,omitempty"`
+
+	// The number of times the connector or task is restarted.
+	Count *int32 `json:"count,omitempty"`
+
+	// The last time the automatic restart was attempted. The required format is
+	// 'yyyy-MM-ddTHH:mm:ssZ' in the UTC time zone.
+	LastRestartTimestamp *string `json:"lastRestartTimestamp,omitempty"`
 }
 
 type KafkaMirrorMaker2StatusConditionsElem struct {
@@ -3019,6 +3252,16 @@ var enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy = []int
 	"RollingUpdate",
 	"Recreate",
 }
+var enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem = []interface{}{
+	"IPv4",
+	"IPv6",
+}
+var enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy = []interface{}{
+	"SingleStack",
+	"PreferDualStack",
+	"RequireDualStack",
+}
 var enumValues_KafkaMirrorMaker2SpecTracingType = []interface{}{
 	"jaeger",
+	"opentelemetry",
 }

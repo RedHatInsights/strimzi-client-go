@@ -9,10 +9,10 @@ import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 // +kubebuilder:subresource:status
 // KafkaTopic
 type KafkaTopic struct {
-	// The specification of the topic.
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// The specification of the topic.
 	Spec *KafkaTopicSpec `json:"spec,omitempty"`
 
 	// The status of the topic.
@@ -27,10 +27,6 @@ type KafkaTopicList struct {
 
 	// A list of Kafka objects.
 	Items []KafkaTopic `json:"items,omitempty"`
-}
-
-func init() {
-	SchemeBuilder.Register(&KafkaTopic{}, &KafkaTopicList{})
 }
 
 // The specification of the topic.
