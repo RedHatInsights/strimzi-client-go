@@ -34,3 +34,15 @@ var (
 	// AddToScheme adds the types in this group-version to the given scheme.
 	AddToScheme = SchemeBuilder.AddToScheme
 )
+
+func init() {
+	SchemeBuilder.Register(&Kafka{}, &KafkaList{})
+	SchemeBuilder.Register(&KafkaBridge{}, &KafkaBridgeList{})
+	SchemeBuilder.Register(&KafkaMirrorMaker{}, &KafkaMirrorMakerList{})
+	SchemeBuilder.Register(&KafkaConnect{}, &KafkaConnectList{})
+	SchemeBuilder.Register(&KafkaConnector{}, &KafkaConnectorList{})
+	SchemeBuilder.Register(&KafkaMirrorMaker2{}, &KafkaMirrorMaker2List{})
+	SchemeBuilder.Register(&KafkaRebalance{}, &KafkaRebalanceList{})
+	SchemeBuilder.Register(&KafkaTopic{}, &KafkaTopicList{})
+	SchemeBuilder.Register(&KafkaUser{}, &KafkaUserList{})
+}
