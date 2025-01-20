@@ -2,97 +2,19 @@
 
 package v1beta2
 
+import "encoding/json"
 import "fmt"
 import "reflect"
-import "encoding/json"
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-// The specification of the Kafka rebalance.
-type KafkaRebalanceSpec struct {
-	// The list of newly added brokers in case of scaling up or the ones to be removed
-	// in case of scaling down to use for rebalancing. This list can be used only with
-	// rebalancing mode `add-brokers` and `removed-brokers`. It is ignored with `full`
-	// mode.
-	Brokers []int32 `json:"brokers,omitempty"`
+type KafkaRebalanceSpecMode string
 
-	// The upper bound of ongoing partition replica movements between disks within
-	// each broker. Default is 2.
-	ConcurrentIntraBrokerPartitionMovements *int32 `json:"concurrentIntraBrokerPartitionMovements,omitempty"`
-
-	// The upper bound of ongoing partition leadership movements. Default is 1000.
-	ConcurrentLeaderMovements *int32 `json:"concurrentLeaderMovements,omitempty"`
-
-	// The upper bound of ongoing partition replica movements going into/out of each
-	// broker. Default is 5.
-	ConcurrentPartitionMovementsPerBroker *int32 `json:"concurrentPartitionMovementsPerBroker,omitempty"`
-
-	// A regular expression where any matching topics will be excluded from the
-	// calculation of optimization proposals. This expression will be parsed by the
-	// java.util.regex.Pattern class; for more information on the supported format
-	// consult the documentation for that class.
-	ExcludedTopics *string `json:"excludedTopics,omitempty"`
-
-	// A list of goals, ordered by decreasing priority, to use for generating and
-	// executing the rebalance proposal. The supported goals are available at
-	// https://github.com/linkedin/cruise-control#goals. If an empty goals list is
-	// provided, the goals declared in the default.goals Cruise Control configuration
-	// parameter are used.
-	Goals []string `json:"goals,omitempty"`
-
-	// Mode to run the rebalancing. The supported modes are `full`, `add-brokers`,
-	// `remove-brokers`.
-	// If not specified, the `full` mode is used by default.
-	//
-	// * `full` mode runs the rebalancing across all the brokers in the cluster.
-	// * `add-brokers` mode can be used after scaling up the cluster to move some
-	// replicas to the newly added brokers.
-	// * `remove-brokers` mode can be used before scaling down the cluster to move
-	// replicas out of the brokers to be removed.
-	//
-	Mode *KafkaRebalanceSpecMode `json:"mode,omitempty"`
-
-	// Enables intra-broker disk balancing, which balances disk space utilization
-	// between disks on the same broker. Only applies to Kafka deployments that use
-	// JBOD storage with multiple disks. When enabled, inter-broker balancing is
-	// disabled. Default is false.
-	RebalanceDisk *bool `json:"rebalanceDisk,omitempty"`
-
-	// A list of strategy class names used to determine the execution order for the
-	// replica movements in the generated optimization proposal. By default
-	// BaseReplicaMovementStrategy is used, which will execute the replica movements
-	// in the order that they were generated.
-	ReplicaMovementStrategies []string `json:"replicaMovementStrategies,omitempty"`
-
-	// The upper bound, in bytes per second, on the bandwidth used to move replicas.
-	// There is no limit by default.
-	ReplicationThrottle *int32 `json:"replicationThrottle,omitempty"`
-
-	// Whether to allow the hard goals specified in the Kafka CR to be skipped in
-	// optimization proposal generation. This can be useful when some of those hard
-	// goals are preventing a balance solution being found. Default is false.
-	SkipHardGoalCheck *bool `json:"skipHardGoalCheck,omitempty"`
-}
-
-type KafkaRebalanceStatusConditionsElem struct {
-	// Last time the condition of a type changed from one status to another. The
-	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
-	LastTransitionTime *string `json:"lastTransitionTime,omitempty"`
-
-	// Human-readable message indicating details about the condition's last
-	// transition.
-	Message *string `json:"message,omitempty"`
-
-	// The reason for the condition's last transition (a single word in CamelCase).
-	Reason *string `json:"reason,omitempty"`
-
-	// The status of the condition, either True, False or Unknown.
-	Status *string `json:"status,omitempty"`
-
-	// The unique identifier of a condition, used to distinguish between other
-	// conditions in the resource.
-	Type *string `json:"type,omitempty"`
+var enumValues_KafkaRebalanceSpecMode = []interface{}{
+	"full",
+	"add-brokers",
+	"remove-brokers",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -117,16 +39,15 @@ func (j *KafkaRebalanceSpecMode) UnmarshalJSON(b []byte) error {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// KafkaRebalance
 type KafkaRebalance struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// The specification of the Kafka rebalance.
-	Spec *KafkaRebalanceSpec `json:"spec,omitempty"`
+	Spec *KafkaRebalanceSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
 
 	// The status of the Kafka rebalance.
-	Status *KafkaRebalanceStatus `json:"status,omitempty"`
+	Status *KafkaRebalanceStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -135,11 +56,76 @@ type KafkaRebalanceList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 
-	// A list of Kafka objects.
+	// A list of KafkaRebalance objects.
 	Items []KafkaRebalance `json:"items,omitempty"`
 }
 
-type KafkaRebalanceSpecMode string
+
+// The specification of the Kafka rebalance.
+type KafkaRebalanceSpec struct {
+	// The list of newly added brokers in case of scaling up or the ones to be removed
+	// in case of scaling down to use for rebalancing. This list can be used only with
+	// rebalancing mode `add-brokers` and `removed-brokers`. It is ignored with `full`
+	// mode.
+	Brokers []int32 `json:"brokers,omitempty" yaml:"brokers,omitempty" mapstructure:"brokers,omitempty"`
+
+	// The upper bound of ongoing partition replica movements between disks within
+	// each broker. Default is 2.
+	ConcurrentIntraBrokerPartitionMovements *int32 `json:"concurrentIntraBrokerPartitionMovements,omitempty" yaml:"concurrentIntraBrokerPartitionMovements,omitempty" mapstructure:"concurrentIntraBrokerPartitionMovements,omitempty"`
+
+	// The upper bound of ongoing partition leadership movements. Default is 1000.
+	ConcurrentLeaderMovements *int32 `json:"concurrentLeaderMovements,omitempty" yaml:"concurrentLeaderMovements,omitempty" mapstructure:"concurrentLeaderMovements,omitempty"`
+
+	// The upper bound of ongoing partition replica movements going into/out of each
+	// broker. Default is 5.
+	ConcurrentPartitionMovementsPerBroker *int32 `json:"concurrentPartitionMovementsPerBroker,omitempty" yaml:"concurrentPartitionMovementsPerBroker,omitempty" mapstructure:"concurrentPartitionMovementsPerBroker,omitempty"`
+
+	// A regular expression where any matching topics will be excluded from the
+	// calculation of optimization proposals. This expression will be parsed by the
+	// java.util.regex.Pattern class; for more information on the supported format
+	// consult the documentation for that class.
+	ExcludedTopics *string `json:"excludedTopics,omitempty" yaml:"excludedTopics,omitempty" mapstructure:"excludedTopics,omitempty"`
+
+	// A list of goals, ordered by decreasing priority, to use for generating and
+	// executing the rebalance proposal. The supported goals are available at
+	// https://github.com/linkedin/cruise-control#goals. If an empty goals list is
+	// provided, the goals declared in the default.goals Cruise Control configuration
+	// parameter are used.
+	Goals []string `json:"goals,omitempty" yaml:"goals,omitempty" mapstructure:"goals,omitempty"`
+
+	// Mode to run the rebalancing. The supported modes are `full`, `add-brokers`,
+	// `remove-brokers`.
+	// If not specified, the `full` mode is used by default.
+	//
+	// * `full` mode runs the rebalancing across all the brokers in the cluster.
+	// * `add-brokers` mode can be used after scaling up the cluster to move some
+	// replicas to the newly added brokers.
+	// * `remove-brokers` mode can be used before scaling down the cluster to move
+	// replicas out of the brokers to be removed.
+	//
+	Mode *KafkaRebalanceSpecMode `json:"mode,omitempty" yaml:"mode,omitempty" mapstructure:"mode,omitempty"`
+
+	// Enables intra-broker disk balancing, which balances disk space utilization
+	// between disks on the same broker. Only applies to Kafka deployments that use
+	// JBOD storage with multiple disks. When enabled, inter-broker balancing is
+	// disabled. Default is false.
+	RebalanceDisk *bool `json:"rebalanceDisk,omitempty" yaml:"rebalanceDisk,omitempty" mapstructure:"rebalanceDisk,omitempty"`
+
+	// A list of strategy class names used to determine the execution order for the
+	// replica movements in the generated optimization proposal. By default
+	// BaseReplicaMovementStrategy is used, which will execute the replica movements
+	// in the order that they were generated.
+	ReplicaMovementStrategies []string `json:"replicaMovementStrategies,omitempty" yaml:"replicaMovementStrategies,omitempty" mapstructure:"replicaMovementStrategies,omitempty"`
+
+	// The upper bound, in bytes per second, on the bandwidth used to move replicas.
+	// There is no limit by default.
+	ReplicationThrottle *int32 `json:"replicationThrottle,omitempty" yaml:"replicationThrottle,omitempty" mapstructure:"replicationThrottle,omitempty"`
+
+	// Whether to allow the hard goals specified in the Kafka CR to be skipped in
+	// optimization proposal generation. This can be useful when some of those hard
+	// goals are preventing a balance solution being found. Default is false.
+	SkipHardGoalCheck *bool `json:"skipHardGoalCheck,omitempty" yaml:"skipHardGoalCheck,omitempty" mapstructure:"skipHardGoalCheck,omitempty"`
+}
 
 const KafkaRebalanceSpecModeAddBrokers KafkaRebalanceSpecMode = "add-brokers"
 const KafkaRebalanceSpecModeFull KafkaRebalanceSpecMode = "full"
@@ -148,25 +134,39 @@ const KafkaRebalanceSpecModeRemoveBrokers KafkaRebalanceSpecMode = "remove-broke
 // The status of the Kafka rebalance.
 type KafkaRebalanceStatus struct {
 	// List of status conditions.
-	Conditions []KafkaRebalanceStatusConditionsElem `json:"conditions,omitempty"`
+	Conditions []KafkaRebalanceStatusConditionsElem `json:"conditions,omitempty" yaml:"conditions,omitempty" mapstructure:"conditions,omitempty"`
 
 	// The generation of the CRD that was last reconciled by the operator.
-	ObservedGeneration *int32 `json:"observedGeneration,omitempty"`
+	ObservedGeneration *int32 `json:"observedGeneration,omitempty" yaml:"observedGeneration,omitempty" mapstructure:"observedGeneration,omitempty"`
 
 	// A JSON object describing the optimization result.
-	OptimizationResult *apiextensions.JSON `json:"optimizationResult,omitempty"`
+	OptimizationResult *apiextensions.JSON `json:"optimizationResult,omitempty" yaml:"optimizationResult,omitempty" mapstructure:"optimizationResult,omitempty"`
 
 	// The session identifier for requests to Cruise Control pertaining to this
 	// KafkaRebalance resource. This is used by the Kafka Rebalance operator to track
 	// the status of ongoing rebalancing operations.
-	SessionId *string `json:"sessionId,omitempty"`
+	SessionId *string `json:"sessionId,omitempty" yaml:"sessionId,omitempty" mapstructure:"sessionId,omitempty"`
+}
+
+type KafkaRebalanceStatusConditionsElem struct {
+	// Last time the condition of a type changed from one status to another. The
+	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
+
+	// Human-readable message indicating details about the condition's last
+	// transition.
+	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
+
+	// The reason for the condition's last transition (a single word in CamelCase).
+	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
+
+	// The status of the condition, either True, False or Unknown.
+	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
+
+	// The unique identifier of a condition, used to distinguish between other
+	// conditions in the resource.
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
 }
 
 // A JSON object describing the optimization result.
 //type KafkaRebalanceStatusOptimizationResult map[string]interface{}
-
-var enumValues_KafkaRebalanceSpecMode = []interface{}{
-	"full",
-	"add-brokers",
-	"remove-brokers",
-}

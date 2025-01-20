@@ -2,65 +2,1249 @@
 
 package v1beta2
 
-import "fmt"
 import "encoding/json"
+import "fmt"
 import "reflect"
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem(plain)
-	return nil
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+type KafkaMirrorMaker struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// The specification of Kafka MirrorMaker.
+	Spec *KafkaMirrorMakerSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
+
+	// The status of Kafka MirrorMaker.
+	Status *KafkaMirrorMakerStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecConsumerAuthenticationAccessToken
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecConsumerAuthenticationAccessToken(plain)
-	return nil
+// +kubebuilder:object:root=true
+// KafkaMirrorMakerList contains a list of instances.
+type KafkaMirrorMakerList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// A list of KafkaMirrorMaker objects.
+	Items []KafkaMirrorMaker `json:"items,omitempty"`
+}
+
+// The specification of Kafka MirrorMaker.
+type KafkaMirrorMakerSpec struct {
+	// Configuration of source cluster.
+	Consumer KafkaMirrorMakerSpecConsumer `json:"consumer" yaml:"consumer" mapstructure:"consumer"`
+
+	// The docker image for the pods.
+	Image *string `json:"image,omitempty" yaml:"image,omitempty" mapstructure:"image,omitempty"`
+
+	// List of topics which are included for mirroring. This option allows any regular
+	// expression using Java-style regular expressions. Mirroring two topics named A
+	// and B is achieved by using the expression `A\|B`. Or, as a special case, you
+	// can mirror all topics using the regular expression `*`. You can also specify
+	// multiple regular expressions separated by commas.
+	Include *string `json:"include,omitempty" yaml:"include,omitempty" mapstructure:"include,omitempty"`
+
+	// JVM Options for pods.
+	JvmOptions *KafkaMirrorMakerSpecJvmOptions `json:"jvmOptions,omitempty" yaml:"jvmOptions,omitempty" mapstructure:"jvmOptions,omitempty"`
+
+	// Pod liveness checking.
+	LivenessProbe *KafkaMirrorMakerSpecLivenessProbe `json:"livenessProbe,omitempty" yaml:"livenessProbe,omitempty" mapstructure:"livenessProbe,omitempty"`
+
+	// Logging configuration for MirrorMaker.
+	Logging *KafkaMirrorMakerSpecLogging `json:"logging,omitempty" yaml:"logging,omitempty" mapstructure:"logging,omitempty"`
+
+	// Metrics configuration.
+	MetricsConfig *KafkaMirrorMakerSpecMetricsConfig `json:"metricsConfig,omitempty" yaml:"metricsConfig,omitempty" mapstructure:"metricsConfig,omitempty"`
+
+	// Configuration of target cluster.
+	Producer KafkaMirrorMakerSpecProducer `json:"producer" yaml:"producer" mapstructure:"producer"`
+
+	// Pod readiness checking.
+	ReadinessProbe *KafkaMirrorMakerSpecReadinessProbe `json:"readinessProbe,omitempty" yaml:"readinessProbe,omitempty" mapstructure:"readinessProbe,omitempty"`
+
+	// The number of pods in the `Deployment`.
+	Replicas int32 `json:"replicas" yaml:"replicas" mapstructure:"replicas"`
+
+	// CPU and memory resources to reserve.
+	Resources *KafkaMirrorMakerSpecResources `json:"resources,omitempty" yaml:"resources,omitempty" mapstructure:"resources,omitempty"`
+
+	// Template to specify how Kafka MirrorMaker resources, `Deployments` and `Pods`,
+	// are generated.
+	Template *KafkaMirrorMakerSpecTemplate `json:"template,omitempty" yaml:"template,omitempty" mapstructure:"template,omitempty"`
+
+	// The configuration of tracing in Kafka MirrorMaker.
+	Tracing *KafkaMirrorMakerSpecTracing `json:"tracing,omitempty" yaml:"tracing,omitempty" mapstructure:"tracing,omitempty"`
+
+	// The Kafka MirrorMaker version. Defaults to {DefaultKafkaVersion}. Consult the
+	// documentation to understand the process required to upgrade or downgrade the
+	// version.
+	Version *string `json:"version,omitempty" yaml:"version,omitempty" mapstructure:"version,omitempty"`
+
+	// List of topics which are included for mirroring. This option allows any regular
+	// expression using Java-style regular expressions. Mirroring two topics named A
+	// and B is achieved by using the expression `A\|B`. Or, as a special case, you
+	// can mirror all topics using the regular expression `*`. You can also specify
+	// multiple regular expressions separated by commas.
+	Whitelist *string `json:"whitelist,omitempty" yaml:"whitelist,omitempty" mapstructure:"whitelist,omitempty"`
+}
+
+// Configuration of source cluster.
+type KafkaMirrorMakerSpecConsumer struct {
+	// Authentication configuration for connecting to the cluster.
+	Authentication *KafkaMirrorMakerSpecConsumerAuthentication `json:"authentication,omitempty" yaml:"authentication,omitempty" mapstructure:"authentication,omitempty"`
+
+	// A list of host:port pairs for establishing the initial connection to the Kafka
+	// cluster.
+	BootstrapServers string `json:"bootstrapServers" yaml:"bootstrapServers" mapstructure:"bootstrapServers"`
+
+	// The MirrorMaker consumer config. Properties with the following prefixes cannot
+	// be set: ssl., bootstrap.servers, group.id, sasl., security.,
+	// interceptor.classes (with the exception of:
+	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+	// ssl.enabled.protocols).
+	Config *apiextensions.JSON `json:"config,omitempty" yaml:"config,omitempty" mapstructure:"config,omitempty"`
+
+	// A unique string that identifies the consumer group this consumer belongs to.
+	GroupId string `json:"groupId" yaml:"groupId" mapstructure:"groupId"`
+
+	// Specifies the number of consumer stream threads to create.
+	NumStreams *int32 `json:"numStreams,omitempty" yaml:"numStreams,omitempty" mapstructure:"numStreams,omitempty"`
+
+	// Specifies the offset auto-commit interval in ms. Default value is 60000.
+	OffsetCommitInterval *int32 `json:"offsetCommitInterval,omitempty" yaml:"offsetCommitInterval,omitempty" mapstructure:"offsetCommitInterval,omitempty"`
+
+	// TLS configuration for connecting MirrorMaker to the cluster.
+	Tls *KafkaMirrorMakerSpecConsumerTls `json:"tls,omitempty" yaml:"tls,omitempty" mapstructure:"tls,omitempty"`
+}
+
+// Authentication configuration for connecting to the cluster.
+type KafkaMirrorMakerSpecConsumerAuthentication struct {
+	// Link to Kubernetes Secret containing the access token which was obtained from
+	// the authorization server.
+	AccessToken *KafkaMirrorMakerSpecConsumerAuthenticationAccessToken `json:"accessToken,omitempty" yaml:"accessToken,omitempty" mapstructure:"accessToken,omitempty"`
+
+	// Configure whether access token should be treated as JWT. This should be set to
+	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
+	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty" yaml:"accessTokenIsJwt,omitempty" mapstructure:"accessTokenIsJwt,omitempty"`
+
+	// OAuth audience to use when authenticating against the authorization server.
+	// Some authorization servers require the audience to be explicitly set. The
+	// possible values depend on how the authorization server is configured. By
+	// default, `audience` is not specified when performing the token endpoint
+	// request.
+	Audience *string `json:"audience,omitempty" yaml:"audience,omitempty" mapstructure:"audience,omitempty"`
+
+	// Reference to the `Secret` which holds the certificate and private key pair.
+	CertificateAndKey *KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty" yaml:"certificateAndKey,omitempty" mapstructure:"certificateAndKey,omitempty"`
+
+	// OAuth Client ID which the Kafka client can use to authenticate against the
+	// OAuth server and use the token endpoint URI.
+	ClientId *string `json:"clientId,omitempty" yaml:"clientId,omitempty" mapstructure:"clientId,omitempty"`
+
+	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
+	// client can use to authenticate against the OAuth server and use the token
+	// endpoint URI.
+	ClientSecret *KafkaMirrorMakerSpecConsumerAuthenticationClientSecret `json:"clientSecret,omitempty" yaml:"clientSecret,omitempty" mapstructure:"clientSecret,omitempty"`
+
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty" yaml:"connectTimeoutSeconds,omitempty" mapstructure:"connectTimeoutSeconds,omitempty"`
+
+	// Enable or disable TLS hostname verification. Default value is `false`.
+	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty" yaml:"disableTlsHostnameVerification,omitempty" mapstructure:"disableTlsHostnameVerification,omitempty"`
+
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty" yaml:"enableMetrics,omitempty" mapstructure:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty" yaml:"httpRetries,omitempty" mapstructure:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty" yaml:"httpRetryPauseMs,omitempty" mapstructure:"httpRetryPauseMs,omitempty"`
+
+	// Whether the Accept header should be set in requests to the authorization
+	// servers. The default value is `true`.
+	IncludeAcceptHeader *bool `json:"includeAcceptHeader,omitempty" yaml:"includeAcceptHeader,omitempty" mapstructure:"includeAcceptHeader,omitempty"`
+
+	// Set or limit time-to-live of the access tokens to the specified number of
+	// seconds. This should be set if the authorization server returns opaque tokens.
+	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty" yaml:"maxTokenExpirySeconds,omitempty" mapstructure:"maxTokenExpirySeconds,omitempty"`
+
+	// Reference to the `Secret` which holds the password.
+	PasswordSecret *KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret `json:"passwordSecret,omitempty" yaml:"passwordSecret,omitempty" mapstructure:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty" yaml:"readTimeoutSeconds,omitempty" mapstructure:"readTimeoutSeconds,omitempty"`
+
+	// Link to Kubernetes Secret containing the refresh token which can be used to
+	// obtain access token from the authorization server.
+	RefreshToken *KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken `json:"refreshToken,omitempty" yaml:"refreshToken,omitempty" mapstructure:"refreshToken,omitempty"`
+
+	// OAuth scope to use when authenticating against the authorization server. Some
+	// authorization servers require this to be set. The possible values depend on how
+	// authorization server is configured. By default `scope` is not specified when
+	// doing the token endpoint request.
+	Scope *string `json:"scope,omitempty" yaml:"scope,omitempty" mapstructure:"scope,omitempty"`
+
+	// Trusted certificates for TLS connection to the OAuth server.
+	TlsTrustedCertificates []KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty" yaml:"tlsTrustedCertificates,omitempty" mapstructure:"tlsTrustedCertificates,omitempty"`
+
+	// Authorization server token endpoint URI.
+	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty" yaml:"tokenEndpointUri,omitempty" mapstructure:"tokenEndpointUri,omitempty"`
+
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
+	Type KafkaMirrorMakerSpecConsumerAuthenticationType `json:"type" yaml:"type" mapstructure:"type"`
+
+	// Username used for the authentication.
+	Username *string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"username,omitempty"`
+}
+
+// Link to Kubernetes Secret containing the access token which was obtained from
+// the authorization server.
+type KafkaMirrorMakerSpecConsumerAuthenticationAccessToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
 }
 
 // Reference to the `Secret` which holds the certificate and private key pair.
 type KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey struct {
 	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
 
 	// The name of the private key in the Secret.
-	Key string `json:"key"`
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
 
 	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
+// client can use to authenticate against the OAuth server and use the token
+// endpoint URI.
+type KafkaMirrorMakerSpecConsumerAuthenticationClientSecret struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Reference to the `Secret` which holds the password.
+type KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret struct {
+	// The name of the key in the Secret under which the password is stored.
+	Password string `json:"password" yaml:"password" mapstructure:"password"`
+
+	// The name of the Secret containing the password.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Link to Kubernetes Secret containing the refresh token which can be used to
+// obtain access token from the authorization server.
+type KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+type KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+type KafkaMirrorMakerSpecConsumerAuthenticationType string
+
+const KafkaMirrorMakerSpecConsumerAuthenticationTypeOauth KafkaMirrorMakerSpecConsumerAuthenticationType = "oauth"
+const KafkaMirrorMakerSpecConsumerAuthenticationTypePlain KafkaMirrorMakerSpecConsumerAuthenticationType = "plain"
+const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha256 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-256"
+const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-512"
+const KafkaMirrorMakerSpecConsumerAuthenticationTypeTls KafkaMirrorMakerSpecConsumerAuthenticationType = "tls"
+
+// The MirrorMaker consumer config. Properties with the following prefixes cannot
+// be set: ssl., bootstrap.servers, group.id, sasl., security., interceptor.classes
+// (with the exception of: ssl.endpoint.identification.algorithm,
+// ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols).
+//type KafkaMirrorMakerSpecConsumerConfig map[string]interface{}
+
+// TLS configuration for connecting MirrorMaker to the cluster.
+type KafkaMirrorMakerSpecConsumerTls struct {
+	// Trusted certificates for TLS connection.
+	TrustedCertificates []KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty" yaml:"trustedCertificates,omitempty" mapstructure:"trustedCertificates,omitempty"`
+}
+
+type KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// JVM Options for pods.
+type KafkaMirrorMakerSpecJvmOptions struct {
+	// A map of -XX options to the JVM.
+	XX *apiextensions.JSON `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
+
+	// -Xms option to to the JVM.
+	Xms *string `json:"-Xms,omitempty" yaml:"-Xms,omitempty" mapstructure:"-Xms,omitempty"`
+
+	// -Xmx option to to the JVM.
+	Xmx *string `json:"-Xmx,omitempty" yaml:"-Xmx,omitempty" mapstructure:"-Xmx,omitempty"`
+
+	// Specifies whether the Garbage Collection logging is enabled. The default is
+	// false.
+	GcLoggingEnabled *bool `json:"gcLoggingEnabled,omitempty" yaml:"gcLoggingEnabled,omitempty" mapstructure:"gcLoggingEnabled,omitempty"`
+
+	// A map of additional system properties which will be passed using the `-D`
+	// option to the JVM.
+	JavaSystemProperties []KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem `json:"javaSystemProperties,omitempty" yaml:"javaSystemProperties,omitempty" mapstructure:"javaSystemProperties,omitempty"`
+}
+
+type KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem struct {
+	// The system property name.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The system property value.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// A map of -XX options to the JVM.
+//type KafkaMirrorMakerSpecJvmOptionsXX map[string]interface{}
+
+// Pod liveness checking.
+type KafkaMirrorMakerSpecLivenessProbe struct {
+	// Minimum consecutive failures for the probe to be considered failed after having
+	// succeeded. Defaults to 3. Minimum value is 1.
+	FailureThreshold *int32 `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty" mapstructure:"failureThreshold,omitempty"`
+
+	// The initial delay before first the health is first checked. Default to 15
+	// seconds. Minimum value is 0.
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty" mapstructure:"initialDelaySeconds,omitempty"`
+
+	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
+	// value is 1.
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty" mapstructure:"periodSeconds,omitempty"`
+
+	// Minimum consecutive successes for the probe to be considered successful after
+	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+	SuccessThreshold *int32 `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty" mapstructure:"successThreshold,omitempty"`
+
+	// The timeout for each attempted health check. Default to 5 seconds. Minimum
+	// value is 1.
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty" mapstructure:"timeoutSeconds,omitempty"`
+}
+
+// Logging configuration for MirrorMaker.
+type KafkaMirrorMakerSpecLogging struct {
+	// A Map from logger name to logger level.
+	Loggers *apiextensions.JSON `json:"loggers,omitempty" yaml:"loggers,omitempty" mapstructure:"loggers,omitempty"`
+
+	// Logging type, must be either 'inline' or 'external'.
+	Type KafkaMirrorMakerSpecLoggingType `json:"type" yaml:"type" mapstructure:"type"`
+
+	// `ConfigMap` entry where the logging configuration is stored.
+	ValueFrom *KafkaMirrorMakerSpecLoggingValueFrom `json:"valueFrom,omitempty" yaml:"valueFrom,omitempty" mapstructure:"valueFrom,omitempty"`
+}
+
+// A Map from logger name to logger level.
+//type KafkaMirrorMakerSpecLoggingLoggers map[string]interface{}
+
+type KafkaMirrorMakerSpecLoggingType string
+
+const KafkaMirrorMakerSpecLoggingTypeExternal KafkaMirrorMakerSpecLoggingType = "external"
+const KafkaMirrorMakerSpecLoggingTypeInline KafkaMirrorMakerSpecLoggingType = "inline"
+
+// `ConfigMap` entry where the logging configuration is stored.
+type KafkaMirrorMakerSpecLoggingValueFrom struct {
+	// Reference to the key in the ConfigMap containing the configuration.
+	ConfigMapKeyRef *KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty" yaml:"configMapKeyRef,omitempty" mapstructure:"configMapKeyRef,omitempty"`
+}
+
+// Reference to the key in the ConfigMap containing the configuration.
+type KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Optional corresponds to the JSON schema field "optional".
+	Optional *bool `json:"optional,omitempty" yaml:"optional,omitempty" mapstructure:"optional,omitempty"`
+}
+
+// Metrics configuration.
+type KafkaMirrorMakerSpecMetricsConfig struct {
+	// Metrics type. Only 'jmxPrometheusExporter' supported currently.
+	Type KafkaMirrorMakerSpecMetricsConfigType `json:"type" yaml:"type" mapstructure:"type"`
+
+	// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
+	// details of the structure of this configuration, see the {JMXExporter}.
+	ValueFrom KafkaMirrorMakerSpecMetricsConfigValueFrom `json:"valueFrom" yaml:"valueFrom" mapstructure:"valueFrom"`
+}
+
+type KafkaMirrorMakerSpecMetricsConfigType string
+
+const KafkaMirrorMakerSpecMetricsConfigTypeJmxPrometheusExporter KafkaMirrorMakerSpecMetricsConfigType = "jmxPrometheusExporter"
+
+// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
+// details of the structure of this configuration, see the {JMXExporter}.
+type KafkaMirrorMakerSpecMetricsConfigValueFrom struct {
+	// Reference to the key in the ConfigMap containing the configuration.
+	ConfigMapKeyRef *KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty" yaml:"configMapKeyRef,omitempty" mapstructure:"configMapKeyRef,omitempty"`
+}
+
+// Reference to the key in the ConfigMap containing the configuration.
+type KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Optional corresponds to the JSON schema field "optional".
+	Optional *bool `json:"optional,omitempty" yaml:"optional,omitempty" mapstructure:"optional,omitempty"`
+}
+
+// Configuration of target cluster.
+type KafkaMirrorMakerSpecProducer struct {
+	// Flag to set the MirrorMaker to exit on a failed send. Default value is `true`.
+	AbortOnSendFailure *bool `json:"abortOnSendFailure,omitempty" yaml:"abortOnSendFailure,omitempty" mapstructure:"abortOnSendFailure,omitempty"`
+
+	// Authentication configuration for connecting to the cluster.
+	Authentication *KafkaMirrorMakerSpecProducerAuthentication `json:"authentication,omitempty" yaml:"authentication,omitempty" mapstructure:"authentication,omitempty"`
+
+	// A list of host:port pairs for establishing the initial connection to the Kafka
+	// cluster.
+	BootstrapServers string `json:"bootstrapServers" yaml:"bootstrapServers" mapstructure:"bootstrapServers"`
+
+	// The MirrorMaker producer config. Properties with the following prefixes cannot
+	// be set: ssl., bootstrap.servers, sasl., security., interceptor.classes (with
+	// the exception of: ssl.endpoint.identification.algorithm, ssl.cipher.suites,
+	// ssl.protocol, ssl.enabled.protocols).
+	Config *apiextensions.JSON `json:"config,omitempty" yaml:"config,omitempty" mapstructure:"config,omitempty"`
+
+	// TLS configuration for connecting MirrorMaker to the cluster.
+	Tls *KafkaMirrorMakerSpecProducerTls `json:"tls,omitempty" yaml:"tls,omitempty" mapstructure:"tls,omitempty"`
+}
+
+// Authentication configuration for connecting to the cluster.
+type KafkaMirrorMakerSpecProducerAuthentication struct {
+	// Link to Kubernetes Secret containing the access token which was obtained from
+	// the authorization server.
+	AccessToken *KafkaMirrorMakerSpecProducerAuthenticationAccessToken `json:"accessToken,omitempty" yaml:"accessToken,omitempty" mapstructure:"accessToken,omitempty"`
+
+	// Configure whether access token should be treated as JWT. This should be set to
+	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
+	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty" yaml:"accessTokenIsJwt,omitempty" mapstructure:"accessTokenIsJwt,omitempty"`
+
+	// OAuth audience to use when authenticating against the authorization server.
+	// Some authorization servers require the audience to be explicitly set. The
+	// possible values depend on how the authorization server is configured. By
+	// default, `audience` is not specified when performing the token endpoint
+	// request.
+	Audience *string `json:"audience,omitempty" yaml:"audience,omitempty" mapstructure:"audience,omitempty"`
+
+	// Reference to the `Secret` which holds the certificate and private key pair.
+	CertificateAndKey *KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty" yaml:"certificateAndKey,omitempty" mapstructure:"certificateAndKey,omitempty"`
+
+	// OAuth Client ID which the Kafka client can use to authenticate against the
+	// OAuth server and use the token endpoint URI.
+	ClientId *string `json:"clientId,omitempty" yaml:"clientId,omitempty" mapstructure:"clientId,omitempty"`
+
+	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
+	// client can use to authenticate against the OAuth server and use the token
+	// endpoint URI.
+	ClientSecret *KafkaMirrorMakerSpecProducerAuthenticationClientSecret `json:"clientSecret,omitempty" yaml:"clientSecret,omitempty" mapstructure:"clientSecret,omitempty"`
+
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty" yaml:"connectTimeoutSeconds,omitempty" mapstructure:"connectTimeoutSeconds,omitempty"`
+
+	// Enable or disable TLS hostname verification. Default value is `false`.
+	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty" yaml:"disableTlsHostnameVerification,omitempty" mapstructure:"disableTlsHostnameVerification,omitempty"`
+
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty" yaml:"enableMetrics,omitempty" mapstructure:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty" yaml:"httpRetries,omitempty" mapstructure:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty" yaml:"httpRetryPauseMs,omitempty" mapstructure:"httpRetryPauseMs,omitempty"`
+
+	// Whether the Accept header should be set in requests to the authorization
+	// servers. The default value is `true`.
+	IncludeAcceptHeader *bool `json:"includeAcceptHeader,omitempty" yaml:"includeAcceptHeader,omitempty" mapstructure:"includeAcceptHeader,omitempty"`
+
+	// Set or limit time-to-live of the access tokens to the specified number of
+	// seconds. This should be set if the authorization server returns opaque tokens.
+	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty" yaml:"maxTokenExpirySeconds,omitempty" mapstructure:"maxTokenExpirySeconds,omitempty"`
+
+	// Reference to the `Secret` which holds the password.
+	PasswordSecret *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret `json:"passwordSecret,omitempty" yaml:"passwordSecret,omitempty" mapstructure:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty" yaml:"readTimeoutSeconds,omitempty" mapstructure:"readTimeoutSeconds,omitempty"`
+
+	// Link to Kubernetes Secret containing the refresh token which can be used to
+	// obtain access token from the authorization server.
+	RefreshToken *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken `json:"refreshToken,omitempty" yaml:"refreshToken,omitempty" mapstructure:"refreshToken,omitempty"`
+
+	// OAuth scope to use when authenticating against the authorization server. Some
+	// authorization servers require this to be set. The possible values depend on how
+	// authorization server is configured. By default `scope` is not specified when
+	// doing the token endpoint request.
+	Scope *string `json:"scope,omitempty" yaml:"scope,omitempty" mapstructure:"scope,omitempty"`
+
+	// Trusted certificates for TLS connection to the OAuth server.
+	TlsTrustedCertificates []KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty" yaml:"tlsTrustedCertificates,omitempty" mapstructure:"tlsTrustedCertificates,omitempty"`
+
+	// Authorization server token endpoint URI.
+	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty" yaml:"tokenEndpointUri,omitempty" mapstructure:"tokenEndpointUri,omitempty"`
+
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
+	Type KafkaMirrorMakerSpecProducerAuthenticationType `json:"type" yaml:"type" mapstructure:"type"`
+
+	// Username used for the authentication.
+	Username *string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"username,omitempty"`
+}
+
+// Link to Kubernetes Secret containing the access token which was obtained from
+// the authorization server.
+type KafkaMirrorMakerSpecProducerAuthenticationAccessToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Reference to the `Secret` which holds the certificate and private key pair.
+type KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the private key in the Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
+// client can use to authenticate against the OAuth server and use the token
+// endpoint URI.
+type KafkaMirrorMakerSpecProducerAuthenticationClientSecret struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Reference to the `Secret` which holds the password.
+type KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret struct {
+	// The name of the key in the Secret under which the password is stored.
+	Password string `json:"password" yaml:"password" mapstructure:"password"`
+
+	// The name of the Secret containing the password.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Link to Kubernetes Secret containing the refresh token which can be used to
+// obtain access token from the authorization server.
+type KafkaMirrorMakerSpecProducerAuthenticationRefreshToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+type KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+type KafkaMirrorMakerSpecProducerAuthenticationType string
+
+const KafkaMirrorMakerSpecProducerAuthenticationTypeOauth KafkaMirrorMakerSpecProducerAuthenticationType = "oauth"
+const KafkaMirrorMakerSpecProducerAuthenticationTypePlain KafkaMirrorMakerSpecProducerAuthenticationType = "plain"
+const KafkaMirrorMakerSpecProducerAuthenticationTypeScramSha256 KafkaMirrorMakerSpecProducerAuthenticationType = "scram-sha-256"
+const KafkaMirrorMakerSpecProducerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecProducerAuthenticationType = "scram-sha-512"
+const KafkaMirrorMakerSpecProducerAuthenticationTypeTls KafkaMirrorMakerSpecProducerAuthenticationType = "tls"
+
+// The MirrorMaker producer config. Properties with the following prefixes cannot
+// be set: ssl., bootstrap.servers, sasl., security., interceptor.classes (with the
+// exception of: ssl.endpoint.identification.algorithm, ssl.cipher.suites,
+// ssl.protocol, ssl.enabled.protocols).
+//type KafkaMirrorMakerSpecProducerConfig map[string]interface{}
+
+// TLS configuration for connecting MirrorMaker to the cluster.
+type KafkaMirrorMakerSpecProducerTls struct {
+	// Trusted certificates for TLS connection.
+	TrustedCertificates []KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty" yaml:"trustedCertificates,omitempty" mapstructure:"trustedCertificates,omitempty"`
+}
+
+type KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Pod readiness checking.
+type KafkaMirrorMakerSpecReadinessProbe struct {
+	// Minimum consecutive failures for the probe to be considered failed after having
+	// succeeded. Defaults to 3. Minimum value is 1.
+	FailureThreshold *int32 `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty" mapstructure:"failureThreshold,omitempty"`
+
+	// The initial delay before first the health is first checked. Default to 15
+	// seconds. Minimum value is 0.
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty" mapstructure:"initialDelaySeconds,omitempty"`
+
+	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
+	// value is 1.
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty" mapstructure:"periodSeconds,omitempty"`
+
+	// Minimum consecutive successes for the probe to be considered successful after
+	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+	SuccessThreshold *int32 `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty" mapstructure:"successThreshold,omitempty"`
+
+	// The timeout for each attempted health check. Default to 5 seconds. Minimum
+	// value is 1.
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty" mapstructure:"timeoutSeconds,omitempty"`
+}
+
+// CPU and memory resources to reserve.
+type KafkaMirrorMakerSpecResources struct {
+	// Claims corresponds to the JSON schema field "claims".
+	Claims []KafkaMirrorMakerSpecResourcesClaimsElem `json:"claims,omitempty" yaml:"claims,omitempty" mapstructure:"claims,omitempty"`
+
+	// Limits corresponds to the JSON schema field "limits".
+	Limits *apiextensions.JSON `json:"limits,omitempty" yaml:"limits,omitempty" mapstructure:"limits,omitempty"`
+
+	// Requests corresponds to the JSON schema field "requests".
+	Requests *apiextensions.JSON `json:"requests,omitempty" yaml:"requests,omitempty" mapstructure:"requests,omitempty"`
+}
+
+type KafkaMirrorMakerSpecResourcesClaimsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecResourcesLimits map[string]interface{}
+
+//type KafkaMirrorMakerSpecResourcesRequests map[string]interface{}
+
+// Template to specify how Kafka MirrorMaker resources, `Deployments` and `Pods`,
+// are generated.
+type KafkaMirrorMakerSpecTemplate struct {
+	// Template for Kafka MirrorMaker `Deployment`.
+	Deployment *KafkaMirrorMakerSpecTemplateDeployment `json:"deployment,omitempty" yaml:"deployment,omitempty" mapstructure:"deployment,omitempty"`
+
+	// Template for Kafka MirrorMaker container.
+	MirrorMakerContainer *KafkaMirrorMakerSpecTemplateMirrorMakerContainer `json:"mirrorMakerContainer,omitempty" yaml:"mirrorMakerContainer,omitempty" mapstructure:"mirrorMakerContainer,omitempty"`
+
+	// Template for Kafka MirrorMaker `Pods`.
+	Pod *KafkaMirrorMakerSpecTemplatePod `json:"pod,omitempty" yaml:"pod,omitempty" mapstructure:"pod,omitempty"`
+
+	// Template for Kafka MirrorMaker `PodDisruptionBudget`.
+	PodDisruptionBudget *KafkaMirrorMakerSpecTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty" yaml:"podDisruptionBudget,omitempty" mapstructure:"podDisruptionBudget,omitempty"`
+
+	// Template for the Kafka MirrorMaker service account.
+	ServiceAccount *KafkaMirrorMakerSpecTemplateServiceAccount `json:"serviceAccount,omitempty" yaml:"serviceAccount,omitempty" mapstructure:"serviceAccount,omitempty"`
+}
+
+// Template for Kafka MirrorMaker `Deployment`.
+type KafkaMirrorMakerSpecTemplateDeployment struct {
+	// Pod replacement strategy for deployment configuration changes. Valid values are
+	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+	DeploymentStrategy *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty" yaml:"deploymentStrategy,omitempty" mapstructure:"deploymentStrategy,omitempty"`
+
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMakerSpecTemplateDeploymentMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy string
+
+const KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategyRecreate KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = "Recreate"
+const KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategyRollingUpdate KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = "RollingUpdate"
+
+// Metadata applied to the resource.
+type KafkaMirrorMakerSpecTemplateDeploymentMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplateDeploymentMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplateDeploymentMetadataLabels map[string]interface{}
+
+// Template for Kafka MirrorMaker container.
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainer struct {
+	// Environment variables which should be applied to the container.
+	Env []KafkaMirrorMakerSpecTemplateMirrorMakerContainerEnvElem `json:"env,omitempty" yaml:"env,omitempty" mapstructure:"env,omitempty"`
+
+	// Security context for the container.
+	SecurityContext *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty" mapstructure:"securityContext,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainerEnvElem struct {
+	// The environment variable key.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The environment variable value.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// Security context for the container.
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext struct {
+	// AllowPrivilegeEscalation corresponds to the JSON schema field
+	// "allowPrivilegeEscalation".
+	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty" yaml:"allowPrivilegeEscalation,omitempty" mapstructure:"allowPrivilegeEscalation,omitempty"`
+
+	// Capabilities corresponds to the JSON schema field "capabilities".
+	Capabilities *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextCapabilities `json:"capabilities,omitempty" yaml:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
+	// Privileged corresponds to the JSON schema field "privileged".
+	Privileged *bool `json:"privileged,omitempty" yaml:"privileged,omitempty" mapstructure:"privileged,omitempty"`
+
+	// ProcMount corresponds to the JSON schema field "procMount".
+	ProcMount *string `json:"procMount,omitempty" yaml:"procMount,omitempty" mapstructure:"procMount,omitempty"`
+
+	// ReadOnlyRootFilesystem corresponds to the JSON schema field
+	// "readOnlyRootFilesystem".
+	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty" yaml:"readOnlyRootFilesystem,omitempty" mapstructure:"readOnlyRootFilesystem,omitempty"`
+
+	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
+	RunAsGroup *int32 `json:"runAsGroup,omitempty" yaml:"runAsGroup,omitempty" mapstructure:"runAsGroup,omitempty"`
+
+	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
+	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty" yaml:"runAsNonRoot,omitempty" mapstructure:"runAsNonRoot,omitempty"`
+
+	// RunAsUser corresponds to the JSON schema field "runAsUser".
+	RunAsUser *int32 `json:"runAsUser,omitempty" yaml:"runAsUser,omitempty" mapstructure:"runAsUser,omitempty"`
+
+	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
+	SeLinuxOptions *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty" yaml:"seLinuxOptions,omitempty" mapstructure:"seLinuxOptions,omitempty"`
+
+	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
+	SeccompProfile *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty" yaml:"seccompProfile,omitempty" mapstructure:"seccompProfile,omitempty"`
+
+	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
+	WindowsOptions *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty" yaml:"windowsOptions,omitempty" mapstructure:"windowsOptions,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextCapabilities struct {
+	// Add corresponds to the JSON schema field "add".
+	Add []string `json:"add,omitempty" yaml:"add,omitempty" mapstructure:"add,omitempty"`
+
+	// Drop corresponds to the JSON schema field "drop".
+	Drop []string `json:"drop,omitempty" yaml:"drop,omitempty" mapstructure:"drop,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeLinuxOptions struct {
+	// Level corresponds to the JSON schema field "level".
+	Level *string `json:"level,omitempty" yaml:"level,omitempty" mapstructure:"level,omitempty"`
+
+	// Role corresponds to the JSON schema field "role".
+	Role *string `json:"role,omitempty" yaml:"role,omitempty" mapstructure:"role,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// User corresponds to the JSON schema field "user".
+	User *string `json:"user,omitempty" yaml:"user,omitempty" mapstructure:"user,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile struct {
+	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
+	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
+}
+
+// Template for Kafka MirrorMaker `Pods`.
+type KafkaMirrorMakerSpecTemplatePod struct {
+	// The pod's affinity rules.
+	Affinity *KafkaMirrorMakerSpecTemplatePodAffinity `json:"affinity,omitempty" yaml:"affinity,omitempty" mapstructure:"affinity,omitempty"`
+
+	// Indicates whether information about services should be injected into Pod's
+	// environment variables.
+	EnableServiceLinks *bool `json:"enableServiceLinks,omitempty" yaml:"enableServiceLinks,omitempty" mapstructure:"enableServiceLinks,omitempty"`
+
+	// The pod's HostAliases. HostAliases is an optional list of hosts and IPs that
+	// will be injected into the Pod's hosts file if specified.
+	HostAliases []KafkaMirrorMakerSpecTemplatePodHostAliasesElem `json:"hostAliases,omitempty" yaml:"hostAliases,omitempty" mapstructure:"hostAliases,omitempty"`
+
+	// List of references to secrets in the same namespace to use for pulling any of
+	// the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment
+	// variable in Cluster Operator and the `imagePullSecrets` option are specified,
+	// only the `imagePullSecrets` variable is used and the
+	// `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
+	ImagePullSecrets []KafkaMirrorMakerSpecTemplatePodImagePullSecretsElem `json:"imagePullSecrets,omitempty" yaml:"imagePullSecrets,omitempty" mapstructure:"imagePullSecrets,omitempty"`
+
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMakerSpecTemplatePodMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+
+	// The name of the priority class used to assign priority to the pods. For more
+	// information about priority classes, see {K8sPriorityClass}.
+	PriorityClassName *string `json:"priorityClassName,omitempty" yaml:"priorityClassName,omitempty" mapstructure:"priorityClassName,omitempty"`
+
+	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
+	// default scheduler will be used.
+	SchedulerName *string `json:"schedulerName,omitempty" yaml:"schedulerName,omitempty" mapstructure:"schedulerName,omitempty"`
+
+	// Configures pod-level security attributes and common container settings.
+	SecurityContext *KafkaMirrorMakerSpecTemplatePodSecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty" mapstructure:"securityContext,omitempty"`
+
+	// The grace period is the duration in seconds after the processes running in the
+	// pod are sent a termination signal, and the time when the processes are forcibly
+	// halted with a kill signal. Set this value to longer than the expected cleanup
+	// time for your process. Value must be a non-negative integer. A zero value
+	// indicates delete immediately. You might need to increase the grace period for
+	// very large Kafka clusters, so that the Kafka brokers have enough time to
+	// transfer their work to another broker before they are terminated. Defaults to
+	// 30 seconds.
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty" yaml:"terminationGracePeriodSeconds,omitempty" mapstructure:"terminationGracePeriodSeconds,omitempty"`
+
+	// Defines the total amount (for example `1Gi`) of local storage required for
+	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
+	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty" yaml:"tmpDirSizeLimit,omitempty" mapstructure:"tmpDirSizeLimit,omitempty"`
+
+	// The pod's tolerations.
+	Tolerations []KafkaMirrorMakerSpecTemplatePodTolerationsElem `json:"tolerations,omitempty" yaml:"tolerations,omitempty" mapstructure:"tolerations,omitempty"`
+
+	// The pod's topology spread constraints.
+	TopologySpreadConstraints []KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElem `json:"topologySpreadConstraints,omitempty" yaml:"topologySpreadConstraints,omitempty" mapstructure:"topologySpreadConstraints,omitempty"`
+}
+
+// The pod's affinity rules.
+type KafkaMirrorMakerSpecTemplatePodAffinity struct {
+	// NodeAffinity corresponds to the JSON schema field "nodeAffinity".
+	NodeAffinity *KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinity `json:"nodeAffinity,omitempty" yaml:"nodeAffinity,omitempty" mapstructure:"nodeAffinity,omitempty"`
+
+	// PodAffinity corresponds to the JSON schema field "podAffinity".
+	PodAffinity *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinity `json:"podAffinity,omitempty" yaml:"podAffinity,omitempty" mapstructure:"podAffinity,omitempty"`
+
+	// PodAntiAffinity corresponds to the JSON schema field "podAntiAffinity".
+	PodAntiAffinity *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinity `json:"podAntiAffinity,omitempty" yaml:"podAntiAffinity,omitempty" mapstructure:"podAntiAffinity,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinity struct {
+	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "preferredDuringSchedulingIgnoredDuringExecution".
+	PreferredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
+
+	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "requiredDuringSchedulingIgnoredDuringExecution".
+	RequiredDuringSchedulingIgnoredDuringExecution *KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// Preference corresponds to the JSON schema field "preference".
+	Preference *KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty" yaml:"preference,omitempty" mapstructure:"preference,omitempty"`
+
+	// Weight corresponds to the JSON schema field "weight".
+	Weight *int32 `json:"weight,omitempty" yaml:"weight,omitempty" mapstructure:"weight,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchFields corresponds to the JSON schema field "matchFields".
+	MatchFields []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem `json:"matchFields,omitempty" yaml:"matchFields,omitempty" mapstructure:"matchFields,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution struct {
+	// NodeSelectorTerms corresponds to the JSON schema field "nodeSelectorTerms".
+	NodeSelectorTerms []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem `json:"nodeSelectorTerms,omitempty" yaml:"nodeSelectorTerms,omitempty" mapstructure:"nodeSelectorTerms,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchFields corresponds to the JSON schema field "matchFields".
+	MatchFields []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem `json:"matchFields,omitempty" yaml:"matchFields,omitempty" mapstructure:"matchFields,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinity struct {
+	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "preferredDuringSchedulingIgnoredDuringExecution".
+	PreferredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
+
+	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "requiredDuringSchedulingIgnoredDuringExecution".
+	RequiredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
+	PodAffinityTerm *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty" yaml:"podAffinityTerm,omitempty" mapstructure:"podAffinityTerm,omitempty"`
+
+	// Weight corresponds to the JSON schema field "weight".
+	Weight *int32 `json:"weight,omitempty" yaml:"weight,omitempty" mapstructure:"weight,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinity struct {
+	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "preferredDuringSchedulingIgnoredDuringExecution".
+	PreferredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
+
+	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "requiredDuringSchedulingIgnoredDuringExecution".
+	RequiredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
+	PodAffinityTerm *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty" yaml:"podAffinityTerm,omitempty" mapstructure:"podAffinityTerm,omitempty"`
+
+	// Weight corresponds to the JSON schema field "weight".
+	Weight *int32 `json:"weight,omitempty" yaml:"weight,omitempty" mapstructure:"weight,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+
+// Template for Kafka MirrorMaker `PodDisruptionBudget`.
+type KafkaMirrorMakerSpecTemplatePodDisruptionBudget struct {
+	// Maximum number of unavailable pods to allow automatic Pod eviction. A Pod
+	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
+	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
+	// evictions, so the pods must be evicted manually. Defaults to 1.
+	MaxUnavailable *int32 `json:"maxUnavailable,omitempty" yaml:"maxUnavailable,omitempty" mapstructure:"maxUnavailable,omitempty"`
+
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
+	Metadata *KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
+type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -70,13 +1254,13 @@ func (j *KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey) UnmarshalJ
 		return err
 	}
 	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
+		return fmt.Errorf("field certificate in KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey: required")
 	}
 	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey: required")
 	}
 	type Plain KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey
 	var plain Plain
@@ -87,151 +1271,193 @@ func (j *KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey) UnmarshalJ
 	return nil
 }
 
-// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
-// client can use to authenticate against the OAuth server and use the token
-// endpoint URI.
-type KafkaMirrorMakerSpecConsumerAuthenticationClientSecret struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
+type KafkaMirrorMakerSpecTemplatePodSecurityContextSeLinuxOptions struct {
+	// Level corresponds to the JSON schema field "level".
+	Level *string `json:"level,omitempty" yaml:"level,omitempty" mapstructure:"level,omitempty"`
 
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
+	// Role corresponds to the JSON schema field "role".
+	Role *string `json:"role,omitempty" yaml:"role,omitempty" mapstructure:"role,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// User corresponds to the JSON schema field "user".
+	User *string `json:"user,omitempty" yaml:"user,omitempty" mapstructure:"user,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMakerSpecProducerAuthenticationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecProducerAuthenticationType, v)
+	}
+	*j = KafkaMirrorMakerSpecProducerAuthenticationType(v)
+	return nil
+}
+
+type KafkaMirrorMakerSpecTemplatePodSecurityContextSysctlsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecProducerAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecProducerAuthenticationClientSecret: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerAuthenticationClientSecret: required")
 	}
-	type Plain KafkaMirrorMakerSpecConsumerAuthenticationClientSecret
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationClientSecret
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecConsumerAuthenticationClientSecret(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationClientSecret(plain)
 	return nil
 }
 
-// Reference to the `Secret` which holds the password.
-type KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret struct {
-	// The name of the key in the Secret under which the password is stored.
-	Password string `json:"password"`
-
-	// The name of the Secret containing the password.
-	SecretName string `json:"secretName"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["password"]; !ok || v == nil {
-		return fmt.Errorf("field password: required")
+		return fmt.Errorf("field password in KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret: required")
 	}
-	type Plain KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret(plain)
 	return nil
 }
 
-// Link to Kubernetes Secret containing the refresh token which can be used to
-// obtain access token from the authorization server.
-type KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecProducerAuthenticationRefreshToken: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerAuthenticationRefreshToken: required")
 	}
-	type Plain KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationRefreshToken
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationRefreshToken(plain)
 	return nil
 }
 
-type KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecConsumer) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
+		return fmt.Errorf("field bootstrapServers in KafkaMirrorMakerSpecConsumer: required")
+	}
+	if v, ok := raw["groupId"]; !ok || v == nil {
+		return fmt.Errorf("field groupId in KafkaMirrorMakerSpecConsumer: required")
+	}
+	type Plain KafkaMirrorMakerSpecConsumer
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecConsumer(plain)
+	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
+		return fmt.Errorf("field certificate in KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem: required")
 	}
-	type Plain KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem
+	type Plain KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem(plain)
+	*j = KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem(plain)
 	return nil
 }
 
-type KafkaMirrorMakerSpecConsumerAuthenticationType string
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpec) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecConsumerAuthentication) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["consumer"]; !ok || v == nil {
-		return fmt.Errorf("field consumer: required")
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMakerSpecConsumerAuthentication: required")
 	}
-	if v, ok := raw["producer"]; !ok || v == nil {
-		return fmt.Errorf("field producer: required")
-	}
-	if v, ok := raw["replicas"]; !ok || v == nil {
-		return fmt.Errorf("field replicas: required")
-	}
-	type Plain KafkaMirrorMakerSpec
+	type Plain KafkaMirrorMakerSpecConsumerAuthentication
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpec(plain)
+	*j = KafkaMirrorMakerSpecConsumerAuthentication(plain)
+	return nil
+}
+
+var enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = []interface{}{
+	"RollingUpdate",
+	"Recreate",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy, v)
+	}
+	*j = KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy(v)
 	return nil
 }
 
@@ -255,417 +1481,95 @@ func (j *KafkaMirrorMakerSpecConsumerAuthenticationType) UnmarshalJSON(b []byte)
 	return nil
 }
 
-const KafkaMirrorMakerSpecConsumerAuthenticationTypeTls KafkaMirrorMakerSpecConsumerAuthenticationType = "tls"
-const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha256 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-256"
-const KafkaMirrorMakerSpecConsumerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecConsumerAuthenticationType = "scram-sha-512"
-const KafkaMirrorMakerSpecConsumerAuthenticationTypePlain KafkaMirrorMakerSpecConsumerAuthenticationType = "plain"
-const KafkaMirrorMakerSpecConsumerAuthenticationTypeOauth KafkaMirrorMakerSpecConsumerAuthenticationType = "oauth"
-
-// Authentication configuration for connecting to the cluster.
-type KafkaMirrorMakerSpecConsumerAuthentication struct {
-	// Link to Kubernetes Secret containing the access token which was obtained from
-	// the authorization server.
-	AccessToken *KafkaMirrorMakerSpecConsumerAuthenticationAccessToken `json:"accessToken,omitempty"`
-
-	// Configure whether access token should be treated as JWT. This should be set to
-	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
-	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty"`
-
-	// OAuth audience to use when authenticating against the authorization server.
-	// Some authorization servers require the audience to be explicitly set. The
-	// possible values depend on how the authorization server is configured. By
-	// default, `audience` is not specified when performing the token endpoint
-	// request.
-	Audience *string `json:"audience,omitempty"`
-
-	// Reference to the `Secret` which holds the certificate and private key pair.
-	CertificateAndKey *KafkaMirrorMakerSpecConsumerAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty"`
-
-	// OAuth Client ID which the Kafka client can use to authenticate against the
-	// OAuth server and use the token endpoint URI.
-	ClientId *string `json:"clientId,omitempty"`
-
-	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
-	// client can use to authenticate against the OAuth server and use the token
-	// endpoint URI.
-	ClientSecret *KafkaMirrorMakerSpecConsumerAuthenticationClientSecret `json:"clientSecret,omitempty"`
-
-	// The connect timeout in seconds when connecting to authorization server. If not
-	// set, the effective connect timeout is 60 seconds.
-	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
-
-	// Enable or disable TLS hostname verification. Default value is `false`.
-	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
-
-	// Enable or disable OAuth metrics. Default value is `false`.
-	EnableMetrics *bool `json:"enableMetrics,omitempty"`
-
-	// The maximum number of retries to attempt if an initial HTTP request fails. If
-	// not set, the default is to not attempt any retries.
-	HttpRetries *int32 `json:"httpRetries,omitempty"`
-
-	// The pause to take before retrying a failed HTTP request. If not set, the
-	// default is to not pause at all but to immediately repeat a request.
-	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
-
-	// Set or limit time-to-live of the access tokens to the specified number of
-	// seconds. This should be set if the authorization server returns opaque tokens.
-	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
-
-	// Reference to the `Secret` which holds the password.
-	PasswordSecret *KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
-
-	// The read timeout in seconds when connecting to authorization server. If not
-	// set, the effective read timeout is 60 seconds.
-	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
-
-	// Link to Kubernetes Secret containing the refresh token which can be used to
-	// obtain access token from the authorization server.
-	RefreshToken *KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken `json:"refreshToken,omitempty"`
-
-	// OAuth scope to use when authenticating against the authorization server. Some
-	// authorization servers require this to be set. The possible values depend on how
-	// authorization server is configured. By default `scope` is not specified when
-	// doing the token endpoint request.
-	Scope *string `json:"scope,omitempty"`
-
-	// Trusted certificates for TLS connection to the OAuth server.
-	TlsTrustedCertificates []KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
-
-	// Authorization server token endpoint URI.
-	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
-
-	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
-	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
-	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
-	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
-	Type KafkaMirrorMakerSpecConsumerAuthenticationType `json:"type"`
-
-	// Username used for the authentication.
-	Username *string `json:"username,omitempty"`
+var enumValues_KafkaMirrorMakerSpecConsumerAuthenticationType = []interface{}{
+	"tls",
+	"scram-sha-256",
+	"scram-sha-512",
+	"plain",
+	"oauth",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerAuthentication) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	type Plain KafkaMirrorMakerSpecConsumerAuthentication
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecConsumerAuthentication(plain)
-	return nil
-}
-
-// Link to Kubernetes Secret containing the access token which was obtained from
-// the authorization server.
-type KafkaMirrorMakerSpecConsumerAuthenticationAccessToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-type KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
+		return fmt.Errorf("field certificate in KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem: required")
 	}
-	type Plain KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem
+	type Plain KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem(plain)
+	*j = KafkaMirrorMakerSpecConsumerAuthenticationTlsTrustedCertificatesElem(plain)
 	return nil
 }
 
-// TLS configuration for connecting MirrorMaker to the cluster.
-type KafkaMirrorMakerSpecConsumerTls struct {
-	// Trusted certificates for TLS connection.
-	TrustedCertificates []KafkaMirrorMakerSpecConsumerTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty"`
-}
-
-// Configuration of source cluster.
-type KafkaMirrorMakerSpecConsumer struct {
-	// Authentication configuration for connecting to the cluster.
-	Authentication *KafkaMirrorMakerSpecConsumerAuthentication `json:"authentication,omitempty"`
-
-	// A list of host:port pairs for establishing the initial connection to the Kafka
-	// cluster.
-	BootstrapServers string `json:"bootstrapServers"`
-
-	// The MirrorMaker consumer config. Properties with the following prefixes cannot
-	// be set: ssl., bootstrap.servers, group.id, sasl., security.,
-	// interceptor.classes (with the exception of:
-	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-	// ssl.enabled.protocols).
-	Config *apiextensions.JSON `json:"config,omitempty"`
-
-	// A unique string that identifies the consumer group this consumer belongs to.
-	GroupId string `json:"groupId"`
-
-	// Specifies the number of consumer stream threads to create.
-	NumStreams *int32 `json:"numStreams,omitempty"`
-
-	// Specifies the offset auto-commit interval in ms. Default value is 60000.
-	OffsetCommitInterval *int32 `json:"offsetCommitInterval,omitempty"`
-
-	// TLS configuration for connecting MirrorMaker to the cluster.
-	Tls *KafkaMirrorMakerSpecConsumerTls `json:"tls,omitempty"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecConsumer) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
-		return fmt.Errorf("field bootstrapServers: required")
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecProducerAuthenticationAccessToken: required")
 	}
-	if v, ok := raw["groupId"]; !ok || v == nil {
-		return fmt.Errorf("field groupId: required")
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerAuthenticationAccessToken: required")
 	}
-	type Plain KafkaMirrorMakerSpecConsumer
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationAccessToken
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecConsumer(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationAccessToken(plain)
 	return nil
 }
 
-// A map of -XX options to the JVM.
-//type KafkaMirrorMakerSpecJvmOptionsXX map[string]interface{}
-
-type KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem struct {
-	// The system property name.
-	Name *string `json:"name,omitempty"`
-
-	// The system property value.
-	Value *string `json:"value,omitempty"`
-}
-
-// JVM Options for pods.
-type KafkaMirrorMakerSpecJvmOptions struct {
-	// A map of -XX options to the JVM.
-	XX *apiextensions.JSON `json:"-XX,omitempty"`
-
-	// -Xms option to to the JVM.
-	Xms *string `json:"-Xms,omitempty"`
-
-	// -Xmx option to to the JVM.
-	Xmx *string `json:"-Xmx,omitempty"`
-
-	// Specifies whether the Garbage Collection logging is enabled. The default is
-	// false.
-	GcLoggingEnabled *bool `json:"gcLoggingEnabled,omitempty"`
-
-	// A map of additional system properties which will be passed using the `-D`
-	// option to the JVM.
-	JavaSystemProperties []KafkaMirrorMakerSpecJvmOptionsJavaSystemPropertiesElem `json:"javaSystemProperties,omitempty"`
-}
-
-// Pod liveness checking.
-type KafkaMirrorMakerSpecLivenessProbe struct {
-	// Minimum consecutive failures for the probe to be considered failed after having
-	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
-
-	// The initial delay before first the health is first checked. Default to 15
-	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
-
-	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
-	// value is 1.
-	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
-
-	// Minimum consecutive successes for the probe to be considered successful after
-	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
-
-	// The timeout for each attempted health check. Default to 5 seconds. Minimum
-	// value is 1.
-	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
-}
-
-// A Map from logger name to logger level.
-//type KafkaMirrorMakerSpecLoggingLoggers map[string]interface{}
-
-type KafkaMirrorMakerSpecLoggingType string
-
-// The specification of Kafka MirrorMaker.
-type KafkaMirrorMakerSpec struct {
-	// Configuration of source cluster.
-	Consumer KafkaMirrorMakerSpecConsumer `json:"consumer"`
-
-	// The docker image for the pods.
-	Image *string `json:"image,omitempty"`
-
-	// List of topics which are included for mirroring. This option allows any regular
-	// expression using Java-style regular expressions. Mirroring two topics named A
-	// and B is achieved by using the expression `A\|B`. Or, as a special case, you
-	// can mirror all topics using the regular expression `*`. You can also specify
-	// multiple regular expressions separated by commas.
-	Include *string `json:"include,omitempty"`
-
-	// JVM Options for pods.
-	JvmOptions *KafkaMirrorMakerSpecJvmOptions `json:"jvmOptions,omitempty"`
-
-	// Pod liveness checking.
-	LivenessProbe *KafkaMirrorMakerSpecLivenessProbe `json:"livenessProbe,omitempty"`
-
-	// Logging configuration for MirrorMaker.
-	Logging *KafkaMirrorMakerSpecLogging `json:"logging,omitempty"`
-
-	// Metrics configuration.
-	MetricsConfig *KafkaMirrorMakerSpecMetricsConfig `json:"metricsConfig,omitempty"`
-
-	// Configuration of target cluster.
-	Producer KafkaMirrorMakerSpecProducer `json:"producer"`
-
-	// Pod readiness checking.
-	ReadinessProbe *KafkaMirrorMakerSpecReadinessProbe `json:"readinessProbe,omitempty"`
-
-	// The number of pods in the `Deployment`.
-	Replicas int32 `json:"replicas"`
-
-	// CPU and memory resources to reserve.
-	Resources *KafkaMirrorMakerSpecResources `json:"resources,omitempty"`
-
-	// Template to specify how Kafka MirrorMaker resources, `Deployments` and `Pods`,
-	// are generated.
-	Template *KafkaMirrorMakerSpecTemplate `json:"template,omitempty"`
-
-	// The configuration of tracing in Kafka MirrorMaker.
-	Tracing *KafkaMirrorMakerSpecTracing `json:"tracing,omitempty"`
-
-	// The Kafka MirrorMaker version. Defaults to {DefaultKafkaVersion}. Consult the
-	// documentation to understand the process required to upgrade or downgrade the
-	// version.
-	Version *string `json:"version,omitempty"`
-
-	// List of topics which are included for mirroring. This option allows any regular
-	// expression using Java-style regular expressions. Mirroring two topics named A
-	// and B is achieved by using the expression `A\|B`. Or, as a special case, you
-	// can mirror all topics using the regular expression `*`. You can also specify
-	// multiple regular expressions separated by commas.
-	Whitelist *string `json:"whitelist,omitempty"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecLoggingType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecLoggingType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecLoggingType, v)
-	}
-	*j = KafkaMirrorMakerSpecLoggingType(v)
-	return nil
-}
-
-const KafkaMirrorMakerSpecLoggingTypeInline KafkaMirrorMakerSpecLoggingType = "inline"
-const KafkaMirrorMakerSpecLoggingTypeExternal KafkaMirrorMakerSpecLoggingType = "external"
-
-// Reference to the key in the ConfigMap containing the configuration.
-type KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Optional corresponds to the JSON schema field "optional".
-	Optional *bool `json:"optional,omitempty"`
-}
-
-// `ConfigMap` entry where the logging configuration is stored.
-type KafkaMirrorMakerSpecLoggingValueFrom struct {
-	// Reference to the key in the ConfigMap containing the configuration.
-	ConfigMapKeyRef *KafkaMirrorMakerSpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
-}
-
-// Logging configuration for MirrorMaker.
-type KafkaMirrorMakerSpecLogging struct {
-	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
-
-	// Logging type, must be either 'inline' or 'external'.
-	Type KafkaMirrorMakerSpecLoggingType `json:"type"`
-
-	// `ConfigMap` entry where the logging configuration is stored.
-	ValueFrom *KafkaMirrorMakerSpecLoggingValueFrom `json:"valueFrom,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecLogging) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecMetricsConfig) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+		return fmt.Errorf("field type in KafkaMirrorMakerSpecMetricsConfig: required")
 	}
-	type Plain KafkaMirrorMakerSpecLogging
+	if v, ok := raw["valueFrom"]; !ok || v == nil {
+		return fmt.Errorf("field valueFrom in KafkaMirrorMakerSpecMetricsConfig: required")
+	}
+	type Plain KafkaMirrorMakerSpecMetricsConfig
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecLogging(plain)
+	*j = KafkaMirrorMakerSpecMetricsConfig(plain)
 	return nil
 }
 
-type KafkaMirrorMakerSpecMetricsConfigType string
-
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecTracing) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate in KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem: required")
 	}
-	type Plain KafkaMirrorMakerSpecTracing
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem: required")
+	}
+	type Plain KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecTracing(plain)
+	*j = KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem(plain)
 	return nil
 }
 
@@ -689,85 +1593,8 @@ func (j *KafkaMirrorMakerSpecMetricsConfigType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// KafkaMirrorMaker
-type KafkaMirrorMaker struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// The specification of Kafka MirrorMaker.
-	Spec *KafkaMirrorMakerSpec `json:"spec,omitempty"`
-
-	// The status of Kafka MirrorMaker.
-	Status *KafkaMirrorMakerStatus `json:"status,omitempty"`
-}
-
-// +kubebuilder:object:root=true
-// KafkaMirrorMakerList contains a list of instances.
-type KafkaMirrorMakerList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-
-	// A list of Kafka objects.
-	Items []KafkaMirrorMaker `json:"items,omitempty"`
-}
-
-// The MirrorMaker consumer config. Properties with the following prefixes cannot
-// be set: ssl., bootstrap.servers, group.id, sasl., security., interceptor.classes
-// (with the exception of: ssl.endpoint.identification.algorithm,
-// ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols).
-//type KafkaMirrorMakerSpecConsumerConfig map[string]interface{}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy, v)
-	}
-	*j = KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy(v)
-	return nil
-}
-
-// Metrics configuration.
-type KafkaMirrorMakerSpecMetricsConfig struct {
-	// Metrics type. Only 'jmxPrometheusExporter' supported currently.
-	Type KafkaMirrorMakerSpecMetricsConfigType `json:"type"`
-
-	// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
-	// details of the structure of this configuration, see the {JMXExporter}.
-	ValueFrom KafkaMirrorMakerSpecMetricsConfigValueFrom `json:"valueFrom"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecMetricsConfig) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
-	}
-	if v, ok := raw["valueFrom"]; !ok || v == nil {
-		return fmt.Errorf("field valueFrom: required")
-	}
-	type Plain KafkaMirrorMakerSpecMetricsConfig
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecMetricsConfig(plain)
-	return nil
+var enumValues_KafkaMirrorMakerSpecMetricsConfigType = []interface{}{
+	"jmxPrometheusExporter",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -777,7 +1604,7 @@ func (j *KafkaMirrorMakerSpecProducer) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
-		return fmt.Errorf("field bootstrapServers: required")
+		return fmt.Errorf("field bootstrapServers in KafkaMirrorMakerSpecProducer: required")
 	}
 	type Plain KafkaMirrorMakerSpecProducer
 	var plain Plain
@@ -789,45 +1616,94 @@ func (j *KafkaMirrorMakerSpecProducer) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["password"]; !ok || v == nil {
+		return fmt.Errorf("field password in KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret: required")
+	}
+	type Plain KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecConsumerAuthenticationPasswordSecret(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken: required")
 	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationAccessToken
+	type Plain KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationAccessToken(plain)
+	*j = KafkaMirrorMakerSpecConsumerAuthenticationRefreshToken(plain)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
+		return fmt.Errorf("field certificate in KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem: required")
 	}
-	type Plain KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem
+	type Plain KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem(plain)
+	*j = KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem(plain)
 	return nil
+}
+
+type KafkaMirrorMakerSpecTemplatePodHostAliasesElem struct {
+	// Hostnames corresponds to the JSON schema field "hostnames".
+	Hostnames []string `json:"hostnames,omitempty" yaml:"hostnames,omitempty" mapstructure:"hostnames,omitempty"`
+
+	// Ip corresponds to the JSON schema field "ip".
+	Ip *string `json:"ip,omitempty" yaml:"ip,omitempty" mapstructure:"ip,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodImagePullSecretsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplatePodMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplatePodMetadataLabels map[string]interface{}
+
+// Metadata applied to the resource.
+type KafkaMirrorMakerSpecTemplatePodMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -837,13 +1713,13 @@ func (j *KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey) UnmarshalJ
 		return err
 	}
 	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
+		return fmt.Errorf("field certificate in KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey: required")
 	}
 	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey: required")
 	}
 	type Plain KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey
 	var plain Plain
@@ -861,7 +1737,7 @@ func (j *KafkaMirrorMakerSpecProducerAuthentication) UnmarshalJSON(b []byte) err
 		return err
 	}
 	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+		return fmt.Errorf("field type in KafkaMirrorMakerSpecProducerAuthentication: required")
 	}
 	type Plain KafkaMirrorMakerSpecProducerAuthentication
 	var plain Plain
@@ -872,66 +1748,222 @@ func (j *KafkaMirrorMakerSpecProducerAuthentication) UnmarshalJSON(b []byte) err
 	return nil
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationClientSecret
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationClientSecret(plain)
-	return nil
+var enumValues_KafkaMirrorMakerSpecLoggingType = []interface{}{
+	"inline",
+	"external",
 }
 
+type KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
+}
+
+// Configures pod-level security attributes and common container settings.
+type KafkaMirrorMakerSpecTemplatePodSecurityContext struct {
+	// FsGroup corresponds to the JSON schema field "fsGroup".
+	FsGroup *int32 `json:"fsGroup,omitempty" yaml:"fsGroup,omitempty" mapstructure:"fsGroup,omitempty"`
+
+	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
+	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty" yaml:"fsGroupChangePolicy,omitempty" mapstructure:"fsGroupChangePolicy,omitempty"`
+
+	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
+	RunAsGroup *int32 `json:"runAsGroup,omitempty" yaml:"runAsGroup,omitempty" mapstructure:"runAsGroup,omitempty"`
+
+	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
+	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty" yaml:"runAsNonRoot,omitempty" mapstructure:"runAsNonRoot,omitempty"`
+
+	// RunAsUser corresponds to the JSON schema field "runAsUser".
+	RunAsUser *int32 `json:"runAsUser,omitempty" yaml:"runAsUser,omitempty" mapstructure:"runAsUser,omitempty"`
+
+	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
+	SeLinuxOptions *KafkaMirrorMakerSpecTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty" yaml:"seLinuxOptions,omitempty" mapstructure:"seLinuxOptions,omitempty"`
+
+	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
+	SeccompProfile *KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty" yaml:"seccompProfile,omitempty" mapstructure:"seccompProfile,omitempty"`
+
+	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty" yaml:"supplementalGroups,omitempty" mapstructure:"supplementalGroups,omitempty"`
+
+	// Sysctls corresponds to the JSON schema field "sysctls".
+	Sysctls []KafkaMirrorMakerSpecTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty" yaml:"sysctls,omitempty" mapstructure:"sysctls,omitempty"`
+
+	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
+	WindowsOptions *KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions `json:"windowsOptions,omitempty" yaml:"windowsOptions,omitempty" mapstructure:"windowsOptions,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodTolerationsElem struct {
+	// Effect corresponds to the JSON schema field "effect".
+	Effect *string `json:"effect,omitempty" yaml:"effect,omitempty" mapstructure:"effect,omitempty"`
+
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty" mapstructure:"tolerationSeconds,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MaxSkew corresponds to the JSON schema field "maxSkew".
+	MaxSkew *int32 `json:"maxSkew,omitempty" yaml:"maxSkew,omitempty" mapstructure:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty" yaml:"minDomains,omitempty" mapstructure:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty" yaml:"nodeAffinityPolicy,omitempty" mapstructure:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty" yaml:"nodeTaintsPolicy,omitempty" mapstructure:"nodeTaintsPolicy,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+
+	// WhenUnsatisfiable corresponds to the JSON schema field "whenUnsatisfiable".
+	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty" yaml:"whenUnsatisfiable,omitempty" mapstructure:"whenUnsatisfiable,omitempty"`
+}
+
+var enumValues_KafkaMirrorMakerSpecProducerAuthenticationType = []interface{}{
+	"tls",
+	"scram-sha-256",
+	"scram-sha-512",
+	"plain",
+	"oauth",
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
+
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationType) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecLoggingType) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
 		return err
 	}
 	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMakerSpecProducerAuthenticationType {
+	for _, expected := range enumValues_KafkaMirrorMakerSpecLoggingType {
 		if reflect.DeepEqual(v, expected) {
 			ok = true
 			break
 		}
 	}
 	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecProducerAuthenticationType, v)
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMakerSpecLoggingType, v)
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationType(v)
+	*j = KafkaMirrorMakerSpecLoggingType(v)
 	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecLogging) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["password"]; !ok || v == nil {
-		return fmt.Errorf("field password: required")
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMakerSpecLogging: required")
 	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret
+	type Plain KafkaMirrorMakerSpecLogging
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret(plain)
+	*j = KafkaMirrorMakerSpecLogging(plain)
 	return nil
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplateServiceAccountMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaMirrorMakerSpecTemplateServiceAccountMetadataLabels map[string]interface{}
+
+// Metadata applied to the resource.
+type KafkaMirrorMakerSpecTemplateServiceAccountMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Template for the Kafka MirrorMaker service account.
+type KafkaMirrorMakerSpecTemplateServiceAccount struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMakerSpecTemplateServiceAccountMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecConsumerAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecConsumerAuthenticationClientSecret: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerAuthenticationClientSecret: required")
+	}
+	type Plain KafkaMirrorMakerSpecConsumerAuthenticationClientSecret
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecConsumerAuthenticationClientSecret(plain)
+	return nil
+}
+
+type KafkaMirrorMakerSpecTracingType string
+
+var enumValues_KafkaMirrorMakerSpecTracingType = []interface{}{
+	"jaeger",
+	"opentelemetry",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -954,1147 +1986,119 @@ func (j *KafkaMirrorMakerSpecTracingType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+const KafkaMirrorMakerSpecTracingTypeJaeger KafkaMirrorMakerSpecTracingType = "jaeger"
+const KafkaMirrorMakerSpecTracingTypeOpentelemetry KafkaMirrorMakerSpecTracingType = "opentelemetry"
+
+// The configuration of tracing in Kafka MirrorMaker.
+type KafkaMirrorMakerSpecTracing struct {
+	// Type of the tracing used. Currently the only supported type is `opentelemetry`
+	// for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported
+	// anymore and this option is ignored.
+	Type KafkaMirrorMakerSpecTracingType `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMakerSpecTracing) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMakerSpecTracing: required")
 	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaMirrorMakerSpecProducerAuthenticationRefreshToken
+	type Plain KafkaMirrorMakerSpecTracing
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMakerSpecProducerAuthenticationRefreshToken(plain)
+	*j = KafkaMirrorMakerSpecTracing(plain)
 	return nil
-}
-
-const KafkaMirrorMakerSpecMetricsConfigTypeJmxPrometheusExporter KafkaMirrorMakerSpecMetricsConfigType = "jmxPrometheusExporter"
-
-// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
-// details of the structure of this configuration, see the {JMXExporter}.
-type KafkaMirrorMakerSpecMetricsConfigValueFrom struct {
-	// Reference to the key in the ConfigMap containing the configuration.
-	ConfigMapKeyRef *KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
-}
-
-// Reference to the key in the ConfigMap containing the configuration.
-type KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Optional corresponds to the JSON schema field "optional".
-	Optional *bool `json:"optional,omitempty"`
-}
-
-// Configuration of target cluster.
-type KafkaMirrorMakerSpecProducer struct {
-	// Flag to set the MirrorMaker to exit on a failed send. Default value is `true`.
-	AbortOnSendFailure *bool `json:"abortOnSendFailure,omitempty"`
-
-	// Authentication configuration for connecting to the cluster.
-	Authentication *KafkaMirrorMakerSpecProducerAuthentication `json:"authentication,omitempty"`
-
-	// A list of host:port pairs for establishing the initial connection to the Kafka
-	// cluster.
-	BootstrapServers string `json:"bootstrapServers"`
-
-	// The MirrorMaker producer config. Properties with the following prefixes cannot
-	// be set: ssl., bootstrap.servers, sasl., security., interceptor.classes (with
-	// the exception of: ssl.endpoint.identification.algorithm, ssl.cipher.suites,
-	// ssl.protocol, ssl.enabled.protocols).
-	Config *apiextensions.JSON `json:"config,omitempty"`
-
-	// TLS configuration for connecting MirrorMaker to the cluster.
-	Tls *KafkaMirrorMakerSpecProducerTls `json:"tls,omitempty"`
-}
-
-// Authentication configuration for connecting to the cluster.
-type KafkaMirrorMakerSpecProducerAuthentication struct {
-	// Link to Kubernetes Secret containing the access token which was obtained from
-	// the authorization server.
-	AccessToken *KafkaMirrorMakerSpecProducerAuthenticationAccessToken `json:"accessToken,omitempty"`
-
-	// Configure whether access token should be treated as JWT. This should be set to
-	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
-	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty"`
-
-	// OAuth audience to use when authenticating against the authorization server.
-	// Some authorization servers require the audience to be explicitly set. The
-	// possible values depend on how the authorization server is configured. By
-	// default, `audience` is not specified when performing the token endpoint
-	// request.
-	Audience *string `json:"audience,omitempty"`
-
-	// Reference to the `Secret` which holds the certificate and private key pair.
-	CertificateAndKey *KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty"`
-
-	// OAuth Client ID which the Kafka client can use to authenticate against the
-	// OAuth server and use the token endpoint URI.
-	ClientId *string `json:"clientId,omitempty"`
-
-	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
-	// client can use to authenticate against the OAuth server and use the token
-	// endpoint URI.
-	ClientSecret *KafkaMirrorMakerSpecProducerAuthenticationClientSecret `json:"clientSecret,omitempty"`
-
-	// The connect timeout in seconds when connecting to authorization server. If not
-	// set, the effective connect timeout is 60 seconds.
-	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
-
-	// Enable or disable TLS hostname verification. Default value is `false`.
-	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
-
-	// Enable or disable OAuth metrics. Default value is `false`.
-	EnableMetrics *bool `json:"enableMetrics,omitempty"`
-
-	// The maximum number of retries to attempt if an initial HTTP request fails. If
-	// not set, the default is to not attempt any retries.
-	HttpRetries *int32 `json:"httpRetries,omitempty"`
-
-	// The pause to take before retrying a failed HTTP request. If not set, the
-	// default is to not pause at all but to immediately repeat a request.
-	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
-
-	// Set or limit time-to-live of the access tokens to the specified number of
-	// seconds. This should be set if the authorization server returns opaque tokens.
-	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
-
-	// Reference to the `Secret` which holds the password.
-	PasswordSecret *KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
-
-	// The read timeout in seconds when connecting to authorization server. If not
-	// set, the effective read timeout is 60 seconds.
-	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
-
-	// Link to Kubernetes Secret containing the refresh token which can be used to
-	// obtain access token from the authorization server.
-	RefreshToken *KafkaMirrorMakerSpecProducerAuthenticationRefreshToken `json:"refreshToken,omitempty"`
-
-	// OAuth scope to use when authenticating against the authorization server. Some
-	// authorization servers require this to be set. The possible values depend on how
-	// authorization server is configured. By default `scope` is not specified when
-	// doing the token endpoint request.
-	Scope *string `json:"scope,omitempty"`
-
-	// Trusted certificates for TLS connection to the OAuth server.
-	TlsTrustedCertificates []KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
-
-	// Authorization server token endpoint URI.
-	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
-
-	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
-	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
-	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
-	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
-	Type KafkaMirrorMakerSpecProducerAuthenticationType `json:"type"`
-
-	// Username used for the authentication.
-	Username *string `json:"username,omitempty"`
-}
-
-// Link to Kubernetes Secret containing the access token which was obtained from
-// the authorization server.
-type KafkaMirrorMakerSpecProducerAuthenticationAccessToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-// Reference to the `Secret` which holds the certificate and private key pair.
-type KafkaMirrorMakerSpecProducerAuthenticationCertificateAndKey struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the private key in the Secret.
-	Key string `json:"key"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
-// client can use to authenticate against the OAuth server and use the token
-// endpoint URI.
-type KafkaMirrorMakerSpecProducerAuthenticationClientSecret struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-// Reference to the `Secret` which holds the password.
-type KafkaMirrorMakerSpecProducerAuthenticationPasswordSecret struct {
-	// The name of the key in the Secret under which the password is stored.
-	Password string `json:"password"`
-
-	// The name of the Secret containing the password.
-	SecretName string `json:"secretName"`
-}
-
-// Link to Kubernetes Secret containing the refresh token which can be used to
-// obtain access token from the authorization server.
-type KafkaMirrorMakerSpecProducerAuthenticationRefreshToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-type KafkaMirrorMakerSpecProducerAuthenticationTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-type KafkaMirrorMakerSpecProducerAuthenticationType string
-
-const KafkaMirrorMakerSpecProducerAuthenticationTypeOauth KafkaMirrorMakerSpecProducerAuthenticationType = "oauth"
-const KafkaMirrorMakerSpecProducerAuthenticationTypePlain KafkaMirrorMakerSpecProducerAuthenticationType = "plain"
-const KafkaMirrorMakerSpecProducerAuthenticationTypeScramSha256 KafkaMirrorMakerSpecProducerAuthenticationType = "scram-sha-256"
-const KafkaMirrorMakerSpecProducerAuthenticationTypeScramSha512 KafkaMirrorMakerSpecProducerAuthenticationType = "scram-sha-512"
-const KafkaMirrorMakerSpecProducerAuthenticationTypeTls KafkaMirrorMakerSpecProducerAuthenticationType = "tls"
-
-// The MirrorMaker producer config. Properties with the following prefixes cannot
-// be set: ssl., bootstrap.servers, sasl., security., interceptor.classes (with the
-// exception of: ssl.endpoint.identification.algorithm, ssl.cipher.suites,
-// ssl.protocol, ssl.enabled.protocols).
-//type KafkaMirrorMakerSpecProducerConfig map[string]interface{}
-
-// TLS configuration for connecting MirrorMaker to the cluster.
-type KafkaMirrorMakerSpecProducerTls struct {
-	// Trusted certificates for TLS connection.
-	TrustedCertificates []KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty"`
-}
-
-type KafkaMirrorMakerSpecProducerTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// Pod readiness checking.
-type KafkaMirrorMakerSpecReadinessProbe struct {
-	// Minimum consecutive failures for the probe to be considered failed after having
-	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
-
-	// The initial delay before first the health is first checked. Default to 15
-	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
-
-	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
-	// value is 1.
-	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
-
-	// Minimum consecutive successes for the probe to be considered successful after
-	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
-
-	// The timeout for each attempted health check. Default to 5 seconds. Minimum
-	// value is 1.
-	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
-}
-
-// CPU and memory resources to reserve.
-type KafkaMirrorMakerSpecResources struct {
-	// Limits corresponds to the JSON schema field "limits".
-	Limits *apiextensions.JSON `json:"limits,omitempty"`
-
-	// Requests corresponds to the JSON schema field "requests".
-	Requests *apiextensions.JSON `json:"requests,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecResourcesLimits map[string]interface{}
-
-//type KafkaMirrorMakerSpecResourcesRequests map[string]interface{}
-
-// Template to specify how Kafka MirrorMaker resources, `Deployments` and `Pods`,
-// are generated.
-type KafkaMirrorMakerSpecTemplate struct {
-	// Template for Kafka MirrorMaker `Deployment`.
-	Deployment *KafkaMirrorMakerSpecTemplateDeployment `json:"deployment,omitempty"`
-
-	// Template for Kafka MirrorMaker container.
-	MirrorMakerContainer *KafkaMirrorMakerSpecTemplateMirrorMakerContainer `json:"mirrorMakerContainer,omitempty"`
-
-	// Template for Kafka MirrorMaker `Pods`.
-	Pod *KafkaMirrorMakerSpecTemplatePod `json:"pod,omitempty"`
-
-	// Template for Kafka MirrorMaker `PodDisruptionBudget`.
-	PodDisruptionBudget *KafkaMirrorMakerSpecTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty"`
-
-	// Template for the Kafka MirrorMaker service account.
-	ServiceAccount *KafkaMirrorMakerSpecTemplateServiceAccount `json:"serviceAccount,omitempty"`
-}
-
-// Template for Kafka MirrorMaker `Deployment`.
-type KafkaMirrorMakerSpecTemplateDeployment struct {
-	// Pod replacement strategy for deployment configuration changes. Valid values are
-	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
-	DeploymentStrategy *KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty"`
-
-	// Metadata applied to the resource.
-	Metadata *KafkaMirrorMakerSpecTemplateDeploymentMetadata `json:"metadata,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy string
-
-const KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategyRecreate KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = "Recreate"
-const KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategyRollingUpdate KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = "RollingUpdate"
-
-// Metadata applied to the resource.
-type KafkaMirrorMakerSpecTemplateDeploymentMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplateDeploymentMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplateDeploymentMetadataLabels map[string]interface{}
-
-// Template for Kafka MirrorMaker container.
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainer struct {
-	// Environment variables which should be applied to the container.
-	Env []KafkaMirrorMakerSpecTemplateMirrorMakerContainerEnvElem `json:"env,omitempty"`
-
-	// Security context for the container.
-	SecurityContext *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext `json:"securityContext,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainerEnvElem struct {
-	// The environment variable key.
-	Name *string `json:"name,omitempty"`
-
-	// The environment variable value.
-	Value *string `json:"value,omitempty"`
-}
-
-// Security context for the container.
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext struct {
-	// AllowPrivilegeEscalation corresponds to the JSON schema field
-	// "allowPrivilegeEscalation".
-	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty"`
-
-	// Capabilities corresponds to the JSON schema field "capabilities".
-	Capabilities *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextCapabilities `json:"capabilities,omitempty"`
-
-	// Privileged corresponds to the JSON schema field "privileged".
-	Privileged *bool `json:"privileged,omitempty"`
-
-	// ProcMount corresponds to the JSON schema field "procMount".
-	ProcMount *string `json:"procMount,omitempty"`
-
-	// ReadOnlyRootFilesystem corresponds to the JSON schema field
-	// "readOnlyRootFilesystem".
-	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
-
-	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
-
-	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
-	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
-
-	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int32 `json:"runAsUser,omitempty"`
-
-	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
-	SeLinuxOptions *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
-
-	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
-	SeccompProfile *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
-
-	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
-	WindowsOptions *KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextCapabilities struct {
-	// Add corresponds to the JSON schema field "add".
-	Add []string `json:"add,omitempty"`
-
-	// Drop corresponds to the JSON schema field "drop".
-	Drop []string `json:"drop,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeLinuxOptions struct {
-	// Level corresponds to the JSON schema field "level".
-	Level *string `json:"level,omitempty"`
-
-	// Role corresponds to the JSON schema field "role".
-	Role *string `json:"role,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-
-	// User corresponds to the JSON schema field "user".
-	User *string `json:"user,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile struct {
-	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
-	LocalhostProfile *string `json:"localhostProfile,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty"`
-}
-
-// Template for Kafka MirrorMaker `Pods`.
-type KafkaMirrorMakerSpecTemplatePod struct {
-	// The pod's affinity rules.
-	Affinity *KafkaMirrorMakerSpecTemplatePodAffinity `json:"affinity,omitempty"`
-
-	// Indicates whether information about services should be injected into Pod's
-	// environment variables.
-	EnableServiceLinks *bool `json:"enableServiceLinks,omitempty"`
-
-	// The pod's HostAliases. HostAliases is an optional list of hosts and IPs that
-	// will be injected into the Pod's hosts file if specified.
-	HostAliases []KafkaMirrorMakerSpecTemplatePodHostAliasesElem `json:"hostAliases,omitempty"`
-
-	// List of references to secrets in the same namespace to use for pulling any of
-	// the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment
-	// variable in Cluster Operator and the `imagePullSecrets` option are specified,
-	// only the `imagePullSecrets` variable is used and the
-	// `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
-	ImagePullSecrets []KafkaMirrorMakerSpecTemplatePodImagePullSecretsElem `json:"imagePullSecrets,omitempty"`
-
-	// Metadata applied to the resource.
-	Metadata *KafkaMirrorMakerSpecTemplatePodMetadata `json:"metadata,omitempty"`
-
-	// The name of the priority class used to assign priority to the pods. For more
-	// information about priority classes, see {K8sPriorityClass}.
-	PriorityClassName *string `json:"priorityClassName,omitempty"`
-
-	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
-	// default scheduler will be used.
-	SchedulerName *string `json:"schedulerName,omitempty"`
-
-	// Configures pod-level security attributes and common container settings.
-	SecurityContext *KafkaMirrorMakerSpecTemplatePodSecurityContext `json:"securityContext,omitempty"`
-
-	// The grace period is the duration in seconds after the processes running in the
-	// pod are sent a termination signal, and the time when the processes are forcibly
-	// halted with a kill signal. Set this value to longer than the expected cleanup
-	// time for your process. Value must be a non-negative integer. A zero value
-	// indicates delete immediately. You might need to increase the grace period for
-	// very large Kafka clusters, so that the Kafka brokers have enough time to
-	// transfer their work to another broker before they are terminated. Defaults to
-	// 30 seconds.
-	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
-
-	// Defines the total amount (for example `1Gi`) of local storage required for
-	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
-	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
-
-	// The pod's tolerations.
-	Tolerations []KafkaMirrorMakerSpecTemplatePodTolerationsElem `json:"tolerations,omitempty"`
-
-	// The pod's topology spread constraints.
-	TopologySpreadConstraints []KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElem `json:"topologySpreadConstraints,omitempty"`
-}
-
-// The pod's affinity rules.
-type KafkaMirrorMakerSpecTemplatePodAffinity struct {
-	// NodeAffinity corresponds to the JSON schema field "nodeAffinity".
-	NodeAffinity *KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinity `json:"nodeAffinity,omitempty"`
-
-	// PodAffinity corresponds to the JSON schema field "podAffinity".
-	PodAffinity *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinity `json:"podAffinity,omitempty"`
-
-	// PodAntiAffinity corresponds to the JSON schema field "podAntiAffinity".
-	PodAntiAffinity *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinity `json:"podAntiAffinity,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinity struct {
-	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "preferredDuringSchedulingIgnoredDuringExecution".
-	PreferredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
-
-	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "requiredDuringSchedulingIgnoredDuringExecution".
-	RequiredDuringSchedulingIgnoredDuringExecution *KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// Preference corresponds to the JSON schema field "preference".
-	Preference *KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
-
-	// Weight corresponds to the JSON schema field "weight".
-	Weight *int32 `json:"weight,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchFields corresponds to the JSON schema field "matchFields".
-	MatchFields []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem `json:"matchFields,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution struct {
-	// NodeSelectorTerms corresponds to the JSON schema field "nodeSelectorTerms".
-	NodeSelectorTerms []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem `json:"nodeSelectorTerms,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchFields corresponds to the JSON schema field "matchFields".
-	MatchFields []KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem `json:"matchFields,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinity struct {
-	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "preferredDuringSchedulingIgnoredDuringExecution".
-	PreferredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
-
-	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "requiredDuringSchedulingIgnoredDuringExecution".
-	RequiredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
-	PodAffinityTerm *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
-
-	// Weight corresponds to the JSON schema field "weight".
-	Weight *int32 `json:"weight,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinity struct {
-	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "preferredDuringSchedulingIgnoredDuringExecution".
-	PreferredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
-
-	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "requiredDuringSchedulingIgnoredDuringExecution".
-	RequiredDuringSchedulingIgnoredDuringExecution []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
-	PodAffinityTerm *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
-
-	// Weight corresponds to the JSON schema field "weight".
-	Weight *int32 `json:"weight,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
-
-// Template for Kafka MirrorMaker `PodDisruptionBudget`.
-type KafkaMirrorMakerSpecTemplatePodDisruptionBudget struct {
-	// Maximum number of unavailable pods to allow automatic Pod eviction. A Pod
-	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
-	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
-	// evictions, so the pods must be evicted manually. Defaults to 1.
-	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
-
-	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
-	Metadata *KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
-}
-
-// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
-type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
-
-type KafkaMirrorMakerSpecTemplatePodHostAliasesElem struct {
-	// Hostnames corresponds to the JSON schema field "hostnames".
-	Hostnames []string `json:"hostnames,omitempty"`
-
-	// Ip corresponds to the JSON schema field "ip".
-	Ip *string `json:"ip,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodImagePullSecretsElem struct {
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-}
-
-// Metadata applied to the resource.
-type KafkaMirrorMakerSpecTemplatePodMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplatePodMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplatePodMetadataLabels map[string]interface{}
-
-// Configures pod-level security attributes and common container settings.
-type KafkaMirrorMakerSpecTemplatePodSecurityContext struct {
-	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int32 `json:"fsGroup,omitempty"`
-
-	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
-	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
-
-	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
-
-	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
-	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
-
-	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int32 `json:"runAsUser,omitempty"`
-
-	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
-	SeLinuxOptions *KafkaMirrorMakerSpecTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
-
-	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
-	SeccompProfile *KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
-
-	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
-
-	// Sysctls corresponds to the JSON schema field "sysctls".
-	Sysctls []KafkaMirrorMakerSpecTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
-
-	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
-	WindowsOptions *KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodSecurityContextSeLinuxOptions struct {
-	// Level corresponds to the JSON schema field "level".
-	Level *string `json:"level,omitempty"`
-
-	// Role corresponds to the JSON schema field "role".
-	Role *string `json:"role,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-
-	// User corresponds to the JSON schema field "user".
-	User *string `json:"user,omitempty"`
 }
 
 type KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile struct {
 	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
-	LocalhostProfile *string `json:"localhostProfile,omitempty"`
+	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
 
 	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
 }
 
-type KafkaMirrorMakerSpecTemplatePodSecurityContextSysctlsElem struct {
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodTolerationsElem struct {
-	// Effect corresponds to the JSON schema field "effect".
-	Effect *string `json:"effect,omitempty"`
-
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
-
-	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
-	MatchLabelKeys []string `json:"matchLabelKeys,omitempty"`
-
-	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int32 `json:"maxSkew,omitempty"`
-
-	// MinDomains corresponds to the JSON schema field "minDomains".
-	MinDomains *int32 `json:"minDomains,omitempty"`
-
-	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
-	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty"`
-
-	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
-	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-
-	// WhenUnsatisfiable corresponds to the JSON schema field "whenUnsatisfiable".
-	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
-
-// Template for the Kafka MirrorMaker service account.
-type KafkaMirrorMakerSpecTemplateServiceAccount struct {
-	// Metadata applied to the resource.
-	Metadata *KafkaMirrorMakerSpecTemplateServiceAccountMetadata `json:"metadata,omitempty"`
-}
-
-// Metadata applied to the resource.
-type KafkaMirrorMakerSpecTemplateServiceAccountMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplateServiceAccountMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaMirrorMakerSpecTemplateServiceAccountMetadataLabels map[string]interface{}
-
-// The configuration of tracing in Kafka MirrorMaker.
-type KafkaMirrorMakerSpecTracing struct {
-	// Type of the tracing used. Currently the only supported types are `jaeger` for
-	// OpenTracing (Jaeger) tracing and `opentelemetry` for OpenTelemetry tracing. The
-	// OpenTracing (Jaeger) tracing is deprecated.
-	Type KafkaMirrorMakerSpecTracingType `json:"type"`
-}
-
-type KafkaMirrorMakerSpecTracingType string
-
-const KafkaMirrorMakerSpecTracingTypeJaeger KafkaMirrorMakerSpecTracingType = "jaeger"
-const KafkaMirrorMakerSpecTracingTypeOpentelemetry KafkaMirrorMakerSpecTracingType = "opentelemetry"
-
-// The status of Kafka MirrorMaker.
-type KafkaMirrorMakerStatus struct {
-	// List of status conditions.
-	Conditions []KafkaMirrorMakerStatusConditionsElem `json:"conditions,omitempty"`
-
-	// Label selector for pods providing this resource.
-	LabelSelector *string `json:"labelSelector,omitempty"`
-
-	// The generation of the CRD that was last reconciled by the operator.
-	ObservedGeneration *int32 `json:"observedGeneration,omitempty"`
-
-	// The current number of pods being used to provide this resource.
-	Replicas *int32 `json:"replicas,omitempty"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpec) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["consumer"]; !ok || v == nil {
+		return fmt.Errorf("field consumer in KafkaMirrorMakerSpec: required")
+	}
+	if v, ok := raw["producer"]; !ok || v == nil {
+		return fmt.Errorf("field producer in KafkaMirrorMakerSpec: required")
+	}
+	if v, ok := raw["replicas"]; !ok || v == nil {
+		return fmt.Errorf("field replicas in KafkaMirrorMakerSpec: required")
+	}
+	type Plain KafkaMirrorMakerSpec
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpec(plain)
+	return nil
 }
 
 type KafkaMirrorMakerStatusConditionsElem struct {
 	// Last time the condition of a type changed from one status to another. The
 	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
-	LastTransitionTime *string `json:"lastTransitionTime,omitempty"`
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
 
 	// Human-readable message indicating details about the condition's last
 	// transition.
-	Message *string `json:"message,omitempty"`
+	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
 
 	// The reason for the condition's last transition (a single word in CamelCase).
-	Reason *string `json:"reason,omitempty"`
+	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
 
 	// The status of the condition, either True, False or Unknown.
-	Status *string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
 
 	// The unique identifier of a condition, used to distinguish between other
 	// conditions in the resource.
-	Type *string `json:"type,omitempty"`
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
 }
 
-var enumValues_KafkaMirrorMakerSpecConsumerAuthenticationType = []interface{}{
-	"tls",
-	"scram-sha-256",
-	"scram-sha-512",
-	"plain",
-	"oauth",
+// The status of Kafka MirrorMaker.
+type KafkaMirrorMakerStatus struct {
+	// List of status conditions.
+	Conditions []KafkaMirrorMakerStatusConditionsElem `json:"conditions,omitempty" yaml:"conditions,omitempty" mapstructure:"conditions,omitempty"`
+
+	// Label selector for pods providing this resource.
+	LabelSelector *string `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// The generation of the CRD that was last reconciled by the operator.
+	ObservedGeneration *int32 `json:"observedGeneration,omitempty" yaml:"observedGeneration,omitempty" mapstructure:"observedGeneration,omitempty"`
+
+	// The current number of pods being used to provide this resource.
+	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty" mapstructure:"replicas,omitempty"`
 }
-var enumValues_KafkaMirrorMakerSpecLoggingType = []interface{}{
-	"inline",
-	"external",
-}
-var enumValues_KafkaMirrorMakerSpecMetricsConfigType = []interface{}{
-	"jmxPrometheusExporter",
-}
-var enumValues_KafkaMirrorMakerSpecProducerAuthenticationType = []interface{}{
-	"tls",
-	"scram-sha-256",
-	"scram-sha-512",
-	"plain",
-	"oauth",
-}
-var enumValues_KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy = []interface{}{
-	"RollingUpdate",
-	"Recreate",
-}
-var enumValues_KafkaMirrorMakerSpecTracingType = []interface{}{
-	"jaeger",
-	"opentelemetry",
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMakerSpecConsumerAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaMirrorMakerSpecConsumerAuthenticationAccessToken: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMakerSpecConsumerAuthenticationAccessToken: required")
+	}
+	type Plain KafkaMirrorMakerSpecConsumerAuthenticationAccessToken
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMakerSpecConsumerAuthenticationAccessToken(plain)
+	return nil
 }

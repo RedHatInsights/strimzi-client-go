@@ -2,105 +2,220 @@
 
 package v1beta2
 
-import "fmt"
 import "encoding/json"
+import "fmt"
 import "reflect"
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 import apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem, v)
-	}
-	*j = KafkaBridgeSpecTemplateApiServiceIpFamiliesElem(v)
-	return nil
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+type KafkaBridge struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// The specification of the Kafka Bridge.
+	Spec *KafkaBridgeSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
+
+	// The status of the Kafka Bridge.
+	Status *KafkaBridgeStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// KafkaBridgeList contains a list of instances.
+type KafkaBridgeList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// A list of KafkaBridge objects.
+	Items []KafkaBridge `json:"items,omitempty"`
+}
+
+// The specification of the Kafka Bridge.
+type KafkaBridgeSpec struct {
+	// Kafka AdminClient related configuration.
+	AdminClient *KafkaBridgeSpecAdminClient `json:"adminClient,omitempty" yaml:"adminClient,omitempty" mapstructure:"adminClient,omitempty"`
+
+	// Authentication configuration for connecting to the cluster.
+	Authentication *KafkaBridgeSpecAuthentication `json:"authentication,omitempty" yaml:"authentication,omitempty" mapstructure:"authentication,omitempty"`
+
+	// A list of host:port pairs for establishing the initial connection to the Kafka
+	// cluster.
+	BootstrapServers string `json:"bootstrapServers" yaml:"bootstrapServers" mapstructure:"bootstrapServers"`
+
+	// The image of the init container used for initializing the `client.rack`.
+	ClientRackInitImage *string `json:"clientRackInitImage,omitempty" yaml:"clientRackInitImage,omitempty" mapstructure:"clientRackInitImage,omitempty"`
+
+	// Kafka consumer related configuration.
+	Consumer *KafkaBridgeSpecConsumer `json:"consumer,omitempty" yaml:"consumer,omitempty" mapstructure:"consumer,omitempty"`
+
+	// Enable the metrics for the Kafka Bridge. Default is false.
+	EnableMetrics *bool `json:"enableMetrics,omitempty" yaml:"enableMetrics,omitempty" mapstructure:"enableMetrics,omitempty"`
+
+	// The HTTP related configuration.
+	Http *KafkaBridgeSpecHttp `json:"http,omitempty" yaml:"http,omitempty" mapstructure:"http,omitempty"`
+
+	// The docker image for the pods.
+	Image *string `json:"image,omitempty" yaml:"image,omitempty" mapstructure:"image,omitempty"`
+
+	// **Currently not supported** JVM Options for pods.
+	JvmOptions *KafkaBridgeSpecJvmOptions `json:"jvmOptions,omitempty" yaml:"jvmOptions,omitempty" mapstructure:"jvmOptions,omitempty"`
+
+	// Pod liveness checking.
+	LivenessProbe *KafkaBridgeSpecLivenessProbe `json:"livenessProbe,omitempty" yaml:"livenessProbe,omitempty" mapstructure:"livenessProbe,omitempty"`
+
+	// Logging configuration for Kafka Bridge.
+	Logging *KafkaBridgeSpecLogging `json:"logging,omitempty" yaml:"logging,omitempty" mapstructure:"logging,omitempty"`
+
+	// Kafka producer related configuration.
+	Producer *KafkaBridgeSpecProducer `json:"producer,omitempty" yaml:"producer,omitempty" mapstructure:"producer,omitempty"`
+
+	// Configuration of the node label which will be used as the client.rack consumer
+	// configuration.
+	Rack *KafkaBridgeSpecRack `json:"rack,omitempty" yaml:"rack,omitempty" mapstructure:"rack,omitempty"`
+
+	// Pod readiness checking.
+	ReadinessProbe *KafkaBridgeSpecReadinessProbe `json:"readinessProbe,omitempty" yaml:"readinessProbe,omitempty" mapstructure:"readinessProbe,omitempty"`
+
+	// The number of pods in the `Deployment`.  Defaults to `1`.
+	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty" mapstructure:"replicas,omitempty"`
+
+	// CPU and memory resources to reserve.
+	Resources *KafkaBridgeSpecResources `json:"resources,omitempty" yaml:"resources,omitempty" mapstructure:"resources,omitempty"`
+
+	// Template for Kafka Bridge resources. The template allows users to specify how a
+	// `Deployment` and `Pod` is generated.
+	Template *KafkaBridgeSpecTemplate `json:"template,omitempty" yaml:"template,omitempty" mapstructure:"template,omitempty"`
+
+	// TLS configuration for connecting Kafka Bridge to the cluster.
+	Tls *KafkaBridgeSpecTls `json:"tls,omitempty" yaml:"tls,omitempty" mapstructure:"tls,omitempty"`
+
+	// The configuration of tracing in Kafka Bridge.
+	Tracing *KafkaBridgeSpecTracing `json:"tracing,omitempty" yaml:"tracing,omitempty" mapstructure:"tracing,omitempty"`
 }
 
 // Kafka AdminClient related configuration.
 type KafkaBridgeSpecAdminClient struct {
 	// The Kafka AdminClient configuration used for AdminClient instances created by
 	// the bridge.
-	Config *apiextensions.JSON `json:"config,omitempty"`
+	Config *apiextensions.JSON `json:"config,omitempty" yaml:"config,omitempty" mapstructure:"config,omitempty"`
+}
+
+// The Kafka AdminClient configuration used for AdminClient instances created by
+// the bridge.
+//type KafkaBridgeSpecAdminClientConfig map[string]interface{}
+
+// Authentication configuration for connecting to the cluster.
+type KafkaBridgeSpecAuthentication struct {
+	// Link to Kubernetes Secret containing the access token which was obtained from
+	// the authorization server.
+	AccessToken *KafkaBridgeSpecAuthenticationAccessToken `json:"accessToken,omitempty" yaml:"accessToken,omitempty" mapstructure:"accessToken,omitempty"`
+
+	// Configure whether access token should be treated as JWT. This should be set to
+	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
+	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty" yaml:"accessTokenIsJwt,omitempty" mapstructure:"accessTokenIsJwt,omitempty"`
+
+	// OAuth audience to use when authenticating against the authorization server.
+	// Some authorization servers require the audience to be explicitly set. The
+	// possible values depend on how the authorization server is configured. By
+	// default, `audience` is not specified when performing the token endpoint
+	// request.
+	Audience *string `json:"audience,omitempty" yaml:"audience,omitempty" mapstructure:"audience,omitempty"`
+
+	// Reference to the `Secret` which holds the certificate and private key pair.
+	CertificateAndKey *KafkaBridgeSpecAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty" yaml:"certificateAndKey,omitempty" mapstructure:"certificateAndKey,omitempty"`
+
+	// OAuth Client ID which the Kafka client can use to authenticate against the
+	// OAuth server and use the token endpoint URI.
+	ClientId *string `json:"clientId,omitempty" yaml:"clientId,omitempty" mapstructure:"clientId,omitempty"`
+
+	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
+	// client can use to authenticate against the OAuth server and use the token
+	// endpoint URI.
+	ClientSecret *KafkaBridgeSpecAuthenticationClientSecret `json:"clientSecret,omitempty" yaml:"clientSecret,omitempty" mapstructure:"clientSecret,omitempty"`
+
+	// The connect timeout in seconds when connecting to authorization server. If not
+	// set, the effective connect timeout is 60 seconds.
+	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty" yaml:"connectTimeoutSeconds,omitempty" mapstructure:"connectTimeoutSeconds,omitempty"`
+
+	// Enable or disable TLS hostname verification. Default value is `false`.
+	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty" yaml:"disableTlsHostnameVerification,omitempty" mapstructure:"disableTlsHostnameVerification,omitempty"`
+
+	// Enable or disable OAuth metrics. Default value is `false`.
+	EnableMetrics *bool `json:"enableMetrics,omitempty" yaml:"enableMetrics,omitempty" mapstructure:"enableMetrics,omitempty"`
+
+	// The maximum number of retries to attempt if an initial HTTP request fails. If
+	// not set, the default is to not attempt any retries.
+	HttpRetries *int32 `json:"httpRetries,omitempty" yaml:"httpRetries,omitempty" mapstructure:"httpRetries,omitempty"`
+
+	// The pause to take before retrying a failed HTTP request. If not set, the
+	// default is to not pause at all but to immediately repeat a request.
+	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty" yaml:"httpRetryPauseMs,omitempty" mapstructure:"httpRetryPauseMs,omitempty"`
+
+	// Whether the Accept header should be set in requests to the authorization
+	// servers. The default value is `true`.
+	IncludeAcceptHeader *bool `json:"includeAcceptHeader,omitempty" yaml:"includeAcceptHeader,omitempty" mapstructure:"includeAcceptHeader,omitempty"`
+
+	// Set or limit time-to-live of the access tokens to the specified number of
+	// seconds. This should be set if the authorization server returns opaque tokens.
+	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty" yaml:"maxTokenExpirySeconds,omitempty" mapstructure:"maxTokenExpirySeconds,omitempty"`
+
+	// Reference to the `Secret` which holds the password.
+	PasswordSecret *KafkaBridgeSpecAuthenticationPasswordSecret `json:"passwordSecret,omitempty" yaml:"passwordSecret,omitempty" mapstructure:"passwordSecret,omitempty"`
+
+	// The read timeout in seconds when connecting to authorization server. If not
+	// set, the effective read timeout is 60 seconds.
+	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty" yaml:"readTimeoutSeconds,omitempty" mapstructure:"readTimeoutSeconds,omitempty"`
+
+	// Link to Kubernetes Secret containing the refresh token which can be used to
+	// obtain access token from the authorization server.
+	RefreshToken *KafkaBridgeSpecAuthenticationRefreshToken `json:"refreshToken,omitempty" yaml:"refreshToken,omitempty" mapstructure:"refreshToken,omitempty"`
+
+	// OAuth scope to use when authenticating against the authorization server. Some
+	// authorization servers require this to be set. The possible values depend on how
+	// authorization server is configured. By default `scope` is not specified when
+	// doing the token endpoint request.
+	Scope *string `json:"scope,omitempty" yaml:"scope,omitempty" mapstructure:"scope,omitempty"`
+
+	// Trusted certificates for TLS connection to the OAuth server.
+	TlsTrustedCertificates []KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty" yaml:"tlsTrustedCertificates,omitempty" mapstructure:"tlsTrustedCertificates,omitempty"`
+
+	// Authorization server token endpoint URI.
+	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty" yaml:"tokenEndpointUri,omitempty" mapstructure:"tokenEndpointUri,omitempty"`
+
+	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
+	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
+	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
+	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
+	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
+	// The `tls` type is supported only over TLS connections.
+	Type KafkaBridgeSpecAuthenticationType `json:"type" yaml:"type" mapstructure:"type"`
+
+	// Username used for the authentication.
+	Username *string `json:"username,omitempty" yaml:"username,omitempty" mapstructure:"username,omitempty"`
 }
 
 // Link to Kubernetes Secret containing the access token which was obtained from
 // the authorization server.
 type KafkaBridgeSpecAuthenticationAccessToken struct {
 	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
 
 	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaBridgeSpecAuthenticationAccessToken
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecAuthenticationAccessToken(plain)
-	return nil
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
 }
 
 // Reference to the `Secret` which holds the certificate and private key pair.
 type KafkaBridgeSpecAuthenticationCertificateAndKey struct {
 	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
 
 	// The name of the private key in the Secret.
-	Key string `json:"key"`
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
 
 	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecAuthenticationCertificateAndKey) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaBridgeSpecAuthenticationCertificateAndKey
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecAuthenticationCertificateAndKey(plain)
-	return nil
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
 }
 
 // Link to Kubernetes Secret containing the OAuth client secret which the Kafka
@@ -108,10 +223,1201 @@ func (j *KafkaBridgeSpecAuthenticationCertificateAndKey) UnmarshalJSON(b []byte)
 // endpoint URI.
 type KafkaBridgeSpecAuthenticationClientSecret struct {
 	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
 
 	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Reference to the `Secret` which holds the password.
+type KafkaBridgeSpecAuthenticationPasswordSecret struct {
+	// The name of the key in the Secret under which the password is stored.
+	Password string `json:"password" yaml:"password" mapstructure:"password"`
+
+	// The name of the Secret containing the password.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// Link to Kubernetes Secret containing the refresh token which can be used to
+// obtain access token from the authorization server.
+type KafkaBridgeSpecAuthenticationRefreshToken struct {
+	// The key under which the secret value is stored in the Kubernetes Secret.
+	Key string `json:"key" yaml:"key" mapstructure:"key"`
+
+	// The name of the Kubernetes Secret containing the secret value.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+type KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+type KafkaBridgeSpecAuthenticationType string
+
+const KafkaBridgeSpecAuthenticationTypeOauth KafkaBridgeSpecAuthenticationType = "oauth"
+const KafkaBridgeSpecAuthenticationTypePlain KafkaBridgeSpecAuthenticationType = "plain"
+const KafkaBridgeSpecAuthenticationTypeScramSha256 KafkaBridgeSpecAuthenticationType = "scram-sha-256"
+const KafkaBridgeSpecAuthenticationTypeScramSha512 KafkaBridgeSpecAuthenticationType = "scram-sha-512"
+const KafkaBridgeSpecAuthenticationTypeTls KafkaBridgeSpecAuthenticationType = "tls"
+
+// Kafka consumer related configuration.
+type KafkaBridgeSpecConsumer struct {
+	// The Kafka consumer configuration used for consumer instances created by the
+	// bridge. Properties with the following prefixes cannot be set: ssl.,
+	// bootstrap.servers, group.id, sasl., security. (with the exception of:
+	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+	// ssl.enabled.protocols).
+	Config *apiextensions.JSON `json:"config,omitempty" yaml:"config,omitempty" mapstructure:"config,omitempty"`
+}
+
+// The Kafka consumer configuration used for consumer instances created by the
+// bridge. Properties with the following prefixes cannot be set: ssl.,
+// bootstrap.servers, group.id, sasl., security. (with the exception of:
+// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+// ssl.enabled.protocols).
+//type KafkaBridgeSpecConsumerConfig map[string]interface{}
+
+// The HTTP related configuration.
+type KafkaBridgeSpecHttp struct {
+	// CORS configuration for the HTTP Bridge.
+	Cors *KafkaBridgeSpecHttpCors `json:"cors,omitempty" yaml:"cors,omitempty" mapstructure:"cors,omitempty"`
+
+	// The port which is the server listening on.
+	Port *int32 `json:"port,omitempty" yaml:"port,omitempty" mapstructure:"port,omitempty"`
+}
+
+// CORS configuration for the HTTP Bridge.
+type KafkaBridgeSpecHttpCors struct {
+	// List of allowed HTTP methods.
+	AllowedMethods []string `json:"allowedMethods" yaml:"allowedMethods" mapstructure:"allowedMethods"`
+
+	// List of allowed origins. Java regular expressions can be used.
+	AllowedOrigins []string `json:"allowedOrigins" yaml:"allowedOrigins" mapstructure:"allowedOrigins"`
+}
+
+// **Currently not supported** JVM Options for pods.
+type KafkaBridgeSpecJvmOptions struct {
+	// A map of -XX options to the JVM.
+	XX *apiextensions.JSON `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
+
+	// -Xms option to to the JVM.
+	Xms *string `json:"-Xms,omitempty" yaml:"-Xms,omitempty" mapstructure:"-Xms,omitempty"`
+
+	// -Xmx option to to the JVM.
+	Xmx *string `json:"-Xmx,omitempty" yaml:"-Xmx,omitempty" mapstructure:"-Xmx,omitempty"`
+
+	// Specifies whether the Garbage Collection logging is enabled. The default is
+	// false.
+	GcLoggingEnabled *bool `json:"gcLoggingEnabled,omitempty" yaml:"gcLoggingEnabled,omitempty" mapstructure:"gcLoggingEnabled,omitempty"`
+
+	// A map of additional system properties which will be passed using the `-D`
+	// option to the JVM.
+	JavaSystemProperties []KafkaBridgeSpecJvmOptionsJavaSystemPropertiesElem `json:"javaSystemProperties,omitempty" yaml:"javaSystemProperties,omitempty" mapstructure:"javaSystemProperties,omitempty"`
+}
+
+type KafkaBridgeSpecJvmOptionsJavaSystemPropertiesElem struct {
+	// The system property name.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The system property value.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// A map of -XX options to the JVM.
+//type KafkaBridgeSpecJvmOptionsXX map[string]interface{}
+
+// Pod liveness checking.
+type KafkaBridgeSpecLivenessProbe struct {
+	// Minimum consecutive failures for the probe to be considered failed after having
+	// succeeded. Defaults to 3. Minimum value is 1.
+	FailureThreshold *int32 `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty" mapstructure:"failureThreshold,omitempty"`
+
+	// The initial delay before first the health is first checked. Default to 15
+	// seconds. Minimum value is 0.
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty" mapstructure:"initialDelaySeconds,omitempty"`
+
+	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
+	// value is 1.
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty" mapstructure:"periodSeconds,omitempty"`
+
+	// Minimum consecutive successes for the probe to be considered successful after
+	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+	SuccessThreshold *int32 `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty" mapstructure:"successThreshold,omitempty"`
+
+	// The timeout for each attempted health check. Default to 5 seconds. Minimum
+	// value is 1.
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty" mapstructure:"timeoutSeconds,omitempty"`
+}
+
+// Logging configuration for Kafka Bridge.
+type KafkaBridgeSpecLogging struct {
+	// A Map from logger name to logger level.
+	Loggers *apiextensions.JSON `json:"loggers,omitempty" yaml:"loggers,omitempty" mapstructure:"loggers,omitempty"`
+
+	// Logging type, must be either 'inline' or 'external'.
+	Type KafkaBridgeSpecLoggingType `json:"type" yaml:"type" mapstructure:"type"`
+
+	// `ConfigMap` entry where the logging configuration is stored.
+	ValueFrom *KafkaBridgeSpecLoggingValueFrom `json:"valueFrom,omitempty" yaml:"valueFrom,omitempty" mapstructure:"valueFrom,omitempty"`
+}
+
+// A Map from logger name to logger level.
+//type KafkaBridgeSpecLoggingLoggers map[string]interface{}
+
+type KafkaBridgeSpecLoggingType string
+
+const KafkaBridgeSpecLoggingTypeExternal KafkaBridgeSpecLoggingType = "external"
+const KafkaBridgeSpecLoggingTypeInline KafkaBridgeSpecLoggingType = "inline"
+
+// `ConfigMap` entry where the logging configuration is stored.
+type KafkaBridgeSpecLoggingValueFrom struct {
+	// Reference to the key in the ConfigMap containing the configuration.
+	ConfigMapKeyRef *KafkaBridgeSpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty" yaml:"configMapKeyRef,omitempty" mapstructure:"configMapKeyRef,omitempty"`
+}
+
+// Reference to the key in the ConfigMap containing the configuration.
+type KafkaBridgeSpecLoggingValueFromConfigMapKeyRef struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Optional corresponds to the JSON schema field "optional".
+	Optional *bool `json:"optional,omitempty" yaml:"optional,omitempty" mapstructure:"optional,omitempty"`
+}
+
+// Kafka producer related configuration.
+type KafkaBridgeSpecProducer struct {
+	// The Kafka producer configuration used for producer instances created by the
+	// bridge. Properties with the following prefixes cannot be set: ssl.,
+	// bootstrap.servers, sasl., security. (with the exception of:
+	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+	// ssl.enabled.protocols).
+	Config *apiextensions.JSON `json:"config,omitempty" yaml:"config,omitempty" mapstructure:"config,omitempty"`
+}
+
+// The Kafka producer configuration used for producer instances created by the
+// bridge. Properties with the following prefixes cannot be set: ssl.,
+// bootstrap.servers, sasl., security. (with the exception of:
+// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
+// ssl.enabled.protocols).
+//type KafkaBridgeSpecProducerConfig map[string]interface{}
+
+// Configuration of the node label which will be used as the client.rack consumer
+// configuration.
+type KafkaBridgeSpecRack struct {
+	// A key that matches labels assigned to the Kubernetes cluster nodes. The value
+	// of the label is used to set a broker's `broker.rack` config, and the
+	// `client.rack` config for Kafka Connect or MirrorMaker 2.
+	TopologyKey string `json:"topologyKey" yaml:"topologyKey" mapstructure:"topologyKey"`
+}
+
+// Pod readiness checking.
+type KafkaBridgeSpecReadinessProbe struct {
+	// Minimum consecutive failures for the probe to be considered failed after having
+	// succeeded. Defaults to 3. Minimum value is 1.
+	FailureThreshold *int32 `json:"failureThreshold,omitempty" yaml:"failureThreshold,omitempty" mapstructure:"failureThreshold,omitempty"`
+
+	// The initial delay before first the health is first checked. Default to 15
+	// seconds. Minimum value is 0.
+	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty" yaml:"initialDelaySeconds,omitempty" mapstructure:"initialDelaySeconds,omitempty"`
+
+	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
+	// value is 1.
+	PeriodSeconds *int32 `json:"periodSeconds,omitempty" yaml:"periodSeconds,omitempty" mapstructure:"periodSeconds,omitempty"`
+
+	// Minimum consecutive successes for the probe to be considered successful after
+	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
+	SuccessThreshold *int32 `json:"successThreshold,omitempty" yaml:"successThreshold,omitempty" mapstructure:"successThreshold,omitempty"`
+
+	// The timeout for each attempted health check. Default to 5 seconds. Minimum
+	// value is 1.
+	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty" yaml:"timeoutSeconds,omitempty" mapstructure:"timeoutSeconds,omitempty"`
+}
+
+// CPU and memory resources to reserve.
+type KafkaBridgeSpecResources struct {
+	// Claims corresponds to the JSON schema field "claims".
+	Claims []KafkaBridgeSpecResourcesClaimsElem `json:"claims,omitempty" yaml:"claims,omitempty" mapstructure:"claims,omitempty"`
+
+	// Limits corresponds to the JSON schema field "limits".
+	Limits *apiextensions.JSON `json:"limits,omitempty" yaml:"limits,omitempty" mapstructure:"limits,omitempty"`
+
+	// Requests corresponds to the JSON schema field "requests".
+	Requests *apiextensions.JSON `json:"requests,omitempty" yaml:"requests,omitempty" mapstructure:"requests,omitempty"`
+}
+
+type KafkaBridgeSpecResourcesClaimsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
+
+//type KafkaBridgeSpecResourcesLimits map[string]interface{}
+
+//type KafkaBridgeSpecResourcesRequests map[string]interface{}
+
+// Template for Kafka Bridge resources. The template allows users to specify how a
+// `Deployment` and `Pod` is generated.
+type KafkaBridgeSpecTemplate struct {
+	// Template for Kafka Bridge API `Service`.
+	ApiService *KafkaBridgeSpecTemplateApiService `json:"apiService,omitempty" yaml:"apiService,omitempty" mapstructure:"apiService,omitempty"`
+
+	// Template for the Kafka Bridge container.
+	BridgeContainer *KafkaBridgeSpecTemplateBridgeContainer `json:"bridgeContainer,omitempty" yaml:"bridgeContainer,omitempty" mapstructure:"bridgeContainer,omitempty"`
+
+	// Template for the Kafka Bridge ClusterRoleBinding.
+	ClusterRoleBinding *KafkaBridgeSpecTemplateClusterRoleBinding `json:"clusterRoleBinding,omitempty" yaml:"clusterRoleBinding,omitempty" mapstructure:"clusterRoleBinding,omitempty"`
+
+	// Template for Kafka Bridge `Deployment`.
+	Deployment *KafkaBridgeSpecTemplateDeployment `json:"deployment,omitempty" yaml:"deployment,omitempty" mapstructure:"deployment,omitempty"`
+
+	// Template for the Kafka Bridge init container.
+	InitContainer *KafkaBridgeSpecTemplateInitContainer `json:"initContainer,omitempty" yaml:"initContainer,omitempty" mapstructure:"initContainer,omitempty"`
+
+	// Template for Kafka Bridge `Pods`.
+	Pod *KafkaBridgeSpecTemplatePod `json:"pod,omitempty" yaml:"pod,omitempty" mapstructure:"pod,omitempty"`
+
+	// Template for Kafka Bridge `PodDisruptionBudget`.
+	PodDisruptionBudget *KafkaBridgeSpecTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty" yaml:"podDisruptionBudget,omitempty" mapstructure:"podDisruptionBudget,omitempty"`
+
+	// Template for the Kafka Bridge service account.
+	ServiceAccount *KafkaBridgeSpecTemplateServiceAccount `json:"serviceAccount,omitempty" yaml:"serviceAccount,omitempty" mapstructure:"serviceAccount,omitempty"`
+}
+
+// Template for Kafka Bridge API `Service`.
+type KafkaBridgeSpecTemplateApiService struct {
+	// Specifies the IP Families used by the service. Available options are `IPv4` and
+	// `IPv6`. If unspecified, Kubernetes will choose the default value based on the
+	// `ipFamilyPolicy` setting.
+	IpFamilies []KafkaBridgeSpecTemplateApiServiceIpFamiliesElem `json:"ipFamilies,omitempty" yaml:"ipFamilies,omitempty" mapstructure:"ipFamilies,omitempty"`
+
+	// Specifies the IP Family Policy used by the service. Available options are
+	// `SingleStack`, `PreferDualStack` and `RequireDualStack`. `SingleStack` is for a
+	// single IP family. `PreferDualStack` is for two IP families on dual-stack
+	// configured clusters or a single IP family on single-stack clusters.
+	// `RequireDualStack` fails unless there are two IP families on dual-stack
+	// configured clusters. If unspecified, Kubernetes will choose the default value
+	// based on the service type.
+	IpFamilyPolicy *KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy `json:"ipFamilyPolicy,omitempty" yaml:"ipFamilyPolicy,omitempty" mapstructure:"ipFamilyPolicy,omitempty"`
+
+	// Metadata applied to the resource.
+	Metadata *KafkaBridgeSpecTemplateApiServiceMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateApiServiceIpFamiliesElem string
+
+const KafkaBridgeSpecTemplateApiServiceIpFamiliesElemIPv4 KafkaBridgeSpecTemplateApiServiceIpFamiliesElem = "IPv4"
+const KafkaBridgeSpecTemplateApiServiceIpFamiliesElemIPv6 KafkaBridgeSpecTemplateApiServiceIpFamiliesElem = "IPv6"
+
+type KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy string
+
+const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicyPreferDualStack KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = "PreferDualStack"
+const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicyRequireDualStack KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = "RequireDualStack"
+const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicySingleStack KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = "SingleStack"
+
+// Metadata applied to the resource.
+type KafkaBridgeSpecTemplateApiServiceMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateApiServiceMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateApiServiceMetadataLabels map[string]interface{}
+
+// Template for the Kafka Bridge container.
+type KafkaBridgeSpecTemplateBridgeContainer struct {
+	// Environment variables which should be applied to the container.
+	Env []KafkaBridgeSpecTemplateBridgeContainerEnvElem `json:"env,omitempty" yaml:"env,omitempty" mapstructure:"env,omitempty"`
+
+	// Security context for the container.
+	SecurityContext *KafkaBridgeSpecTemplateBridgeContainerSecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty" mapstructure:"securityContext,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateBridgeContainerEnvElem struct {
+	// The environment variable key.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The environment variable value.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// Security context for the container.
+type KafkaBridgeSpecTemplateBridgeContainerSecurityContext struct {
+	// AllowPrivilegeEscalation corresponds to the JSON schema field
+	// "allowPrivilegeEscalation".
+	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty" yaml:"allowPrivilegeEscalation,omitempty" mapstructure:"allowPrivilegeEscalation,omitempty"`
+
+	// Capabilities corresponds to the JSON schema field "capabilities".
+	Capabilities *KafkaBridgeSpecTemplateBridgeContainerSecurityContextCapabilities `json:"capabilities,omitempty" yaml:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
+	// Privileged corresponds to the JSON schema field "privileged".
+	Privileged *bool `json:"privileged,omitempty" yaml:"privileged,omitempty" mapstructure:"privileged,omitempty"`
+
+	// ProcMount corresponds to the JSON schema field "procMount".
+	ProcMount *string `json:"procMount,omitempty" yaml:"procMount,omitempty" mapstructure:"procMount,omitempty"`
+
+	// ReadOnlyRootFilesystem corresponds to the JSON schema field
+	// "readOnlyRootFilesystem".
+	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty" yaml:"readOnlyRootFilesystem,omitempty" mapstructure:"readOnlyRootFilesystem,omitempty"`
+
+	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
+	RunAsGroup *int32 `json:"runAsGroup,omitempty" yaml:"runAsGroup,omitempty" mapstructure:"runAsGroup,omitempty"`
+
+	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
+	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty" yaml:"runAsNonRoot,omitempty" mapstructure:"runAsNonRoot,omitempty"`
+
+	// RunAsUser corresponds to the JSON schema field "runAsUser".
+	RunAsUser *int32 `json:"runAsUser,omitempty" yaml:"runAsUser,omitempty" mapstructure:"runAsUser,omitempty"`
+
+	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
+	SeLinuxOptions *KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty" yaml:"seLinuxOptions,omitempty" mapstructure:"seLinuxOptions,omitempty"`
+
+	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
+	SeccompProfile *KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty" yaml:"seccompProfile,omitempty" mapstructure:"seccompProfile,omitempty"`
+
+	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
+	WindowsOptions *KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty" yaml:"windowsOptions,omitempty" mapstructure:"windowsOptions,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateBridgeContainerSecurityContextCapabilities struct {
+	// Add corresponds to the JSON schema field "add".
+	Add []string `json:"add,omitempty" yaml:"add,omitempty" mapstructure:"add,omitempty"`
+
+	// Drop corresponds to the JSON schema field "drop".
+	Drop []string `json:"drop,omitempty" yaml:"drop,omitempty" mapstructure:"drop,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOptions struct {
+	// Level corresponds to the JSON schema field "level".
+	Level *string `json:"level,omitempty" yaml:"level,omitempty" mapstructure:"level,omitempty"`
+
+	// Role corresponds to the JSON schema field "role".
+	Role *string `json:"role,omitempty" yaml:"role,omitempty" mapstructure:"role,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// User corresponds to the JSON schema field "user".
+	User *string `json:"user,omitempty" yaml:"user,omitempty" mapstructure:"user,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile struct {
+	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
+	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
+}
+
+// Template for the Kafka Bridge ClusterRoleBinding.
+type KafkaBridgeSpecTemplateClusterRoleBinding struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaBridgeSpecTemplateClusterRoleBindingMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaBridgeSpecTemplateClusterRoleBindingMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataLabels map[string]interface{}
+
+// Template for Kafka Bridge `Deployment`.
+type KafkaBridgeSpecTemplateDeployment struct {
+	// Pod replacement strategy for deployment configuration changes. Valid values are
+	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+	DeploymentStrategy *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty" yaml:"deploymentStrategy,omitempty" mapstructure:"deploymentStrategy,omitempty"`
+
+	// Metadata applied to the resource.
+	Metadata *KafkaBridgeSpecTemplateDeploymentMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateDeploymentDeploymentStrategy string
+
+const KafkaBridgeSpecTemplateDeploymentDeploymentStrategyRecreate KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = "Recreate"
+const KafkaBridgeSpecTemplateDeploymentDeploymentStrategyRollingUpdate KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = "RollingUpdate"
+
+// Metadata applied to the resource.
+type KafkaBridgeSpecTemplateDeploymentMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateDeploymentMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateDeploymentMetadataLabels map[string]interface{}
+
+// Template for the Kafka Bridge init container.
+type KafkaBridgeSpecTemplateInitContainer struct {
+	// Environment variables which should be applied to the container.
+	Env []KafkaBridgeSpecTemplateInitContainerEnvElem `json:"env,omitempty" yaml:"env,omitempty" mapstructure:"env,omitempty"`
+
+	// Security context for the container.
+	SecurityContext *KafkaBridgeSpecTemplateInitContainerSecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty" mapstructure:"securityContext,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerEnvElem struct {
+	// The environment variable key.
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The environment variable value.
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// Security context for the container.
+type KafkaBridgeSpecTemplateInitContainerSecurityContext struct {
+	// AllowPrivilegeEscalation corresponds to the JSON schema field
+	// "allowPrivilegeEscalation".
+	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty" yaml:"allowPrivilegeEscalation,omitempty" mapstructure:"allowPrivilegeEscalation,omitempty"`
+
+	// Capabilities corresponds to the JSON schema field "capabilities".
+	Capabilities *KafkaBridgeSpecTemplateInitContainerSecurityContextCapabilities `json:"capabilities,omitempty" yaml:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
+	// Privileged corresponds to the JSON schema field "privileged".
+	Privileged *bool `json:"privileged,omitempty" yaml:"privileged,omitempty" mapstructure:"privileged,omitempty"`
+
+	// ProcMount corresponds to the JSON schema field "procMount".
+	ProcMount *string `json:"procMount,omitempty" yaml:"procMount,omitempty" mapstructure:"procMount,omitempty"`
+
+	// ReadOnlyRootFilesystem corresponds to the JSON schema field
+	// "readOnlyRootFilesystem".
+	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty" yaml:"readOnlyRootFilesystem,omitempty" mapstructure:"readOnlyRootFilesystem,omitempty"`
+
+	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
+	RunAsGroup *int32 `json:"runAsGroup,omitempty" yaml:"runAsGroup,omitempty" mapstructure:"runAsGroup,omitempty"`
+
+	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
+	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty" yaml:"runAsNonRoot,omitempty" mapstructure:"runAsNonRoot,omitempty"`
+
+	// RunAsUser corresponds to the JSON schema field "runAsUser".
+	RunAsUser *int32 `json:"runAsUser,omitempty" yaml:"runAsUser,omitempty" mapstructure:"runAsUser,omitempty"`
+
+	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
+	SeLinuxOptions *KafkaBridgeSpecTemplateInitContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty" yaml:"seLinuxOptions,omitempty" mapstructure:"seLinuxOptions,omitempty"`
+
+	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
+	SeccompProfile *KafkaBridgeSpecTemplateInitContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty" yaml:"seccompProfile,omitempty" mapstructure:"seccompProfile,omitempty"`
+
+	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
+	WindowsOptions *KafkaBridgeSpecTemplateInitContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty" yaml:"windowsOptions,omitempty" mapstructure:"windowsOptions,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextCapabilities struct {
+	// Add corresponds to the JSON schema field "add".
+	Add []string `json:"add,omitempty" yaml:"add,omitempty" mapstructure:"add,omitempty"`
+
+	// Drop corresponds to the JSON schema field "drop".
+	Drop []string `json:"drop,omitempty" yaml:"drop,omitempty" mapstructure:"drop,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextSeLinuxOptions struct {
+	// Level corresponds to the JSON schema field "level".
+	Level *string `json:"level,omitempty" yaml:"level,omitempty" mapstructure:"level,omitempty"`
+
+	// Role corresponds to the JSON schema field "role".
+	Role *string `json:"role,omitempty" yaml:"role,omitempty" mapstructure:"role,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// User corresponds to the JSON schema field "user".
+	User *string `json:"user,omitempty" yaml:"user,omitempty" mapstructure:"user,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextSeccompProfile struct {
+	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
+	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaBridgeSpecTemplateInitContainerSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
+}
+
+// Template for Kafka Bridge `Pods`.
+type KafkaBridgeSpecTemplatePod struct {
+	// The pod's affinity rules.
+	Affinity *KafkaBridgeSpecTemplatePodAffinity `json:"affinity,omitempty" yaml:"affinity,omitempty" mapstructure:"affinity,omitempty"`
+
+	// Indicates whether information about services should be injected into Pod's
+	// environment variables.
+	EnableServiceLinks *bool `json:"enableServiceLinks,omitempty" yaml:"enableServiceLinks,omitempty" mapstructure:"enableServiceLinks,omitempty"`
+
+	// The pod's HostAliases. HostAliases is an optional list of hosts and IPs that
+	// will be injected into the Pod's hosts file if specified.
+	HostAliases []KafkaBridgeSpecTemplatePodHostAliasesElem `json:"hostAliases,omitempty" yaml:"hostAliases,omitempty" mapstructure:"hostAliases,omitempty"`
+
+	// List of references to secrets in the same namespace to use for pulling any of
+	// the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment
+	// variable in Cluster Operator and the `imagePullSecrets` option are specified,
+	// only the `imagePullSecrets` variable is used and the
+	// `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
+	ImagePullSecrets []KafkaBridgeSpecTemplatePodImagePullSecretsElem `json:"imagePullSecrets,omitempty" yaml:"imagePullSecrets,omitempty" mapstructure:"imagePullSecrets,omitempty"`
+
+	// Metadata applied to the resource.
+	Metadata *KafkaBridgeSpecTemplatePodMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+
+	// The name of the priority class used to assign priority to the pods. For more
+	// information about priority classes, see {K8sPriorityClass}.
+	PriorityClassName *string `json:"priorityClassName,omitempty" yaml:"priorityClassName,omitempty" mapstructure:"priorityClassName,omitempty"`
+
+	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
+	// default scheduler will be used.
+	SchedulerName *string `json:"schedulerName,omitempty" yaml:"schedulerName,omitempty" mapstructure:"schedulerName,omitempty"`
+
+	// Configures pod-level security attributes and common container settings.
+	SecurityContext *KafkaBridgeSpecTemplatePodSecurityContext `json:"securityContext,omitempty" yaml:"securityContext,omitempty" mapstructure:"securityContext,omitempty"`
+
+	// The grace period is the duration in seconds after the processes running in the
+	// pod are sent a termination signal, and the time when the processes are forcibly
+	// halted with a kill signal. Set this value to longer than the expected cleanup
+	// time for your process. Value must be a non-negative integer. A zero value
+	// indicates delete immediately. You might need to increase the grace period for
+	// very large Kafka clusters, so that the Kafka brokers have enough time to
+	// transfer their work to another broker before they are terminated. Defaults to
+	// 30 seconds.
+	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty" yaml:"terminationGracePeriodSeconds,omitempty" mapstructure:"terminationGracePeriodSeconds,omitempty"`
+
+	// Defines the total amount (for example `1Gi`) of local storage required for
+	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
+	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty" yaml:"tmpDirSizeLimit,omitempty" mapstructure:"tmpDirSizeLimit,omitempty"`
+
+	// The pod's tolerations.
+	Tolerations []KafkaBridgeSpecTemplatePodTolerationsElem `json:"tolerations,omitempty" yaml:"tolerations,omitempty" mapstructure:"tolerations,omitempty"`
+
+	// The pod's topology spread constraints.
+	TopologySpreadConstraints []KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElem `json:"topologySpreadConstraints,omitempty" yaml:"topologySpreadConstraints,omitempty" mapstructure:"topologySpreadConstraints,omitempty"`
+}
+
+// The pod's affinity rules.
+type KafkaBridgeSpecTemplatePodAffinity struct {
+	// NodeAffinity corresponds to the JSON schema field "nodeAffinity".
+	NodeAffinity *KafkaBridgeSpecTemplatePodAffinityNodeAffinity `json:"nodeAffinity,omitempty" yaml:"nodeAffinity,omitempty" mapstructure:"nodeAffinity,omitempty"`
+
+	// PodAffinity corresponds to the JSON schema field "podAffinity".
+	PodAffinity *KafkaBridgeSpecTemplatePodAffinityPodAffinity `json:"podAffinity,omitempty" yaml:"podAffinity,omitempty" mapstructure:"podAffinity,omitempty"`
+
+	// PodAntiAffinity corresponds to the JSON schema field "podAntiAffinity".
+	PodAntiAffinity *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinity `json:"podAntiAffinity,omitempty" yaml:"podAntiAffinity,omitempty" mapstructure:"podAntiAffinity,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinity struct {
+	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "preferredDuringSchedulingIgnoredDuringExecution".
+	PreferredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
+
+	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "requiredDuringSchedulingIgnoredDuringExecution".
+	RequiredDuringSchedulingIgnoredDuringExecution *KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// Preference corresponds to the JSON schema field "preference".
+	Preference *KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty" yaml:"preference,omitempty" mapstructure:"preference,omitempty"`
+
+	// Weight corresponds to the JSON schema field "weight".
+	Weight *int32 `json:"weight,omitempty" yaml:"weight,omitempty" mapstructure:"weight,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchFields corresponds to the JSON schema field "matchFields".
+	MatchFields []KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem `json:"matchFields,omitempty" yaml:"matchFields,omitempty" mapstructure:"matchFields,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution struct {
+	// NodeSelectorTerms corresponds to the JSON schema field "nodeSelectorTerms".
+	NodeSelectorTerms []KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem `json:"nodeSelectorTerms,omitempty" yaml:"nodeSelectorTerms,omitempty" mapstructure:"nodeSelectorTerms,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchFields corresponds to the JSON schema field "matchFields".
+	MatchFields []KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem `json:"matchFields,omitempty" yaml:"matchFields,omitempty" mapstructure:"matchFields,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinity struct {
+	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "preferredDuringSchedulingIgnoredDuringExecution".
+	PreferredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
+
+	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "requiredDuringSchedulingIgnoredDuringExecution".
+	RequiredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
+	PodAffinityTerm *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty" yaml:"podAffinityTerm,omitempty" mapstructure:"podAffinityTerm,omitempty"`
+
+	// Weight corresponds to the JSON schema field "weight".
+	Weight *int32 `json:"weight,omitempty" yaml:"weight,omitempty" mapstructure:"weight,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinity struct {
+	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "preferredDuringSchedulingIgnoredDuringExecution".
+	PreferredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"preferredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
+
+	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
+	// field "requiredDuringSchedulingIgnoredDuringExecution".
+	RequiredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" yaml:"requiredDuringSchedulingIgnoredDuringExecution,omitempty" mapstructure:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
+	PodAffinityTerm *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty" yaml:"podAffinityTerm,omitempty" mapstructure:"podAffinityTerm,omitempty"`
+
+	// Weight corresponds to the JSON schema field "weight".
+	Weight *int32 `json:"weight,omitempty" yaml:"weight,omitempty" mapstructure:"weight,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
+	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
+
+	// Namespaces corresponds to the JSON schema field "namespaces".
+	Namespaces []string `json:"namespaces,omitempty" yaml:"namespaces,omitempty" mapstructure:"namespaces,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+
+// Template for Kafka Bridge `PodDisruptionBudget`.
+type KafkaBridgeSpecTemplatePodDisruptionBudget struct {
+	// Maximum number of unavailable pods to allow automatic Pod eviction. A Pod
+	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
+	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
+	// evictions, so the pods must be evicted manually. Defaults to 1.
+	MaxUnavailable *int32 `json:"maxUnavailable,omitempty" yaml:"maxUnavailable,omitempty" mapstructure:"maxUnavailable,omitempty"`
+
+	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
+	Metadata *KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
+type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
+
+type KafkaBridgeSpecTemplatePodHostAliasesElem struct {
+	// Hostnames corresponds to the JSON schema field "hostnames".
+	Hostnames []string `json:"hostnames,omitempty" yaml:"hostnames,omitempty" mapstructure:"hostnames,omitempty"`
+
+	// Ip corresponds to the JSON schema field "ip".
+	Ip *string `json:"ip,omitempty" yaml:"ip,omitempty" mapstructure:"ip,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodImagePullSecretsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaBridgeSpecTemplatePodMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplatePodMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplatePodMetadataLabels map[string]interface{}
+
+// Configures pod-level security attributes and common container settings.
+type KafkaBridgeSpecTemplatePodSecurityContext struct {
+	// FsGroup corresponds to the JSON schema field "fsGroup".
+	FsGroup *int32 `json:"fsGroup,omitempty" yaml:"fsGroup,omitempty" mapstructure:"fsGroup,omitempty"`
+
+	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
+	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty" yaml:"fsGroupChangePolicy,omitempty" mapstructure:"fsGroupChangePolicy,omitempty"`
+
+	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
+	RunAsGroup *int32 `json:"runAsGroup,omitempty" yaml:"runAsGroup,omitempty" mapstructure:"runAsGroup,omitempty"`
+
+	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
+	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty" yaml:"runAsNonRoot,omitempty" mapstructure:"runAsNonRoot,omitempty"`
+
+	// RunAsUser corresponds to the JSON schema field "runAsUser".
+	RunAsUser *int32 `json:"runAsUser,omitempty" yaml:"runAsUser,omitempty" mapstructure:"runAsUser,omitempty"`
+
+	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
+	SeLinuxOptions *KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty" yaml:"seLinuxOptions,omitempty" mapstructure:"seLinuxOptions,omitempty"`
+
+	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
+	SeccompProfile *KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty" yaml:"seccompProfile,omitempty" mapstructure:"seccompProfile,omitempty"`
+
+	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
+	SupplementalGroups []int32 `json:"supplementalGroups,omitempty" yaml:"supplementalGroups,omitempty" mapstructure:"supplementalGroups,omitempty"`
+
+	// Sysctls corresponds to the JSON schema field "sysctls".
+	Sysctls []KafkaBridgeSpecTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty" yaml:"sysctls,omitempty" mapstructure:"sysctls,omitempty"`
+
+	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
+	WindowsOptions *KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions `json:"windowsOptions,omitempty" yaml:"windowsOptions,omitempty" mapstructure:"windowsOptions,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions struct {
+	// Level corresponds to the JSON schema field "level".
+	Level *string `json:"level,omitempty" yaml:"level,omitempty" mapstructure:"level,omitempty"`
+
+	// Role corresponds to the JSON schema field "role".
+	Role *string `json:"role,omitempty" yaml:"role,omitempty" mapstructure:"role,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// User corresponds to the JSON schema field "user".
+	User *string `json:"user,omitempty" yaml:"user,omitempty" mapstructure:"user,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile struct {
+	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
+	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodSecurityContextSysctlsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodTolerationsElem struct {
+	// Effect corresponds to the JSON schema field "effect".
+	Effect *string `json:"effect,omitempty" yaml:"effect,omitempty" mapstructure:"effect,omitempty"`
+
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty" mapstructure:"tolerationSeconds,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MaxSkew corresponds to the JSON schema field "maxSkew".
+	MaxSkew *int32 `json:"maxSkew,omitempty" yaml:"maxSkew,omitempty" mapstructure:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty" yaml:"minDomains,omitempty" mapstructure:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty" yaml:"nodeAffinityPolicy,omitempty" mapstructure:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty" yaml:"nodeTaintsPolicy,omitempty" mapstructure:"nodeTaintsPolicy,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+
+	// WhenUnsatisfiable corresponds to the JSON schema field "whenUnsatisfiable".
+	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty" yaml:"whenUnsatisfiable,omitempty" mapstructure:"whenUnsatisfiable,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+//type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
+
+// Template for the Kafka Bridge service account.
+type KafkaBridgeSpecTemplateServiceAccount struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaBridgeSpecTemplateServiceAccountMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaBridgeSpecTemplateServiceAccountMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateServiceAccountMetadataAnnotations map[string]interface{}
+
+// Labels added to the Kubernetes resource.
+//type KafkaBridgeSpecTemplateServiceAccountMetadataLabels map[string]interface{}
+
+// TLS configuration for connecting Kafka Bridge to the cluster.
+type KafkaBridgeSpecTls struct {
+	// Trusted certificates for TLS connection.
+	TrustedCertificates []KafkaBridgeSpecTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty" yaml:"trustedCertificates,omitempty" mapstructure:"trustedCertificates,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -121,10 +1427,10 @@ func (j *KafkaBridgeSpecAuthenticationClientSecret) UnmarshalJSON(b []byte) erro
 		return err
 	}
 	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
+		return fmt.Errorf("field key in KafkaBridgeSpecAuthenticationClientSecret: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaBridgeSpecAuthenticationClientSecret: required")
 	}
 	type Plain KafkaBridgeSpecAuthenticationClientSecret
 	var plain Plain
@@ -135,169 +1441,6 @@ func (j *KafkaBridgeSpecAuthenticationClientSecret) UnmarshalJSON(b []byte) erro
 	return nil
 }
 
-// Reference to the `Secret` which holds the password.
-type KafkaBridgeSpecAuthenticationPasswordSecret struct {
-	// The name of the key in the Secret under which the password is stored.
-	Password string `json:"password"`
-
-	// The name of the Secret containing the password.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["password"]; !ok || v == nil {
-		return fmt.Errorf("field password: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaBridgeSpecAuthenticationPasswordSecret
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecAuthenticationPasswordSecret(plain)
-	return nil
-}
-
-// Link to Kubernetes Secret containing the refresh token which can be used to
-// obtain access token from the authorization server.
-type KafkaBridgeSpecAuthenticationRefreshToken struct {
-	// The key under which the secret value is stored in the Kubernetes Secret.
-	Key string `json:"key"`
-
-	// The name of the Kubernetes Secret containing the secret value.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaBridgeSpecAuthenticationRefreshToken
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecAuthenticationRefreshToken(plain)
-	return nil
-}
-
-type KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
-	}
-	type Plain KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem(plain)
-	return nil
-}
-
-type KafkaBridgeSpecAuthenticationType string
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpec) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
-		return fmt.Errorf("field bootstrapServers: required")
-	}
-	type Plain KafkaBridgeSpec
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpec(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecAuthenticationType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaBridgeSpecAuthenticationType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecAuthenticationType, v)
-	}
-	*j = KafkaBridgeSpecAuthenticationType(v)
-	return nil
-}
-
-const KafkaBridgeSpecAuthenticationTypeTls KafkaBridgeSpecAuthenticationType = "tls"
-const KafkaBridgeSpecAuthenticationTypeScramSha256 KafkaBridgeSpecAuthenticationType = "scram-sha-256"
-const KafkaBridgeSpecAuthenticationTypeScramSha512 KafkaBridgeSpecAuthenticationType = "scram-sha-512"
-const KafkaBridgeSpecAuthenticationTypePlain KafkaBridgeSpecAuthenticationType = "plain"
-
-// The Kafka AdminClient configuration used for AdminClient instances created by
-// the bridge.
-//type KafkaBridgeSpecAdminClientConfig map[string]interface{}
-
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// KafkaBridge
-type KafkaBridge struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// The specification of the Kafka Bridge.
-	Spec *KafkaBridgeSpec `json:"spec,omitempty"`
-
-	// The status of the Kafka Bridge.
-	Status *KafkaBridgeStatus `json:"status,omitempty"`
-}
-
-// +kubebuilder:object:root=true
-// KafkaBridgeList contains a list of instances.
-type KafkaBridgeList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-
-	// A list of Kafka objects.
-	Items []KafkaBridge `json:"items,omitempty"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecAuthentication) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -305,7 +1448,7 @@ func (j *KafkaBridgeSpecAuthentication) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+		return fmt.Errorf("field type in KafkaBridgeSpecAuthentication: required")
 	}
 	type Plain KafkaBridgeSpecAuthentication
 	var plain Plain
@@ -316,32 +1459,6 @@ func (j *KafkaBridgeSpecAuthentication) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// The Kafka consumer configuration used for consumer instances created by the
-// bridge. Properties with the following prefixes cannot be set: ssl.,
-// bootstrap.servers, group.id, sasl., security. (with the exception of:
-// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-// ssl.enabled.protocols).
-//type KafkaBridgeSpecConsumerConfig map[string]interface{}
-
-// Kafka consumer related configuration.
-type KafkaBridgeSpecConsumer struct {
-	// The Kafka consumer configuration used for consumer instances created by the
-	// bridge. Properties with the following prefixes cannot be set: ssl.,
-	// bootstrap.servers, group.id, sasl., security. (with the exception of:
-	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-	// ssl.enabled.protocols).
-	Config *apiextensions.JSON `json:"config,omitempty"`
-}
-
-// CORS configuration for the HTTP Bridge.
-type KafkaBridgeSpecHttpCors struct {
-	// List of allowed HTTP methods.
-	AllowedMethods []string `json:"allowedMethods"`
-
-	// List of allowed origins. Java regular expressions can be used.
-	AllowedOrigins []string `json:"allowedOrigins"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecHttpCors) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -349,10 +1466,10 @@ func (j *KafkaBridgeSpecHttpCors) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if v, ok := raw["allowedMethods"]; !ok || v == nil {
-		return fmt.Errorf("field allowedMethods: required")
+		return fmt.Errorf("field allowedMethods in KafkaBridgeSpecHttpCors: required")
 	}
 	if v, ok := raw["allowedOrigins"]; !ok || v == nil {
-		return fmt.Errorf("field allowedOrigins: required")
+		return fmt.Errorf("field allowedOrigins in KafkaBridgeSpecHttpCors: required")
 	}
 	type Plain KafkaBridgeSpecHttpCors
 	var plain Plain
@@ -363,135 +1480,9 @@ func (j *KafkaBridgeSpecHttpCors) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// The HTTP related configuration.
-type KafkaBridgeSpecHttp struct {
-	// CORS configuration for the HTTP Bridge.
-	Cors *KafkaBridgeSpecHttpCors `json:"cors,omitempty"`
-
-	// The port which is the server listening on.
-	Port *int32 `json:"port,omitempty"`
-}
-
-// A map of -XX options to the JVM.
-//type KafkaBridgeSpecJvmOptionsXX map[string]interface{}
-
-type KafkaBridgeSpecJvmOptionsJavaSystemPropertiesElem struct {
-	// The system property name.
-	Name *string `json:"name,omitempty"`
-
-	// The system property value.
-	Value *string `json:"value,omitempty"`
-}
-
-// **Currently not supported** JVM Options for pods.
-type KafkaBridgeSpecJvmOptions struct {
-	// A map of -XX options to the JVM.
-	XX *apiextensions.JSON `json:"-XX,omitempty"`
-
-	// -Xms option to to the JVM.
-	Xms *string `json:"-Xms,omitempty"`
-
-	// -Xmx option to to the JVM.
-	Xmx *string `json:"-Xmx,omitempty"`
-
-	// Specifies whether the Garbage Collection logging is enabled. The default is
-	// false.
-	GcLoggingEnabled *bool `json:"gcLoggingEnabled,omitempty"`
-
-	// A map of additional system properties which will be passed using the `-D`
-	// option to the JVM.
-	JavaSystemProperties []KafkaBridgeSpecJvmOptionsJavaSystemPropertiesElem `json:"javaSystemProperties,omitempty"`
-}
-
-// Pod liveness checking.
-type KafkaBridgeSpecLivenessProbe struct {
-	// Minimum consecutive failures for the probe to be considered failed after having
-	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
-
-	// The initial delay before first the health is first checked. Default to 15
-	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
-
-	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
-	// value is 1.
-	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
-
-	// Minimum consecutive successes for the probe to be considered successful after
-	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
-
-	// The timeout for each attempted health check. Default to 5 seconds. Minimum
-	// value is 1.
-	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
-}
-
-// A Map from logger name to logger level.
-//type KafkaBridgeSpecLoggingLoggers map[string]interface{}
-
-type KafkaBridgeSpecLoggingType string
-
-// The specification of the Kafka Bridge.
-type KafkaBridgeSpec struct {
-	// Kafka AdminClient related configuration.
-	AdminClient *KafkaBridgeSpecAdminClient `json:"adminClient,omitempty"`
-
-	// Authentication configuration for connecting to the cluster.
-	Authentication *KafkaBridgeSpecAuthentication `json:"authentication,omitempty"`
-
-	// A list of host:port pairs for establishing the initial connection to the Kafka
-	// cluster.
-	BootstrapServers string `json:"bootstrapServers"`
-
-	// The image of the init container used for initializing the `client.rack`.
-	ClientRackInitImage *string `json:"clientRackInitImage,omitempty"`
-
-	// Kafka consumer related configuration.
-	Consumer *KafkaBridgeSpecConsumer `json:"consumer,omitempty"`
-
-	// Enable the metrics for the Kafka Bridge. Default is false.
-	EnableMetrics *bool `json:"enableMetrics,omitempty"`
-
-	// The HTTP related configuration.
-	Http *KafkaBridgeSpecHttp `json:"http,omitempty"`
-
-	// The docker image for the pods.
-	Image *string `json:"image,omitempty"`
-
-	// **Currently not supported** JVM Options for pods.
-	JvmOptions *KafkaBridgeSpecJvmOptions `json:"jvmOptions,omitempty"`
-
-	// Pod liveness checking.
-	LivenessProbe *KafkaBridgeSpecLivenessProbe `json:"livenessProbe,omitempty"`
-
-	// Logging configuration for Kafka Bridge.
-	Logging *KafkaBridgeSpecLogging `json:"logging,omitempty"`
-
-	// Kafka producer related configuration.
-	Producer *KafkaBridgeSpecProducer `json:"producer,omitempty"`
-
-	// Configuration of the node label which will be used as the client.rack consumer
-	// configuration.
-	Rack *KafkaBridgeSpecRack `json:"rack,omitempty"`
-
-	// Pod readiness checking.
-	ReadinessProbe *KafkaBridgeSpecReadinessProbe `json:"readinessProbe,omitempty"`
-
-	// The number of pods in the `Deployment`.
-	Replicas *int32 `json:"replicas,omitempty"`
-
-	// CPU and memory resources to reserve.
-	Resources *KafkaBridgeSpecResources `json:"resources,omitempty"`
-
-	// Template for Kafka Bridge resources. The template allows users to specify how a
-	// `Deployment` and `Pod` is generated.
-	Template *KafkaBridgeSpecTemplate `json:"template,omitempty"`
-
-	// TLS configuration for connecting Kafka Bridge to the cluster.
-	Tls *KafkaBridgeSpecTls `json:"tls,omitempty"`
-
-	// The configuration of tracing in Kafka Bridge.
-	Tracing *KafkaBridgeSpecTracing `json:"tracing,omitempty"`
+var enumValues_KafkaBridgeSpecLoggingType = []interface{}{
+	"inline",
+	"external",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -514,39 +1505,6 @@ func (j *KafkaBridgeSpecLoggingType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-const KafkaBridgeSpecLoggingTypeInline KafkaBridgeSpecLoggingType = "inline"
-const KafkaBridgeSpecLoggingTypeExternal KafkaBridgeSpecLoggingType = "external"
-
-// Reference to the key in the ConfigMap containing the configuration.
-type KafkaBridgeSpecLoggingValueFromConfigMapKeyRef struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Optional corresponds to the JSON schema field "optional".
-	Optional *bool `json:"optional,omitempty"`
-}
-
-// `ConfigMap` entry where the logging configuration is stored.
-type KafkaBridgeSpecLoggingValueFrom struct {
-	// Reference to the key in the ConfigMap containing the configuration.
-	ConfigMapKeyRef *KafkaBridgeSpecLoggingValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty"`
-}
-
-// Logging configuration for Kafka Bridge.
-type KafkaBridgeSpecLogging struct {
-	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty"`
-
-	// Logging type, must be either 'inline' or 'external'.
-	Type KafkaBridgeSpecLoggingType `json:"type"`
-
-	// `ConfigMap` entry where the logging configuration is stored.
-	ValueFrom *KafkaBridgeSpecLoggingValueFrom `json:"valueFrom,omitempty"`
-}
-
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -554,7 +1512,7 @@ func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+		return fmt.Errorf("field type in KafkaBridgeSpecLogging: required")
 	}
 	type Plain KafkaBridgeSpecLogging
 	var plain Plain
@@ -564,129 +1522,6 @@ func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
 	*j = KafkaBridgeSpecLogging(plain)
 	return nil
 }
-
-// The Kafka producer configuration used for producer instances created by the
-// bridge. Properties with the following prefixes cannot be set: ssl.,
-// bootstrap.servers, sasl., security. (with the exception of:
-// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-// ssl.enabled.protocols).
-//type KafkaBridgeSpecProducerConfig map[string]interface{}
-
-// Kafka producer related configuration.
-type KafkaBridgeSpecProducer struct {
-	// The Kafka producer configuration used for producer instances created by the
-	// bridge. Properties with the following prefixes cannot be set: ssl.,
-	// bootstrap.servers, sasl., security. (with the exception of:
-	// ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol,
-	// ssl.enabled.protocols).
-	Config *apiextensions.JSON `json:"config,omitempty"`
-}
-
-// Authentication configuration for connecting to the cluster.
-type KafkaBridgeSpecAuthentication struct {
-	// Link to Kubernetes Secret containing the access token which was obtained from
-	// the authorization server.
-	AccessToken *KafkaBridgeSpecAuthenticationAccessToken `json:"accessToken,omitempty"`
-
-	// Configure whether access token should be treated as JWT. This should be set to
-	// `false` if the authorization server returns opaque tokens. Defaults to `true`.
-	AccessTokenIsJwt *bool `json:"accessTokenIsJwt,omitempty"`
-
-	// OAuth audience to use when authenticating against the authorization server.
-	// Some authorization servers require the audience to be explicitly set. The
-	// possible values depend on how the authorization server is configured. By
-	// default, `audience` is not specified when performing the token endpoint
-	// request.
-	Audience *string `json:"audience,omitempty"`
-
-	// Reference to the `Secret` which holds the certificate and private key pair.
-	CertificateAndKey *KafkaBridgeSpecAuthenticationCertificateAndKey `json:"certificateAndKey,omitempty"`
-
-	// OAuth Client ID which the Kafka client can use to authenticate against the
-	// OAuth server and use the token endpoint URI.
-	ClientId *string `json:"clientId,omitempty"`
-
-	// Link to Kubernetes Secret containing the OAuth client secret which the Kafka
-	// client can use to authenticate against the OAuth server and use the token
-	// endpoint URI.
-	ClientSecret *KafkaBridgeSpecAuthenticationClientSecret `json:"clientSecret,omitempty"`
-
-	// The connect timeout in seconds when connecting to authorization server. If not
-	// set, the effective connect timeout is 60 seconds.
-	ConnectTimeoutSeconds *int32 `json:"connectTimeoutSeconds,omitempty"`
-
-	// Enable or disable TLS hostname verification. Default value is `false`.
-	DisableTlsHostnameVerification *bool `json:"disableTlsHostnameVerification,omitempty"`
-
-	// Enable or disable OAuth metrics. Default value is `false`.
-	EnableMetrics *bool `json:"enableMetrics,omitempty"`
-
-	// The maximum number of retries to attempt if an initial HTTP request fails. If
-	// not set, the default is to not attempt any retries.
-	HttpRetries *int32 `json:"httpRetries,omitempty"`
-
-	// The pause to take before retrying a failed HTTP request. If not set, the
-	// default is to not pause at all but to immediately repeat a request.
-	HttpRetryPauseMs *int32 `json:"httpRetryPauseMs,omitempty"`
-
-	// Set or limit time-to-live of the access tokens to the specified number of
-	// seconds. This should be set if the authorization server returns opaque tokens.
-	MaxTokenExpirySeconds *int32 `json:"maxTokenExpirySeconds,omitempty"`
-
-	// Reference to the `Secret` which holds the password.
-	PasswordSecret *KafkaBridgeSpecAuthenticationPasswordSecret `json:"passwordSecret,omitempty"`
-
-	// The read timeout in seconds when connecting to authorization server. If not
-	// set, the effective read timeout is 60 seconds.
-	ReadTimeoutSeconds *int32 `json:"readTimeoutSeconds,omitempty"`
-
-	// Link to Kubernetes Secret containing the refresh token which can be used to
-	// obtain access token from the authorization server.
-	RefreshToken *KafkaBridgeSpecAuthenticationRefreshToken `json:"refreshToken,omitempty"`
-
-	// OAuth scope to use when authenticating against the authorization server. Some
-	// authorization servers require this to be set. The possible values depend on how
-	// authorization server is configured. By default `scope` is not specified when
-	// doing the token endpoint request.
-	Scope *string `json:"scope,omitempty"`
-
-	// Trusted certificates for TLS connection to the OAuth server.
-	TlsTrustedCertificates []KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem `json:"tlsTrustedCertificates,omitempty"`
-
-	// Authorization server token endpoint URI.
-	TokenEndpointUri *string `json:"tokenEndpointUri,omitempty"`
-
-	// Authentication type. Currently the supported types are `tls`, `scram-sha-256`,
-	// `scram-sha-512`, `plain`, and 'oauth'. `scram-sha-256` and `scram-sha-512`
-	// types use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 Authentication,
-	// respectively. `plain` type uses SASL PLAIN Authentication. `oauth` type uses
-	// SASL OAUTHBEARER Authentication. The `tls` type uses TLS Client Authentication.
-	// The `tls` type is supported only over TLS connections.
-	Type KafkaBridgeSpecAuthenticationType `json:"type"`
-
-	// Username used for the authentication.
-	Username *string `json:"username,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecRack) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["topologyKey"]; !ok || v == nil {
-		return fmt.Errorf("field topologyKey: required")
-	}
-	type Plain KafkaBridgeSpecRack
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecRack(plain)
-	return nil
-}
-
-const KafkaBridgeSpecAuthenticationTypeOauth KafkaBridgeSpecAuthenticationType = "oauth"
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
@@ -708,24 +1543,79 @@ func (j *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []
 	return nil
 }
 
+var enumValues_KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = []interface{}{
+	"SingleStack",
+	"PreferDualStack",
+	"RequireDualStack",
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+func (j *KafkaBridgeSpecAuthenticationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaBridgeSpecAuthenticationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecAuthenticationType, v)
+	}
+	*j = KafkaBridgeSpecAuthenticationType(v)
+	return nil
+}
+
+var enumValues_KafkaBridgeSpecAuthenticationType = []interface{}{
+	"tls",
+	"scram-sha-256",
+	"scram-sha-512",
+	"plain",
+	"oauth",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
 	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate: required")
+		return fmt.Errorf("field certificate in KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem: required")
 	}
 	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName: required")
+		return fmt.Errorf("field secretName in KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem: required")
 	}
-	type Plain KafkaBridgeSpecTlsTrustedCertificatesElem
+	type Plain KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaBridgeSpecTlsTrustedCertificatesElem(plain)
+	*j = KafkaBridgeSpecAuthenticationTlsTrustedCertificatesElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaBridgeSpecAuthenticationRefreshToken: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaBridgeSpecAuthenticationRefreshToken: required")
+	}
+	type Plain KafkaBridgeSpecAuthenticationRefreshToken
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecAuthenticationRefreshToken(plain)
 	return nil
 }
 
@@ -749,6 +1639,111 @@ func (j *KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte
 	return nil
 }
 
+var enumValues_KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = []interface{}{
+	"RollingUpdate",
+	"Recreate",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem, v)
+	}
+	*j = KafkaBridgeSpecTemplateApiServiceIpFamiliesElem(v)
+	return nil
+}
+
+var enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem = []interface{}{
+	"IPv4",
+	"IPv6",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["password"]; !ok || v == nil {
+		return fmt.Errorf("field password in KafkaBridgeSpecAuthenticationPasswordSecret: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaBridgeSpecAuthenticationPasswordSecret: required")
+	}
+	type Plain KafkaBridgeSpecAuthenticationPasswordSecret
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecAuthenticationPasswordSecret(plain)
+	return nil
+}
+
+type KafkaBridgeSpecTlsTrustedCertificatesElem struct {
+	// The name of the file certificate in the Secret.
+	Certificate string `json:"certificate" yaml:"certificate" mapstructure:"certificate"`
+
+	// The name of the Secret containing the certificate.
+	SecretName string `json:"secretName" yaml:"secretName" mapstructure:"secretName"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate in KafkaBridgeSpecTlsTrustedCertificatesElem: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaBridgeSpecTlsTrustedCertificatesElem: required")
+	}
+	type Plain KafkaBridgeSpecTlsTrustedCertificatesElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecTlsTrustedCertificatesElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecRack) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["topologyKey"]; !ok || v == nil {
+		return fmt.Errorf("field topologyKey in KafkaBridgeSpecRack: required")
+	}
+	type Plain KafkaBridgeSpecRack
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecRack(plain)
+	return nil
+}
+
+type KafkaBridgeSpecTracingType string
+
+var enumValues_KafkaBridgeSpecTracingType = []interface{}{
+	"jaeger",
+	"opentelemetry",
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecTracingType) UnmarshalJSON(b []byte) error {
 	var v string
@@ -769,6 +1764,17 @@ func (j *KafkaBridgeSpecTracingType) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+const KafkaBridgeSpecTracingTypeJaeger KafkaBridgeSpecTracingType = "jaeger"
+const KafkaBridgeSpecTracingTypeOpentelemetry KafkaBridgeSpecTracingType = "opentelemetry"
+
+// The configuration of tracing in Kafka Bridge.
+type KafkaBridgeSpecTracing struct {
+	// Type of the tracing used. Currently the only supported type is `opentelemetry`
+	// for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported
+	// anymore and this option is ignored.
+	Type KafkaBridgeSpecTracingType `json:"type" yaml:"type" mapstructure:"type"`
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecTracing) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
@@ -776,7 +1782,7 @@ func (j *KafkaBridgeSpecTracing) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type: required")
+		return fmt.Errorf("field type in KafkaBridgeSpecTracing: required")
 	}
 	type Plain KafkaBridgeSpecTracing
 	var plain Plain
@@ -787,1118 +1793,103 @@ func (j *KafkaBridgeSpecTracing) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Configuration of the node label which will be used as the client.rack consumer
-// configuration.
-type KafkaBridgeSpecRack struct {
-	// A key that matches labels assigned to the Kubernetes cluster nodes. The value
-	// of the label is used to set a broker's `broker.rack` config, and the
-	// `client.rack` config for Kafka Connect or MirrorMaker 2.0.
-	TopologyKey string `json:"topologyKey"`
-}
-
-// Pod readiness checking.
-type KafkaBridgeSpecReadinessProbe struct {
-	// Minimum consecutive failures for the probe to be considered failed after having
-	// succeeded. Defaults to 3. Minimum value is 1.
-	FailureThreshold *int32 `json:"failureThreshold,omitempty"`
-
-	// The initial delay before first the health is first checked. Default to 15
-	// seconds. Minimum value is 0.
-	InitialDelaySeconds *int32 `json:"initialDelaySeconds,omitempty"`
-
-	// How often (in seconds) to perform the probe. Default to 10 seconds. Minimum
-	// value is 1.
-	PeriodSeconds *int32 `json:"periodSeconds,omitempty"`
-
-	// Minimum consecutive successes for the probe to be considered successful after
-	// having failed. Defaults to 1. Must be 1 for liveness. Minimum value is 1.
-	SuccessThreshold *int32 `json:"successThreshold,omitempty"`
-
-	// The timeout for each attempted health check. Default to 5 seconds. Minimum
-	// value is 1.
-	TimeoutSeconds *int32 `json:"timeoutSeconds,omitempty"`
-}
-
-// CPU and memory resources to reserve.
-type KafkaBridgeSpecResources struct {
-	// Limits corresponds to the JSON schema field "limits".
-	Limits *apiextensions.JSON `json:"limits,omitempty"`
-
-	// Requests corresponds to the JSON schema field "requests".
-	Requests *apiextensions.JSON `json:"requests,omitempty"`
-}
-
-//type KafkaBridgeSpecResourcesLimits map[string]interface{}
-
-//type KafkaBridgeSpecResourcesRequests map[string]interface{}
-
-// Template for Kafka Bridge resources. The template allows users to specify how a
-// `Deployment` and `Pod` is generated.
-type KafkaBridgeSpecTemplate struct {
-	// Template for Kafka Bridge API `Service`.
-	ApiService *KafkaBridgeSpecTemplateApiService `json:"apiService,omitempty"`
-
-	// Template for the Kafka Bridge container.
-	BridgeContainer *KafkaBridgeSpecTemplateBridgeContainer `json:"bridgeContainer,omitempty"`
-
-	// Template for the Kafka Bridge ClusterRoleBinding.
-	ClusterRoleBinding *KafkaBridgeSpecTemplateClusterRoleBinding `json:"clusterRoleBinding,omitempty"`
-
-	// Template for Kafka Bridge `Deployment`.
-	Deployment *KafkaBridgeSpecTemplateDeployment `json:"deployment,omitempty"`
-
-	// Template for the Kafka Bridge init container.
-	InitContainer *KafkaBridgeSpecTemplateInitContainer `json:"initContainer,omitempty"`
-
-	// Template for Kafka Bridge `Pods`.
-	Pod *KafkaBridgeSpecTemplatePod `json:"pod,omitempty"`
-
-	// Template for Kafka Bridge `PodDisruptionBudget`.
-	PodDisruptionBudget *KafkaBridgeSpecTemplatePodDisruptionBudget `json:"podDisruptionBudget,omitempty"`
-
-	// Template for the Kafka Bridge service account.
-	ServiceAccount *KafkaBridgeSpecTemplateServiceAccount `json:"serviceAccount,omitempty"`
-}
-
-// Template for Kafka Bridge API `Service`.
-type KafkaBridgeSpecTemplateApiService struct {
-	// Specifies the IP Families used by the service. Available options are `IPv4` and
-	// `IPv6. If unspecified, Kubernetes will choose the default value based on the
-	// `ipFamilyPolicy` setting. Available on Kubernetes 1.20 and newer.
-	IpFamilies []KafkaBridgeSpecTemplateApiServiceIpFamiliesElem `json:"ipFamilies,omitempty"`
-
-	// Specifies the IP Family Policy used by the service. Available options are
-	// `SingleStack`, `PreferDualStack` and `RequireDualStack`. `SingleStack` is for a
-	// single IP family. `PreferDualStack` is for two IP families on dual-stack
-	// configured clusters or a single IP family on single-stack clusters.
-	// `RequireDualStack` fails unless there are two IP families on dual-stack
-	// configured clusters. If unspecified, Kubernetes will choose the default value
-	// based on the service type. Available on Kubernetes 1.20 and newer.
-	IpFamilyPolicy *KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy `json:"ipFamilyPolicy,omitempty"`
-
-	// Metadata applied to the resource.
-	Metadata *KafkaBridgeSpecTemplateApiServiceMetadata `json:"metadata,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateApiServiceIpFamiliesElem string
-
-const KafkaBridgeSpecTemplateApiServiceIpFamiliesElemIPv4 KafkaBridgeSpecTemplateApiServiceIpFamiliesElem = "IPv4"
-const KafkaBridgeSpecTemplateApiServiceIpFamiliesElemIPv6 KafkaBridgeSpecTemplateApiServiceIpFamiliesElem = "IPv6"
-
-type KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy string
-
-const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicyPreferDualStack KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = "PreferDualStack"
-const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicyRequireDualStack KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = "RequireDualStack"
-const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicySingleStack KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = "SingleStack"
-
-// Metadata applied to the resource.
-type KafkaBridgeSpecTemplateApiServiceMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateApiServiceMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateApiServiceMetadataLabels map[string]interface{}
-
-// Template for the Kafka Bridge container.
-type KafkaBridgeSpecTemplateBridgeContainer struct {
-	// Environment variables which should be applied to the container.
-	Env []KafkaBridgeSpecTemplateBridgeContainerEnvElem `json:"env,omitempty"`
-
-	// Security context for the container.
-	SecurityContext *KafkaBridgeSpecTemplateBridgeContainerSecurityContext `json:"securityContext,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateBridgeContainerEnvElem struct {
-	// The environment variable key.
-	Name *string `json:"name,omitempty"`
-
-	// The environment variable value.
-	Value *string `json:"value,omitempty"`
-}
-
-// Security context for the container.
-type KafkaBridgeSpecTemplateBridgeContainerSecurityContext struct {
-	// AllowPrivilegeEscalation corresponds to the JSON schema field
-	// "allowPrivilegeEscalation".
-	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty"`
-
-	// Capabilities corresponds to the JSON schema field "capabilities".
-	Capabilities *KafkaBridgeSpecTemplateBridgeContainerSecurityContextCapabilities `json:"capabilities,omitempty"`
-
-	// Privileged corresponds to the JSON schema field "privileged".
-	Privileged *bool `json:"privileged,omitempty"`
-
-	// ProcMount corresponds to the JSON schema field "procMount".
-	ProcMount *string `json:"procMount,omitempty"`
-
-	// ReadOnlyRootFilesystem corresponds to the JSON schema field
-	// "readOnlyRootFilesystem".
-	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
-
-	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
-
-	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
-	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
-
-	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int32 `json:"runAsUser,omitempty"`
-
-	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
-	SeLinuxOptions *KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
-
-	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
-	SeccompProfile *KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
-
-	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
-	WindowsOptions *KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateBridgeContainerSecurityContextCapabilities struct {
-	// Add corresponds to the JSON schema field "add".
-	Add []string `json:"add,omitempty"`
-
-	// Drop corresponds to the JSON schema field "drop".
-	Drop []string `json:"drop,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOptions struct {
-	// Level corresponds to the JSON schema field "level".
-	Level *string `json:"level,omitempty"`
-
-	// Role corresponds to the JSON schema field "role".
-	Role *string `json:"role,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-
-	// User corresponds to the JSON schema field "user".
-	User *string `json:"user,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile struct {
-	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
-	LocalhostProfile *string `json:"localhostProfile,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty"`
-}
-
-// Template for the Kafka Bridge ClusterRoleBinding.
-type KafkaBridgeSpecTemplateClusterRoleBinding struct {
-	// Metadata applied to the resource.
-	Metadata *KafkaBridgeSpecTemplateClusterRoleBindingMetadata `json:"metadata,omitempty"`
-}
-
-// Metadata applied to the resource.
-type KafkaBridgeSpecTemplateClusterRoleBindingMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataLabels map[string]interface{}
-
-// Template for Kafka Bridge `Deployment`.
-type KafkaBridgeSpecTemplateDeployment struct {
-	// Pod replacement strategy for deployment configuration changes. Valid values are
-	// `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
-	DeploymentStrategy *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy `json:"deploymentStrategy,omitempty"`
-
-	// Metadata applied to the resource.
-	Metadata *KafkaBridgeSpecTemplateDeploymentMetadata `json:"metadata,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateDeploymentDeploymentStrategy string
-
-const KafkaBridgeSpecTemplateDeploymentDeploymentStrategyRecreate KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = "Recreate"
-const KafkaBridgeSpecTemplateDeploymentDeploymentStrategyRollingUpdate KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = "RollingUpdate"
-
-// Metadata applied to the resource.
-type KafkaBridgeSpecTemplateDeploymentMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateDeploymentMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateDeploymentMetadataLabels map[string]interface{}
-
-// Template for the Kafka Bridge init container.
-type KafkaBridgeSpecTemplateInitContainer struct {
-	// Environment variables which should be applied to the container.
-	Env []KafkaBridgeSpecTemplateInitContainerEnvElem `json:"env,omitempty"`
-
-	// Security context for the container.
-	SecurityContext *KafkaBridgeSpecTemplateInitContainerSecurityContext `json:"securityContext,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateInitContainerEnvElem struct {
-	// The environment variable key.
-	Name *string `json:"name,omitempty"`
-
-	// The environment variable value.
-	Value *string `json:"value,omitempty"`
-}
-
-// Security context for the container.
-type KafkaBridgeSpecTemplateInitContainerSecurityContext struct {
-	// AllowPrivilegeEscalation corresponds to the JSON schema field
-	// "allowPrivilegeEscalation".
-	AllowPrivilegeEscalation *bool `json:"allowPrivilegeEscalation,omitempty"`
-
-	// Capabilities corresponds to the JSON schema field "capabilities".
-	Capabilities *KafkaBridgeSpecTemplateInitContainerSecurityContextCapabilities `json:"capabilities,omitempty"`
-
-	// Privileged corresponds to the JSON schema field "privileged".
-	Privileged *bool `json:"privileged,omitempty"`
-
-	// ProcMount corresponds to the JSON schema field "procMount".
-	ProcMount *string `json:"procMount,omitempty"`
-
-	// ReadOnlyRootFilesystem corresponds to the JSON schema field
-	// "readOnlyRootFilesystem".
-	ReadOnlyRootFilesystem *bool `json:"readOnlyRootFilesystem,omitempty"`
-
-	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
-
-	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
-	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
-
-	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int32 `json:"runAsUser,omitempty"`
-
-	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
-	SeLinuxOptions *KafkaBridgeSpecTemplateInitContainerSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
-
-	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
-	SeccompProfile *KafkaBridgeSpecTemplateInitContainerSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
-
-	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
-	WindowsOptions *KafkaBridgeSpecTemplateInitContainerSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateInitContainerSecurityContextCapabilities struct {
-	// Add corresponds to the JSON schema field "add".
-	Add []string `json:"add,omitempty"`
-
-	// Drop corresponds to the JSON schema field "drop".
-	Drop []string `json:"drop,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateInitContainerSecurityContextSeLinuxOptions struct {
-	// Level corresponds to the JSON schema field "level".
-	Level *string `json:"level,omitempty"`
-
-	// Role corresponds to the JSON schema field "role".
-	Role *string `json:"role,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-
-	// User corresponds to the JSON schema field "user".
-	User *string `json:"user,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateInitContainerSecurityContextSeccompProfile struct {
-	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
-	LocalhostProfile *string `json:"localhostProfile,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-}
-
-type KafkaBridgeSpecTemplateInitContainerSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty"`
-}
-
-// Template for Kafka Bridge `Pods`.
-type KafkaBridgeSpecTemplatePod struct {
-	// The pod's affinity rules.
-	Affinity *KafkaBridgeSpecTemplatePodAffinity `json:"affinity,omitempty"`
-
-	// Indicates whether information about services should be injected into Pod's
-	// environment variables.
-	EnableServiceLinks *bool `json:"enableServiceLinks,omitempty"`
-
-	// The pod's HostAliases. HostAliases is an optional list of hosts and IPs that
-	// will be injected into the Pod's hosts file if specified.
-	HostAliases []KafkaBridgeSpecTemplatePodHostAliasesElem `json:"hostAliases,omitempty"`
-
-	// List of references to secrets in the same namespace to use for pulling any of
-	// the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment
-	// variable in Cluster Operator and the `imagePullSecrets` option are specified,
-	// only the `imagePullSecrets` variable is used and the
-	// `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
-	ImagePullSecrets []KafkaBridgeSpecTemplatePodImagePullSecretsElem `json:"imagePullSecrets,omitempty"`
-
-	// Metadata applied to the resource.
-	Metadata *KafkaBridgeSpecTemplatePodMetadata `json:"metadata,omitempty"`
-
-	// The name of the priority class used to assign priority to the pods. For more
-	// information about priority classes, see {K8sPriorityClass}.
-	PriorityClassName *string `json:"priorityClassName,omitempty"`
-
-	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
-	// default scheduler will be used.
-	SchedulerName *string `json:"schedulerName,omitempty"`
-
-	// Configures pod-level security attributes and common container settings.
-	SecurityContext *KafkaBridgeSpecTemplatePodSecurityContext `json:"securityContext,omitempty"`
-
-	// The grace period is the duration in seconds after the processes running in the
-	// pod are sent a termination signal, and the time when the processes are forcibly
-	// halted with a kill signal. Set this value to longer than the expected cleanup
-	// time for your process. Value must be a non-negative integer. A zero value
-	// indicates delete immediately. You might need to increase the grace period for
-	// very large Kafka clusters, so that the Kafka brokers have enough time to
-	// transfer their work to another broker before they are terminated. Defaults to
-	// 30 seconds.
-	TerminationGracePeriodSeconds *int32 `json:"terminationGracePeriodSeconds,omitempty"`
-
-	// Defines the total amount (for example `1Gi`) of local storage required for
-	// temporary EmptyDir volume (`/tmp`). Default value is `5Mi`.
-	TmpDirSizeLimit *string `json:"tmpDirSizeLimit,omitempty"`
-
-	// The pod's tolerations.
-	Tolerations []KafkaBridgeSpecTemplatePodTolerationsElem `json:"tolerations,omitempty"`
-
-	// The pod's topology spread constraints.
-	TopologySpreadConstraints []KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElem `json:"topologySpreadConstraints,omitempty"`
-}
-
-// The pod's affinity rules.
-type KafkaBridgeSpecTemplatePodAffinity struct {
-	// NodeAffinity corresponds to the JSON schema field "nodeAffinity".
-	NodeAffinity *KafkaBridgeSpecTemplatePodAffinityNodeAffinity `json:"nodeAffinity,omitempty"`
-
-	// PodAffinity corresponds to the JSON schema field "podAffinity".
-	PodAffinity *KafkaBridgeSpecTemplatePodAffinityPodAffinity `json:"podAffinity,omitempty"`
-
-	// PodAntiAffinity corresponds to the JSON schema field "podAntiAffinity".
-	PodAntiAffinity *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinity `json:"podAntiAffinity,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinity struct {
-	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "preferredDuringSchedulingIgnoredDuringExecution".
-	PreferredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
-
-	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "requiredDuringSchedulingIgnoredDuringExecution".
-	RequiredDuringSchedulingIgnoredDuringExecution *KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// Preference corresponds to the JSON schema field "preference".
-	Preference *KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference `json:"preference,omitempty"`
-
-	// Weight corresponds to the JSON schema field "weight".
-	Weight *int32 `json:"weight,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreference struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchFields corresponds to the JSON schema field "matchFields".
-	MatchFields []KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem `json:"matchFields,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPreferenceMatchFieldsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution struct {
-	// NodeSelectorTerms corresponds to the JSON schema field "nodeSelectorTerms".
-	NodeSelectorTerms []KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem `json:"nodeSelectorTerms,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElem struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchFields corresponds to the JSON schema field "matchFields".
-	MatchFields []KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem `json:"matchFields,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsElemMatchFieldsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinity struct {
-	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "preferredDuringSchedulingIgnoredDuringExecution".
-	PreferredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
-
-	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "requiredDuringSchedulingIgnoredDuringExecution".
-	RequiredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
-	PodAffinityTerm *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
-
-	// Weight corresponds to the JSON schema field "weight".
-	Weight *int32 `json:"weight,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinity struct {
-	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "preferredDuringSchedulingIgnoredDuringExecution".
-	PreferredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem `json:"preferredDuringSchedulingIgnoredDuringExecution,omitempty"`
-
-	// RequiredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
-	// field "requiredDuringSchedulingIgnoredDuringExecution".
-	RequiredDuringSchedulingIgnoredDuringExecution []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem `json:"requiredDuringSchedulingIgnoredDuringExecution,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// PodAffinityTerm corresponds to the JSON schema field "podAffinityTerm".
-	PodAffinityTerm *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm `json:"podAffinityTerm,omitempty"`
-
-	// Weight corresponds to the JSON schema field "weight".
-	Weight *int32 `json:"weight,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTerm struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty"`
-
-	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
-	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty"`
-
-	// Namespaces corresponds to the JSON schema field "namespaces".
-	Namespaces []string `json:"namespaces,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
-
-// Template for Kafka Bridge `PodDisruptionBudget`.
-type KafkaBridgeSpecTemplatePodDisruptionBudget struct {
-	// Maximum number of unavailable pods to allow automatic Pod eviction. A Pod
-	// eviction is allowed when the `maxUnavailable` number of pods or fewer are
-	// unavailable after the eviction. Setting this value to 0 prevents all voluntary
-	// evictions, so the pods must be evicted manually. Defaults to 1.
-	MaxUnavailable *int32 `json:"maxUnavailable,omitempty"`
-
-	// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
-	Metadata *KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata `json:"metadata,omitempty"`
-}
-
-// Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
-type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
-
-type KafkaBridgeSpecTemplatePodHostAliasesElem struct {
-	// Hostnames corresponds to the JSON schema field "hostnames".
-	Hostnames []string `json:"hostnames,omitempty"`
-
-	// Ip corresponds to the JSON schema field "ip".
-	Ip *string `json:"ip,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodImagePullSecretsElem struct {
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-}
-
-// Metadata applied to the resource.
-type KafkaBridgeSpecTemplatePodMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplatePodMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplatePodMetadataLabels map[string]interface{}
-
-// Configures pod-level security attributes and common container settings.
-type KafkaBridgeSpecTemplatePodSecurityContext struct {
-	// FsGroup corresponds to the JSON schema field "fsGroup".
-	FsGroup *int32 `json:"fsGroup,omitempty"`
-
-	// FsGroupChangePolicy corresponds to the JSON schema field "fsGroupChangePolicy".
-	FsGroupChangePolicy *string `json:"fsGroupChangePolicy,omitempty"`
-
-	// RunAsGroup corresponds to the JSON schema field "runAsGroup".
-	RunAsGroup *int32 `json:"runAsGroup,omitempty"`
-
-	// RunAsNonRoot corresponds to the JSON schema field "runAsNonRoot".
-	RunAsNonRoot *bool `json:"runAsNonRoot,omitempty"`
-
-	// RunAsUser corresponds to the JSON schema field "runAsUser".
-	RunAsUser *int32 `json:"runAsUser,omitempty"`
-
-	// SeLinuxOptions corresponds to the JSON schema field "seLinuxOptions".
-	SeLinuxOptions *KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions `json:"seLinuxOptions,omitempty"`
-
-	// SeccompProfile corresponds to the JSON schema field "seccompProfile".
-	SeccompProfile *KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile `json:"seccompProfile,omitempty"`
-
-	// SupplementalGroups corresponds to the JSON schema field "supplementalGroups".
-	SupplementalGroups []int32 `json:"supplementalGroups,omitempty"`
-
-	// Sysctls corresponds to the JSON schema field "sysctls".
-	Sysctls []KafkaBridgeSpecTemplatePodSecurityContextSysctlsElem `json:"sysctls,omitempty"`
-
-	// WindowsOptions corresponds to the JSON schema field "windowsOptions".
-	WindowsOptions *KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions `json:"windowsOptions,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions struct {
-	// Level corresponds to the JSON schema field "level".
-	Level *string `json:"level,omitempty"`
-
-	// Role corresponds to the JSON schema field "role".
-	Role *string `json:"role,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-
-	// User corresponds to the JSON schema field "user".
-	User *string `json:"user,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile struct {
-	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
-	LocalhostProfile *string `json:"localhostProfile,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodSecurityContextSysctlsElem struct {
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodTolerationsElem struct {
-	// Effect corresponds to the JSON schema field "effect".
-	Effect *string `json:"effect,omitempty"`
-
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty"`
-
-	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
-	MatchLabelKeys []string `json:"matchLabelKeys,omitempty"`
-
-	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int32 `json:"maxSkew,omitempty"`
-
-	// MinDomains corresponds to the JSON schema field "minDomains".
-	MinDomains *int32 `json:"minDomains,omitempty"`
-
-	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
-	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty"`
-
-	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
-	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty"`
-
-	// WhenUnsatisfiable corresponds to the JSON schema field "whenUnsatisfiable".
-	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty"`
-}
-
-type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty"`
-}
-
-//type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
-
-// Template for the Kafka Bridge service account.
-type KafkaBridgeSpecTemplateServiceAccount struct {
-	// Metadata applied to the resource.
-	Metadata *KafkaBridgeSpecTemplateServiceAccountMetadata `json:"metadata,omitempty"`
-}
-
-// Metadata applied to the resource.
-type KafkaBridgeSpecTemplateServiceAccountMetadata struct {
-	// Annotations added to the resource template. Can be applied to different
-	// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty"`
-
-	// Labels added to the resource template. Can be applied to different resources
-	// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-	Labels *apiextensions.JSON `json:"labels,omitempty"`
-}
-
-// Annotations added to the resource template. Can be applied to different
-// resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateServiceAccountMetadataAnnotations map[string]interface{}
-
-// Labels added to the resource template. Can be applied to different resources
-// such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
-//type KafkaBridgeSpecTemplateServiceAccountMetadataLabels map[string]interface{}
-
-// TLS configuration for connecting Kafka Bridge to the cluster.
-type KafkaBridgeSpecTls struct {
-	// Trusted certificates for TLS connection.
-	TrustedCertificates []KafkaBridgeSpecTlsTrustedCertificatesElem `json:"trustedCertificates,omitempty"`
-}
-
-type KafkaBridgeSpecTlsTrustedCertificatesElem struct {
-	// The name of the file certificate in the Secret.
-	Certificate string `json:"certificate"`
-
-	// The name of the Secret containing the certificate.
-	SecretName string `json:"secretName"`
-}
-
-// The configuration of tracing in Kafka Bridge.
-type KafkaBridgeSpecTracing struct {
-	// Type of the tracing used. Currently the only supported types are `jaeger` for
-	// OpenTracing (Jaeger) tracing and `opentelemetry` for OpenTelemetry tracing. The
-	// OpenTracing (Jaeger) tracing is deprecated.
-	Type KafkaBridgeSpecTracingType `json:"type"`
-}
-
-type KafkaBridgeSpecTracingType string
-
-const KafkaBridgeSpecTracingTypeJaeger KafkaBridgeSpecTracingType = "jaeger"
-const KafkaBridgeSpecTracingTypeOpentelemetry KafkaBridgeSpecTracingType = "opentelemetry"
-
-// The status of the Kafka Bridge.
-type KafkaBridgeStatus struct {
-	// List of status conditions.
-	Conditions []KafkaBridgeStatusConditionsElem `json:"conditions,omitempty"`
-
-	// Label selector for pods providing this resource.
-	LabelSelector *string `json:"labelSelector,omitempty"`
-
-	// The generation of the CRD that was last reconciled by the operator.
-	ObservedGeneration *int32 `json:"observedGeneration,omitempty"`
-
-	// The current number of pods being used to provide this resource.
-	Replicas *int32 `json:"replicas,omitempty"`
-
-	// The URL at which external client applications can access the Kafka Bridge.
-	Url *string `json:"url,omitempty"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecAuthenticationCertificateAndKey) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate in KafkaBridgeSpecAuthenticationCertificateAndKey: required")
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaBridgeSpecAuthenticationCertificateAndKey: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaBridgeSpecAuthenticationCertificateAndKey: required")
+	}
+	type Plain KafkaBridgeSpecAuthenticationCertificateAndKey
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecAuthenticationCertificateAndKey(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpec) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
+		return fmt.Errorf("field bootstrapServers in KafkaBridgeSpec: required")
+	}
+	type Plain KafkaBridgeSpec
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpec(plain)
+	return nil
 }
 
 type KafkaBridgeStatusConditionsElem struct {
 	// Last time the condition of a type changed from one status to another. The
 	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
-	LastTransitionTime *string `json:"lastTransitionTime,omitempty"`
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
 
 	// Human-readable message indicating details about the condition's last
 	// transition.
-	Message *string `json:"message,omitempty"`
+	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
 
 	// The reason for the condition's last transition (a single word in CamelCase).
-	Reason *string `json:"reason,omitempty"`
+	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
 
 	// The status of the condition, either True, False or Unknown.
-	Status *string `json:"status,omitempty"`
+	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
 
 	// The unique identifier of a condition, used to distinguish between other
 	// conditions in the resource.
-	Type *string `json:"type,omitempty"`
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
 }
 
-var enumValues_KafkaBridgeSpecAuthenticationType = []interface{}{
-	"tls",
-	"scram-sha-256",
-	"scram-sha-512",
-	"plain",
-	"oauth",
+// The status of the Kafka Bridge.
+type KafkaBridgeStatus struct {
+	// List of status conditions.
+	Conditions []KafkaBridgeStatusConditionsElem `json:"conditions,omitempty" yaml:"conditions,omitempty" mapstructure:"conditions,omitempty"`
+
+	// Label selector for pods providing this resource.
+	LabelSelector *string `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// The generation of the CRD that was last reconciled by the operator.
+	ObservedGeneration *int32 `json:"observedGeneration,omitempty" yaml:"observedGeneration,omitempty" mapstructure:"observedGeneration,omitempty"`
+
+	// The current number of pods being used to provide this resource.
+	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty" mapstructure:"replicas,omitempty"`
+
+	// The URL at which external client applications can access the Kafka Bridge.
+	Url *string `json:"url,omitempty" yaml:"url,omitempty" mapstructure:"url,omitempty"`
 }
-var enumValues_KafkaBridgeSpecLoggingType = []interface{}{
-	"inline",
-	"external",
-}
-var enumValues_KafkaBridgeSpecTemplateApiServiceIpFamiliesElem = []interface{}{
-	"IPv4",
-	"IPv6",
-}
-var enumValues_KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy = []interface{}{
-	"SingleStack",
-	"PreferDualStack",
-	"RequireDualStack",
-}
-var enumValues_KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = []interface{}{
-	"RollingUpdate",
-	"Recreate",
-}
-var enumValues_KafkaBridgeSpecTracingType = []interface{}{
-	"jaeger",
-	"opentelemetry",
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecAuthenticationAccessToken) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaBridgeSpecAuthenticationAccessToken: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaBridgeSpecAuthenticationAccessToken: required")
+	}
+	type Plain KafkaBridgeSpecAuthenticationAccessToken
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecAuthenticationAccessToken(plain)
+	return nil
 }
