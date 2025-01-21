@@ -26,7 +26,7 @@ import (
 
 var (
 	// GroupVersion is group version used to register these objects
-	GroupVersion = schema.GroupVersion{Group: "kafka.strimzi.io", Version: "v1beta2"}
+	GroupVersion = schema.GroupVersion{Group: "core.strimzi.io", Version: "v1beta2"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: GroupVersion}
@@ -36,14 +36,5 @@ var (
 )
 
 func init() {
-	SchemeBuilder.Register(&Kafka{}, &KafkaList{})
-	SchemeBuilder.Register(&KafkaBridge{}, &KafkaBridgeList{})
-	SchemeBuilder.Register(&KafkaConnect{}, &KafkaConnectList{})
-	SchemeBuilder.Register(&KafkaConnector{}, &KafkaConnectorList{})
-	SchemeBuilder.Register(&KafkaMirrorMaker{}, &KafkaMirrorMakerList{})
-	SchemeBuilder.Register(&KafkaMirrorMaker2{}, &KafkaMirrorMaker2List{})
-	SchemeBuilder.Register(&KafkaNodePool{}, &KafkaNodePoolList{})
-	SchemeBuilder.Register(&KafkaRebalance{}, &KafkaRebalanceList{})
-	SchemeBuilder.Register(&KafkaTopic{}, &KafkaTopicList{})
-	SchemeBuilder.Register(&KafkaUser{}, &KafkaUserList{})
+	SchemeBuilder.Register(&StrimziPodSet{}, &StrimziPodSetList{})
 }
