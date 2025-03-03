@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"reflect"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -80,6 +79,26 @@ const KafkaConnectorSpecStatePaused KafkaConnectorSpecState = "paused"
 const KafkaConnectorSpecStateRunning KafkaConnectorSpecState = "running"
 const KafkaConnectorSpecStateStopped KafkaConnectorSpecState = "stopped"
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaConnectorSpecState) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaConnectorSpecState {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaConnectorSpecState, v)
+	}
+	*j = KafkaConnectorSpecState(v)
+	return nil
+}
+
 // The status of the Kafka Connector.
 type KafkaConnectorStatus struct {
 	// The auto restart status.
@@ -136,26 +155,6 @@ type KafkaConnectorStatusConditionsElem struct {
 
 // The connector status, as reported by the Kafka Connect REST API.
 //type KafkaConnectorStatusConnectorStatus map[string]interface{}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaConnectorSpecState) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaConnectorSpecState {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaConnectorSpecState, v)
-	}
-	*j = KafkaConnectorSpecState(v)
-	return nil
-}
 
 var enumValues_KafkaConnectorSpecState = []interface{}{
 	"paused",

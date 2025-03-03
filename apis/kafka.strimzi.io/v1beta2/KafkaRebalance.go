@@ -7,10 +7,33 @@ import (
 	"fmt"
 	"reflect"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// KafkaRebalance
+type KafkaRebalance struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// The specification of the Kafka rebalance.
+	Spec *KafkaRebalanceSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
+
+	// The status of the Kafka rebalance.
+	Status *KafkaRebalanceStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// KafkaRebalanceList contains a list of instances.
+type KafkaRebalanceList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// A list of KafkaRebalance objects.
+	Items []KafkaRebalance `json:"items,omitempty"`
+}
 
 type KafkaRebalanceSpecMode string
 
@@ -38,30 +61,6 @@ func (j *KafkaRebalanceSpecMode) UnmarshalJSON(b []byte) error {
 	}
 	*j = KafkaRebalanceSpecMode(v)
 	return nil
-}
-
-// +kubebuilder:object:root=true
-// +kubebuilder:subresource:status
-// KafkaRebalance
-type KafkaRebalance struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	// The specification of the Kafka rebalance.
-	Spec *KafkaRebalanceSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
-
-	// The status of the Kafka rebalance.
-	Status *KafkaRebalanceStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
-}
-
-// +kubebuilder:object:root=true
-// KafkaRebalanceList contains a list of instances.
-type KafkaRebalanceList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-
-	// A list of KafkaRebalance objects.
-	Items []KafkaRebalance `json:"items,omitempty"`
 }
 
 // The specification of the Kafka rebalance.

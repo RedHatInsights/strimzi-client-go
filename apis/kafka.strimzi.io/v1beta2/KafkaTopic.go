@@ -64,6 +64,10 @@ type KafkaTopicStatus struct {
 	// The generation of the CRD that was last reconciled by the operator.
 	ObservedGeneration *int32 `json:"observedGeneration,omitempty" yaml:"observedGeneration,omitempty" mapstructure:"observedGeneration,omitempty"`
 
+	// The topic's id. For a KafkaTopic with the ready condition, this will change
+	// only if the topic gets deleted and recreated with the same name.
+	TopicId *string `json:"topicId,omitempty" yaml:"topicId,omitempty" mapstructure:"topicId,omitempty"`
+
 	// Topic name.
 	TopicName *string `json:"topicName,omitempty" yaml:"topicName,omitempty" mapstructure:"topicName,omitempty"`
 }
