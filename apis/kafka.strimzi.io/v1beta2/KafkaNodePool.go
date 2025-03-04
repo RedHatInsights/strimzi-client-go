@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"reflect"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -63,7 +62,7 @@ type KafkaNodePoolSpec struct {
 // JVM Options for pods.
 type KafkaNodePoolSpecJvmOptions struct {
 	// A map of -XX options to the JVM.
-	XX *apiextensions.JSON `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
+	XX KafkaNodePoolSpecJvmOptionsXX `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
 
 	// -Xms option to to the JVM.
 	Xms *string `json:"-Xms,omitempty" yaml:"-Xms,omitempty" mapstructure:"-Xms,omitempty"`
@@ -89,7 +88,7 @@ type KafkaNodePoolSpecJvmOptionsJavaSystemPropertiesElem struct {
 }
 
 // A map of -XX options to the JVM.
-//type KafkaNodePoolSpecJvmOptionsXX map[string]interface{}
+type KafkaNodePoolSpecJvmOptionsXX map[string]string
 
 // CPU and memory resources to reserve.
 type KafkaNodePoolSpecResources struct {
@@ -136,10 +135,10 @@ type KafkaNodePoolSpecStorage struct {
 
 	// Specifies a specific persistent volume to use. It contains key:value pairs
 	// representing labels for selecting such a volume.
-	Selector *apiextensions.JSON `json:"selector,omitempty" yaml:"selector,omitempty" mapstructure:"selector,omitempty"`
+	Selector KafkaNodePoolSpecStorageSelector `json:"selector,omitempty" yaml:"selector,omitempty" mapstructure:"selector,omitempty"`
 
-	// When type=persistent-claim, defines the size of the persistent volume claim
-	// (i.e 1Gi). Mandatory when type=persistent-claim.
+	// When `type=persistent-claim`, defines the size of the persistent volume claim,
+	// such as 100Gi. Mandatory when `type=persistent-claim`.
 	Size *string `json:"size,omitempty" yaml:"size,omitempty" mapstructure:"size,omitempty"`
 
 	// When type=ephemeral, defines the total amount of local storage required for
@@ -163,7 +162,7 @@ type KafkaNodePoolSpecStorageOverridesElem struct {
 
 // Specifies a specific persistent volume to use. It contains key:value pairs
 // representing labels for selecting such a volume.
-//type KafkaNodePoolSpecStorageSelector map[string]interface{}
+type KafkaNodePoolSpecStorageSelector map[string]string
 
 type KafkaNodePoolSpecStorageType string
 
@@ -189,10 +188,10 @@ type KafkaNodePoolSpecStorageVolumesElem struct {
 
 	// Specifies a specific persistent volume to use. It contains key:value pairs
 	// representing labels for selecting such a volume.
-	Selector *apiextensions.JSON `json:"selector,omitempty" yaml:"selector,omitempty" mapstructure:"selector,omitempty"`
+	Selector KafkaNodePoolSpecStorageVolumesElemSelector `json:"selector,omitempty" yaml:"selector,omitempty" mapstructure:"selector,omitempty"`
 
-	// When type=persistent-claim, defines the size of the persistent volume claim
-	// (i.e 1Gi). Mandatory when type=persistent-claim.
+	// When `type=persistent-claim`, defines the size of the persistent volume claim,
+	// such as 100Gi. Mandatory when `type=persistent-claim`.
 	Size *string `json:"size,omitempty" yaml:"size,omitempty" mapstructure:"size,omitempty"`
 
 	// When type=ephemeral, defines the total amount of local storage required for
@@ -213,7 +212,7 @@ type KafkaNodePoolSpecStorageVolumesElemOverridesElem struct {
 
 // Specifies a specific persistent volume to use. It contains key:value pairs
 // representing labels for selecting such a volume.
-//type KafkaNodePoolSpecStorageVolumesElemSelector map[string]interface{}
+type KafkaNodePoolSpecStorageVolumesElemSelector map[string]string
 
 type KafkaNodePoolSpecStorageVolumesElemType string
 
@@ -459,17 +458,17 @@ type KafkaNodePoolSpecTemplatePerPodIngress struct {
 // Metadata applied to the resource.
 type KafkaNodePoolSpecTemplatePerPodIngressMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaNodePoolSpecTemplatePerPodIngressMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaNodePoolSpecTemplatePerPodIngressMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePerPodIngressMetadataAnnotations map[string]interface{}
+type KafkaNodePoolSpecTemplatePerPodIngressMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePerPodIngressMetadataLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePerPodIngressMetadataLabels map[string]string
 
 // Template for Kafka per-pod `Routes` used for access from outside of OpenShift.
 type KafkaNodePoolSpecTemplatePerPodRoute struct {
@@ -480,17 +479,17 @@ type KafkaNodePoolSpecTemplatePerPodRoute struct {
 // Metadata applied to the resource.
 type KafkaNodePoolSpecTemplatePerPodRouteMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaNodePoolSpecTemplatePerPodRouteMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaNodePoolSpecTemplatePerPodRouteMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePerPodRouteMetadataAnnotations map[string]interface{}
+type KafkaNodePoolSpecTemplatePerPodRouteMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePerPodRouteMetadataLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePerPodRouteMetadataLabels map[string]string
 
 // Template for Kafka per-pod `Services` used for access from outside of
 // Kubernetes.
@@ -502,17 +501,17 @@ type KafkaNodePoolSpecTemplatePerPodService struct {
 // Metadata applied to the resource.
 type KafkaNodePoolSpecTemplatePerPodServiceMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaNodePoolSpecTemplatePerPodServiceMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaNodePoolSpecTemplatePerPodServiceMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePerPodServiceMetadataAnnotations map[string]interface{}
+type KafkaNodePoolSpecTemplatePerPodServiceMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePerPodServiceMetadataLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePerPodServiceMetadataLabels map[string]string
 
 // Template for all Kafka `PersistentVolumeClaims`.
 type KafkaNodePoolSpecTemplatePersistentVolumeClaim struct {
@@ -523,17 +522,17 @@ type KafkaNodePoolSpecTemplatePersistentVolumeClaim struct {
 // Metadata applied to the resource.
 type KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadataAnnotations map[string]interface{}
+type KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadataLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePersistentVolumeClaimMetadataLabels map[string]string
 
 // Template for Kafka `Pods`.
 type KafkaNodePoolSpecTemplatePod struct {
@@ -558,8 +557,7 @@ type KafkaNodePoolSpecTemplatePod struct {
 	// Metadata applied to the resource.
 	Metadata *KafkaNodePoolSpecTemplatePodMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 
-	// The name of the priority class used to assign priority to the pods. For more
-	// information about priority classes, see {K8sPriorityClass}.
+	// The name of the priority class used to assign priority to the pods.
 	PriorityClassName *string `json:"priorityClassName,omitempty" yaml:"priorityClassName,omitempty" mapstructure:"priorityClassName,omitempty"`
 
 	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
@@ -707,6 +705,12 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgn
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -722,7 +726,7 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgn
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -736,14 +740,14 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgn
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -757,11 +761,17 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgn
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -778,7 +788,7 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgno
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -792,14 +802,14 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgno
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -813,7 +823,7 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgno
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinity struct {
 	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
@@ -837,6 +847,12 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulin
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -852,7 +868,7 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulin
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -866,14 +882,14 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulin
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -887,11 +903,17 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulin
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -908,7 +930,7 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringScheduling
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -922,14 +944,14 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringScheduling
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -943,7 +965,7 @@ type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringScheduling
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodHostAliasesElem struct {
 	// Hostnames corresponds to the JSON schema field "hostnames".
@@ -961,17 +983,17 @@ type KafkaNodePoolSpecTemplatePodImagePullSecretsElem struct {
 // Metadata applied to the resource.
 type KafkaNodePoolSpecTemplatePodMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaNodePoolSpecTemplatePodMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaNodePoolSpecTemplatePodMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePodMetadataAnnotations map[string]interface{}
+type KafkaNodePoolSpecTemplatePodMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePodMetadataLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodMetadataLabels map[string]string
 
 // Configures pod-level security attributes and common container settings.
 type KafkaNodePoolSpecTemplatePodSecurityContext struct {
@@ -1060,17 +1082,17 @@ type KafkaNodePoolSpecTemplatePodSet struct {
 // Metadata applied to the resource.
 type KafkaNodePoolSpecTemplatePodSetMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaNodePoolSpecTemplatePodSetMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaNodePoolSpecTemplatePodSetMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePodSetMetadataAnnotations map[string]interface{}
+type KafkaNodePoolSpecTemplatePodSetMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaNodePoolSpecTemplatePodSetMetadataLabels map[string]interface{}
+type KafkaNodePoolSpecTemplatePodSetMetadataLabels map[string]string
 
 type KafkaNodePoolSpecTemplatePodTolerationsElem struct {
 	// Effect corresponds to the JSON schema field "effect".
@@ -1087,6 +1109,36 @@ type KafkaNodePoolSpecTemplatePodTolerationsElem struct {
 
 	// Value corresponds to the JSON schema field "value".
 	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaNodePoolSpecRolesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaNodePoolSpecRolesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaNodePoolSpecRolesElem, v)
+	}
+	*j = KafkaNodePoolSpecRolesElem(v)
+	return nil
+}
+
+type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]string
+
+type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElem struct {
@@ -1115,27 +1167,6 @@ type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElem struct {
 	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty" yaml:"whenUnsatisfiable,omitempty" mapstructure:"whenUnsatisfiable,omitempty"`
 }
 
-type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
-}
-
-type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
-}
-
-//type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
-
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaNodePoolSpecStorageType) UnmarshalJSON(b []byte) error {
 	var v string
@@ -1154,11 +1185,6 @@ func (j *KafkaNodePoolSpecStorageType) UnmarshalJSON(b []byte) error {
 	}
 	*j = KafkaNodePoolSpecStorageType(v)
 	return nil
-}
-
-var enumValues_KafkaNodePoolSpecStorageVolumesElemType = []interface{}{
-	"ephemeral",
-	"persistent-claim",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1181,22 +1207,9 @@ func (j *KafkaNodePoolSpecStorageVolumesElemType) UnmarshalJSON(b []byte) error 
 	return nil
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaNodePoolSpecStorageVolumesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type in KafkaNodePoolSpecStorageVolumesElem: required")
-	}
-	type Plain KafkaNodePoolSpecStorageVolumesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaNodePoolSpecStorageVolumesElem(plain)
-	return nil
+var enumValues_KafkaNodePoolSpecStorageVolumesElemType = []interface{}{
+	"ephemeral",
+	"persistent-claim",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1217,30 +1230,39 @@ func (j *KafkaNodePoolSpecStorage) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaNodePoolSpecStorageVolumesElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaNodePoolSpecStorageVolumesElem: required")
+	}
+	type Plain KafkaNodePoolSpecStorageVolumesElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaNodePoolSpecStorageVolumesElem(plain)
+	return nil
+}
+
 var enumValues_KafkaNodePoolSpecStorageType = []interface{}{
 	"ephemeral",
 	"persistent-claim",
 	"jbod",
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaNodePoolSpecRolesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaNodePoolSpecRolesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaNodePoolSpecRolesElem, v)
-	}
-	*j = KafkaNodePoolSpecRolesElem(v)
-	return nil
+type KafkaNodePoolSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -1267,6 +1289,56 @@ func (j *KafkaNodePoolSpec) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type KafkaNodePoolStatusConditionsElem struct {
+	// Last time the condition of a type changed from one status to another. The
+	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
+
+	// Human-readable message indicating details about the condition's last
+	// transition.
+	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
+
+	// The reason for the condition's last transition (a single word in CamelCase).
+	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
+
+	// The status of the condition, either True, False or Unknown.
+	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
+
+	// The unique identifier of a condition, used to distinguish between other
+	// conditions in the resource.
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaNodePoolStatusRolesElem string
+
+var enumValues_KafkaNodePoolStatusRolesElem = []interface{}{
+	"controller",
+	"broker",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaNodePoolStatusRolesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaNodePoolStatusRolesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaNodePoolStatusRolesElem, v)
+	}
+	*j = KafkaNodePoolStatusRolesElem(v)
+	return nil
+}
+
+const KafkaNodePoolStatusRolesElemController KafkaNodePoolStatusRolesElem = "controller"
+const KafkaNodePoolStatusRolesElemBroker KafkaNodePoolStatusRolesElem = "broker"
+
 // The status of the KafkaNodePool.
 type KafkaNodePoolStatus struct {
 	// Kafka cluster ID.
@@ -1286,26 +1358,9 @@ type KafkaNodePoolStatus struct {
 
 	// The current number of pods being used to provide this resource.
 	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty" mapstructure:"replicas,omitempty"`
-}
 
-type KafkaNodePoolStatusConditionsElem struct {
-	// Last time the condition of a type changed from one status to another. The
-	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
-	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
-
-	// Human-readable message indicating details about the condition's last
-	// transition.
-	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
-
-	// The reason for the condition's last transition (a single word in CamelCase).
-	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
-
-	// The status of the condition, either True, False or Unknown.
-	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
-
-	// The unique identifier of a condition, used to distinguish between other
-	// conditions in the resource.
-	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+	// The roles currently assigned to this pool.
+	Roles []KafkaNodePoolStatusRolesElem `json:"roles,omitempty" yaml:"roles,omitempty" mapstructure:"roles,omitempty"`
 }
 
 var enumValues_KafkaNodePoolSpecRolesElem = []interface{}{

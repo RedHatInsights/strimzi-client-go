@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"reflect"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -60,7 +59,10 @@ type KafkaBridgeSpec struct {
 	// The HTTP related configuration.
 	Http *KafkaBridgeSpecHttp `json:"http,omitempty" yaml:"http,omitempty" mapstructure:"http,omitempty"`
 
-	// The docker image for the pods.
+	// The container image used for Kafka Bridge pods. If no image name is explicitly
+	// specified, the image name corresponds to the image specified in the Cluster
+	// Operator configuration. If an image name is not defined in the Cluster Operator
+	// configuration, a default value is used.
 	Image *string `json:"image,omitempty" yaml:"image,omitempty" mapstructure:"image,omitempty"`
 
 	// **Currently not supported** JVM Options for pods.
@@ -306,7 +308,7 @@ type KafkaBridgeSpecHttpCors struct {
 // **Currently not supported** JVM Options for pods.
 type KafkaBridgeSpecJvmOptions struct {
 	// A map of -XX options to the JVM.
-	XX *apiextensions.JSON `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
+	XX KafkaBridgeSpecJvmOptionsXX `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
 
 	// -Xms option to to the JVM.
 	Xms *string `json:"-Xms,omitempty" yaml:"-Xms,omitempty" mapstructure:"-Xms,omitempty"`
@@ -332,7 +334,7 @@ type KafkaBridgeSpecJvmOptionsJavaSystemPropertiesElem struct {
 }
 
 // A map of -XX options to the JVM.
-//type KafkaBridgeSpecJvmOptionsXX map[string]interface{}
+type KafkaBridgeSpecJvmOptionsXX map[string]string
 
 // Pod liveness checking.
 type KafkaBridgeSpecLivenessProbe struct {
@@ -360,7 +362,7 @@ type KafkaBridgeSpecLivenessProbe struct {
 // Logging configuration for Kafka Bridge.
 type KafkaBridgeSpecLogging struct {
 	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty" yaml:"loggers,omitempty" mapstructure:"loggers,omitempty"`
+	Loggers KafkaBridgeSpecLoggingLoggers `json:"loggers,omitempty" yaml:"loggers,omitempty" mapstructure:"loggers,omitempty"`
 
 	// Logging type, must be either 'inline' or 'external'.
 	Type KafkaBridgeSpecLoggingType `json:"type" yaml:"type" mapstructure:"type"`
@@ -370,7 +372,7 @@ type KafkaBridgeSpecLogging struct {
 }
 
 // A Map from logger name to logger level.
-//type KafkaBridgeSpecLoggingLoggers map[string]interface{}
+type KafkaBridgeSpecLoggingLoggers map[string]string
 
 type KafkaBridgeSpecLoggingType string
 
@@ -527,17 +529,17 @@ const KafkaBridgeSpecTemplateApiServiceIpFamilyPolicySingleStack KafkaBridgeSpec
 // Metadata applied to the resource.
 type KafkaBridgeSpecTemplateApiServiceMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaBridgeSpecTemplateApiServiceMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaBridgeSpecTemplateApiServiceMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateApiServiceMetadataAnnotations map[string]interface{}
+type KafkaBridgeSpecTemplateApiServiceMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateApiServiceMetadataLabels map[string]interface{}
+type KafkaBridgeSpecTemplateApiServiceMetadataLabels map[string]string
 
 // Template for the Kafka Bridge container.
 type KafkaBridgeSpecTemplateBridgeContainer struct {
@@ -648,17 +650,17 @@ type KafkaBridgeSpecTemplateClusterRoleBinding struct {
 // Metadata applied to the resource.
 type KafkaBridgeSpecTemplateClusterRoleBindingMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaBridgeSpecTemplateClusterRoleBindingMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaBridgeSpecTemplateClusterRoleBindingMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataAnnotations map[string]interface{}
+type KafkaBridgeSpecTemplateClusterRoleBindingMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateClusterRoleBindingMetadataLabels map[string]interface{}
+type KafkaBridgeSpecTemplateClusterRoleBindingMetadataLabels map[string]string
 
 // Template for Kafka Bridge `Deployment`.
 type KafkaBridgeSpecTemplateDeployment struct {
@@ -678,17 +680,17 @@ const KafkaBridgeSpecTemplateDeploymentDeploymentStrategyRollingUpdate KafkaBrid
 // Metadata applied to the resource.
 type KafkaBridgeSpecTemplateDeploymentMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaBridgeSpecTemplateDeploymentMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaBridgeSpecTemplateDeploymentMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateDeploymentMetadataAnnotations map[string]interface{}
+type KafkaBridgeSpecTemplateDeploymentMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateDeploymentMetadataLabels map[string]interface{}
+type KafkaBridgeSpecTemplateDeploymentMetadataLabels map[string]string
 
 // Template for the Kafka Bridge init container.
 type KafkaBridgeSpecTemplateInitContainer struct {
@@ -813,8 +815,7 @@ type KafkaBridgeSpecTemplatePod struct {
 	// Metadata applied to the resource.
 	Metadata *KafkaBridgeSpecTemplatePodMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 
-	// The name of the priority class used to assign priority to the pods. For more
-	// information about priority classes, see {K8sPriorityClass}.
+	// The name of the priority class used to assign priority to the pods.
 	PriorityClassName *string `json:"priorityClassName,omitempty" yaml:"priorityClassName,omitempty" mapstructure:"priorityClassName,omitempty"`
 
 	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
@@ -962,6 +963,12 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnor
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -977,7 +984,7 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnor
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -991,14 +998,14 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnor
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -1012,11 +1019,17 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnor
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -1033,7 +1046,7 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnore
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1047,14 +1060,14 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnore
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -1068,7 +1081,7 @@ type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnore
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinity struct {
 	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
@@ -1092,6 +1105,12 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingI
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -1107,7 +1126,7 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingI
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -1121,14 +1140,14 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingI
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -1142,11 +1161,17 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingI
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -1163,7 +1188,7 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIg
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1177,14 +1202,14 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIg
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -1198,7 +1223,7 @@ type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIg
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 // Template for Kafka Bridge `PodDisruptionBudget`.
 type KafkaBridgeSpecTemplatePodDisruptionBudget struct {
@@ -1215,17 +1240,17 @@ type KafkaBridgeSpecTemplatePodDisruptionBudget struct {
 // Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]interface{}
+type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodDisruptionBudgetMetadataLabels map[string]string
 
 type KafkaBridgeSpecTemplatePodHostAliasesElem struct {
 	// Hostnames corresponds to the JSON schema field "hostnames".
@@ -1243,17 +1268,17 @@ type KafkaBridgeSpecTemplatePodImagePullSecretsElem struct {
 // Metadata applied to the resource.
 type KafkaBridgeSpecTemplatePodMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaBridgeSpecTemplatePodMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaBridgeSpecTemplatePodMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplatePodMetadataAnnotations map[string]interface{}
+type KafkaBridgeSpecTemplatePodMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplatePodMetadataLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodMetadataLabels map[string]string
 
 // Configures pod-level security attributes and common container settings.
 type KafkaBridgeSpecTemplatePodSecurityContext struct {
@@ -1381,7 +1406,7 @@ type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct
 	MatchExpressions []KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
@@ -1395,7 +1420,7 @@ type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchEx
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaBridgeSpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]string
 
 // Template for the Kafka Bridge service account.
 type KafkaBridgeSpecTemplateServiceAccount struct {
@@ -1406,17 +1431,17 @@ type KafkaBridgeSpecTemplateServiceAccount struct {
 // Metadata applied to the resource.
 type KafkaBridgeSpecTemplateServiceAccountMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaBridgeSpecTemplateServiceAccountMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaBridgeSpecTemplateServiceAccountMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateServiceAccountMetadataAnnotations map[string]interface{}
+type KafkaBridgeSpecTemplateServiceAccountMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaBridgeSpecTemplateServiceAccountMetadataLabels map[string]interface{}
+type KafkaBridgeSpecTemplateServiceAccountMetadataLabels map[string]string
 
 // TLS configuration for connecting Kafka Bridge to the cluster.
 type KafkaBridgeSpecTls struct {
@@ -1490,44 +1515,6 @@ var enumValues_KafkaBridgeSpecLoggingType = []interface{}{
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecLoggingType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaBridgeSpecLoggingType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecLoggingType, v)
-	}
-	*j = KafkaBridgeSpecLoggingType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type in KafkaBridgeSpecLogging: required")
-	}
-	type Plain KafkaBridgeSpecLogging
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaBridgeSpecLogging(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
 func (j *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
 	var v string
 	if err := json.Unmarshal(b, &v); err != nil {
@@ -1544,6 +1531,31 @@ func (j *KafkaBridgeSpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []
 		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecTemplateDeploymentDeploymentStrategy, v)
 	}
 	*j = KafkaBridgeSpecTemplateDeploymentDeploymentStrategy(v)
+	return nil
+}
+
+var enumValues_KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = []interface{}{
+	"RollingUpdate",
+	"Recreate",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecLoggingType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaBridgeSpecLoggingType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaBridgeSpecLoggingType, v)
+	}
+	*j = KafkaBridgeSpecLoggingType(v)
 	return nil
 }
 
@@ -1643,9 +1655,22 @@ func (j *KafkaBridgeSpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte
 	return nil
 }
 
-var enumValues_KafkaBridgeSpecTemplateDeploymentDeploymentStrategy = []interface{}{
-	"RollingUpdate",
-	"Recreate",
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaBridgeSpecLogging) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaBridgeSpecLogging: required")
+	}
+	type Plain KafkaBridgeSpecLogging
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaBridgeSpecLogging(plain)
+	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.

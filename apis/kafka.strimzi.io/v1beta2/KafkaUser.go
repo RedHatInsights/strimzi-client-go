@@ -8,8 +8,6 @@ import (
 	"reflect"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -264,17 +262,17 @@ type KafkaUserSpecTemplateSecret struct {
 // Metadata applied to the resource.
 type KafkaUserSpecTemplateSecretMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaUserSpecTemplateSecretMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaUserSpecTemplateSecretMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaUserSpecTemplateSecretMetadataAnnotations map[string]interface{}
+type KafkaUserSpecTemplateSecretMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaUserSpecTemplateSecretMetadataLabels map[string]interface{}
+type KafkaUserSpecTemplateSecretMetadataLabels map[string]string
 
 // The status of the Kafka User.
 type KafkaUserStatus struct {

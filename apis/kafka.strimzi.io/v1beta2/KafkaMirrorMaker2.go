@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"reflect"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -54,7 +53,10 @@ type KafkaMirrorMaker2Spec struct {
 	// configure connectors.
 	ExternalConfiguration *KafkaMirrorMaker2SpecExternalConfiguration `json:"externalConfiguration,omitempty" yaml:"externalConfiguration,omitempty" mapstructure:"externalConfiguration,omitempty"`
 
-	// The docker image for the pods.
+	// The container image used for Kafka Connect pods. If no image name is explicitly
+	// specified, it is determined based on the `spec.version` configuration. The
+	// image names are specifically mapped to corresponding versions in the Cluster
+	// Operator configuration.
 	Image *string `json:"image,omitempty" yaml:"image,omitempty" mapstructure:"image,omitempty"`
 
 	// JMX Options.
@@ -90,14 +92,14 @@ type KafkaMirrorMaker2Spec struct {
 	Resources *KafkaMirrorMaker2SpecResources `json:"resources,omitempty" yaml:"resources,omitempty" mapstructure:"resources,omitempty"`
 
 	// Template for Kafka Connect and Kafka Mirror Maker 2 resources. The template
-	// allows users to specify how the `Deployment`, `Pods` and `Service` are
+	// allows users to specify how the `Pods`, `Service`, and other services are
 	// generated.
 	Template *KafkaMirrorMaker2SpecTemplate `json:"template,omitempty" yaml:"template,omitempty" mapstructure:"template,omitempty"`
 
 	// The configuration of tracing in Kafka Connect.
 	Tracing *KafkaMirrorMaker2SpecTracing `json:"tracing,omitempty" yaml:"tracing,omitempty" mapstructure:"tracing,omitempty"`
 
-	// The Kafka Connect version. Defaults to {DefaultKafkaVersion}. Consult the user
+	// The Kafka Connect version. Defaults to the latest version. Consult the user
 	// documentation to understand the process required to upgrade or downgrade the
 	// version.
 	Version *string `json:"version,omitempty" yaml:"version,omitempty" mapstructure:"version,omitempty"`
@@ -450,7 +452,7 @@ const KafkaMirrorMaker2SpecJmxOptionsAuthenticationTypePassword KafkaMirrorMaker
 // JVM Options for pods.
 type KafkaMirrorMaker2SpecJvmOptions struct {
 	// A map of -XX options to the JVM.
-	XX *apiextensions.JSON `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
+	XX KafkaMirrorMaker2SpecJvmOptionsXX `json:"-XX,omitempty" yaml:"-XX,omitempty" mapstructure:"-XX,omitempty"`
 
 	// -Xms option to to the JVM.
 	Xms *string `json:"-Xms,omitempty" yaml:"-Xms,omitempty" mapstructure:"-Xms,omitempty"`
@@ -476,7 +478,7 @@ type KafkaMirrorMaker2SpecJvmOptionsJavaSystemPropertiesElem struct {
 }
 
 // A map of -XX options to the JVM.
-//type KafkaMirrorMaker2SpecJvmOptionsXX map[string]interface{}
+type KafkaMirrorMaker2SpecJvmOptionsXX map[string]string
 
 // Pod liveness checking.
 type KafkaMirrorMaker2SpecLivenessProbe struct {
@@ -504,7 +506,7 @@ type KafkaMirrorMaker2SpecLivenessProbe struct {
 // Logging configuration for Kafka Connect.
 type KafkaMirrorMaker2SpecLogging struct {
 	// A Map from logger name to logger level.
-	Loggers *apiextensions.JSON `json:"loggers,omitempty" yaml:"loggers,omitempty" mapstructure:"loggers,omitempty"`
+	Loggers KafkaMirrorMaker2SpecLoggingLoggers `json:"loggers,omitempty" yaml:"loggers,omitempty" mapstructure:"loggers,omitempty"`
 
 	// Logging type, must be either 'inline' or 'external'.
 	Type KafkaMirrorMaker2SpecLoggingType `json:"type" yaml:"type" mapstructure:"type"`
@@ -514,7 +516,7 @@ type KafkaMirrorMaker2SpecLogging struct {
 }
 
 // A Map from logger name to logger level.
-//type KafkaMirrorMaker2SpecLoggingLoggers map[string]interface{}
+type KafkaMirrorMaker2SpecLoggingLoggers map[string]string
 
 type KafkaMirrorMaker2SpecLoggingType string
 
@@ -544,8 +546,7 @@ type KafkaMirrorMaker2SpecMetricsConfig struct {
 	// Metrics type. Only 'jmxPrometheusExporter' supported currently.
 	Type KafkaMirrorMaker2SpecMetricsConfigType `json:"type" yaml:"type" mapstructure:"type"`
 
-	// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
-	// details of the structure of this configuration, see the {JMXExporter}.
+	// ConfigMap entry where the Prometheus JMX Exporter configuration is stored.
 	ValueFrom KafkaMirrorMaker2SpecMetricsConfigValueFrom `json:"valueFrom" yaml:"valueFrom" mapstructure:"valueFrom"`
 }
 
@@ -553,8 +554,7 @@ type KafkaMirrorMaker2SpecMetricsConfigType string
 
 const KafkaMirrorMaker2SpecMetricsConfigTypeJmxPrometheusExporter KafkaMirrorMaker2SpecMetricsConfigType = "jmxPrometheusExporter"
 
-// ConfigMap entry where the Prometheus JMX Exporter configuration is stored. For
-// details of the structure of this configuration, see the {JMXExporter}.
+// ConfigMap entry where the Prometheus JMX Exporter configuration is stored.
 type KafkaMirrorMaker2SpecMetricsConfigValueFrom struct {
 	// Reference to the key in the ConfigMap containing the configuration.
 	ConfigMapKeyRef *KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef `json:"configMapKeyRef,omitempty" yaml:"configMapKeyRef,omitempty" mapstructure:"configMapKeyRef,omitempty"`
@@ -793,7 +793,7 @@ type KafkaMirrorMaker2SpecResourcesClaimsElem struct {
 //type KafkaMirrorMaker2SpecResourcesRequests map[string]interface{}
 
 // Template for Kafka Connect and Kafka Mirror Maker 2 resources. The template
-// allows users to specify how the `Deployment`, `Pods` and `Service` are
+// allows users to specify how the `Pods`, `Service`, and other services are
 // generated.
 type KafkaMirrorMaker2SpecTemplate struct {
 	// Template for Kafka Connect API `Service`.
@@ -879,17 +879,17 @@ const KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicySingleStack KafkaMirr
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateApiServiceMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateApiServiceMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateApiServiceMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateApiServiceMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateApiServiceMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateApiServiceMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateApiServiceMetadataLabels map[string]string
 
 // Template for the Kafka Connect BuildConfig used to build new container images.
 // The BuildConfig is used only on OpenShift.
@@ -904,17 +904,17 @@ type KafkaMirrorMaker2SpecTemplateBuildConfig struct {
 // Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaMirrorMaker2SpecTemplateBuildConfigMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateBuildConfigMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateBuildConfigMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateBuildConfigMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildConfigMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateBuildConfigMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildConfigMetadataLabels map[string]string
 
 // Template for the Kafka Connect Build container. The build container is used only
 // on Kubernetes.
@@ -1041,8 +1041,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPod struct {
 	// Metadata applied to the resource.
 	Metadata *KafkaMirrorMaker2SpecTemplateBuildPodMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 
-	// The name of the priority class used to assign priority to the pods. For more
-	// information about priority classes, see {K8sPriorityClass}.
+	// The name of the priority class used to assign priority to the pods.
 	PriorityClassName *string `json:"priorityClassName,omitempty" yaml:"priorityClassName,omitempty" mapstructure:"priorityClassName,omitempty"`
 
 	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
@@ -1190,6 +1189,12 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSche
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -1205,7 +1210,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSche
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -1219,14 +1224,14 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSche
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -1240,11 +1245,17 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSche
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -1261,7 +1272,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSched
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1275,14 +1286,14 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSched
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -1296,7 +1307,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSched
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinity struct {
 	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
@@ -1320,6 +1331,12 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuring
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -1335,7 +1352,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuring
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -1349,14 +1366,14 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuring
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -1370,11 +1387,17 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuring
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -1391,7 +1414,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringS
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -1405,14 +1428,14 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringS
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -1426,7 +1449,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringS
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplateBuildPodHostAliasesElem struct {
 	// Hostnames corresponds to the JSON schema field "hostnames".
@@ -1444,17 +1467,17 @@ type KafkaMirrorMaker2SpecTemplateBuildPodImagePullSecretsElem struct {
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateBuildPodMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateBuildPodMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateBuildPodMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateBuildPodMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateBuildPodMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodMetadataLabels map[string]string
 
 // Configures pod-level security attributes and common container settings.
 type KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext struct {
@@ -1582,7 +1605,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSele
 	MatchExpressions []KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
@@ -1596,7 +1619,7 @@ type KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSele
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]string
 
 // Template for the Kafka Connect Build service account.
 type KafkaMirrorMaker2SpecTemplateBuildServiceAccount struct {
@@ -1607,17 +1630,17 @@ type KafkaMirrorMaker2SpecTemplateBuildServiceAccount struct {
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateBuildServiceAccountMetadataLabels map[string]string
 
 // Template for the Kafka Connect ClusterRoleBinding.
 type KafkaMirrorMaker2SpecTemplateClusterRoleBinding struct {
@@ -1628,17 +1651,17 @@ type KafkaMirrorMaker2SpecTemplateClusterRoleBinding struct {
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateClusterRoleBindingMetadataLabels map[string]string
 
 // Template for the Kafka Connect container.
 type KafkaMirrorMaker2SpecTemplateConnectContainer struct {
@@ -1758,17 +1781,17 @@ const KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategyRollingUpdate Kaf
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateDeploymentMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateDeploymentMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateDeploymentMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateDeploymentMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateDeploymentMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateDeploymentMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateDeploymentMetadataLabels map[string]string
 
 // Template for Kafka Connect headless `Service`.
 type KafkaMirrorMaker2SpecTemplateHeadlessService struct {
@@ -1804,17 +1827,17 @@ const KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicySingleStack Kafk
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateHeadlessServiceMetadataLabels map[string]string
 
 // Template for the Kafka init container.
 type KafkaMirrorMaker2SpecTemplateInitContainer struct {
@@ -1925,17 +1948,17 @@ type KafkaMirrorMaker2SpecTemplateJmxSecret struct {
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplateJmxSecretMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplateJmxSecretMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplateJmxSecretMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateJmxSecretMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateJmxSecretMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateJmxSecretMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplateJmxSecretMetadataLabels map[string]string
 
 // Template for Kafka Connect `Pods`.
 type KafkaMirrorMaker2SpecTemplatePod struct {
@@ -1960,8 +1983,7 @@ type KafkaMirrorMaker2SpecTemplatePod struct {
 	// Metadata applied to the resource.
 	Metadata *KafkaMirrorMaker2SpecTemplatePodMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 
-	// The name of the priority class used to assign priority to the pods. For more
-	// information about priority classes, see {K8sPriorityClass}.
+	// The name of the priority class used to assign priority to the pods.
 	PriorityClassName *string `json:"priorityClassName,omitempty" yaml:"priorityClassName,omitempty" mapstructure:"priorityClassName,omitempty"`
 
 	// The name of the scheduler used to dispatch this `Pod`. If not specified, the
@@ -2109,6 +2131,12 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulin
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -2124,7 +2152,7 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulin
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -2138,14 +2166,14 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulin
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -2159,11 +2187,17 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulin
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -2180,7 +2214,7 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringScheduling
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -2194,14 +2228,14 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringScheduling
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -2215,7 +2249,7 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringScheduling
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinity struct {
 	// PreferredDuringSchedulingIgnoredDuringExecution corresponds to the JSON schema
@@ -2239,6 +2273,12 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSched
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
 
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
+
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
 
@@ -2254,7 +2294,7 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSched
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchExpressionsElem struct {
@@ -2268,14 +2308,14 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSched
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchExpressionsElem struct {
@@ -2289,11 +2329,17 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSched
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionElemPodAffinityTermNamespaceSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElem struct {
 	// LabelSelector corresponds to the JSON schema field "labelSelector".
 	LabelSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MismatchLabelKeys corresponds to the JSON schema field "mismatchLabelKeys".
+	MismatchLabelKeys []string `json:"mismatchLabelKeys,omitempty" yaml:"mismatchLabelKeys,omitempty" mapstructure:"mismatchLabelKeys,omitempty"`
 
 	// NamespaceSelector corresponds to the JSON schema field "namespaceSelector".
 	NamespaceSelector *KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector `json:"namespaceSelector,omitempty" yaml:"namespaceSelector,omitempty" mapstructure:"namespaceSelector,omitempty"`
@@ -2310,7 +2356,7 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedu
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchExpressionsElem struct {
@@ -2324,14 +2370,14 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedu
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemLabelSelectorMatchLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelector struct {
 	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
 	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
 
 	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
 }
 
 type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchExpressionsElem struct {
@@ -2345,7 +2391,7 @@ type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedu
 	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
 }
 
-//type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionElemNamespaceSelectorMatchLabels map[string]string
 
 // Template for Kafka Connect `PodDisruptionBudget`.
 type KafkaMirrorMaker2SpecTemplatePodDisruptionBudget struct {
@@ -2362,17 +2408,17 @@ type KafkaMirrorMaker2SpecTemplatePodDisruptionBudget struct {
 // Metadata to apply to the `PodDisruptionBudgetTemplate` resource.
 type KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadataLabels map[string]string
 
 type KafkaMirrorMaker2SpecTemplatePodHostAliasesElem struct {
 	// Hostnames corresponds to the JSON schema field "hostnames".
@@ -2390,17 +2436,17 @@ type KafkaMirrorMaker2SpecTemplatePodImagePullSecretsElem struct {
 // Metadata applied to the resource.
 type KafkaMirrorMaker2SpecTemplatePodMetadata struct {
 	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+	Annotations KafkaMirrorMaker2SpecTemplatePodMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+	Labels KafkaMirrorMaker2SpecTemplatePodMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
 }
 
 // Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplatePodMetadataAnnotations map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodMetadataAnnotations map[string]string
 
 // Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplatePodMetadataLabels map[string]interface{}
+type KafkaMirrorMaker2SpecTemplatePodMetadataLabels map[string]string
 
 // Configures pod-level security attributes and common container settings.
 type KafkaMirrorMaker2SpecTemplatePodSecurityContext struct {
@@ -2449,24 +2495,705 @@ type KafkaMirrorMaker2SpecTemplatePodSecurityContextSeLinuxOptions struct {
 	User *string `json:"user,omitempty" yaml:"user,omitempty" mapstructure:"user,omitempty"`
 }
 
+type KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile struct {
+	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
+	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplatePodSecurityContextSysctlsElem struct {
+	// Name corresponds to the JSON schema field "name".
+	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplatePodSecurityContextWindowsOptions struct {
+	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
+	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
+
+	// GmsaCredentialSpecName corresponds to the JSON schema field
+	// "gmsaCredentialSpecName".
+	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
+
+	// HostProcess corresponds to the JSON schema field "hostProcess".
+	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
+
+	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
+	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
+}
+
+// Template for Kafka Connect `StrimziPodSet` resource.
+type KafkaMirrorMaker2SpecTemplatePodSet struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMaker2SpecTemplatePodSetMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaMirrorMaker2SpecTemplatePodSetMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations KafkaMirrorMaker2SpecTemplatePodSetMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels KafkaMirrorMaker2SpecTemplatePodSetMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+type KafkaMirrorMaker2SpecTemplatePodSetMetadataAnnotations map[string]string
+
+// Labels added to the Kubernetes resource.
+type KafkaMirrorMaker2SpecTemplatePodSetMetadataLabels map[string]string
+
+type KafkaMirrorMaker2SpecTemplatePodTolerationsElem struct {
+	// Effect corresponds to the JSON schema field "effect".
+	Effect *string `json:"effect,omitempty" yaml:"effect,omitempty" mapstructure:"effect,omitempty"`
+
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
+	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty" mapstructure:"tolerationSeconds,omitempty"`
+
+	// Value corresponds to the JSON schema field "value".
+	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElem struct {
+	// LabelSelector corresponds to the JSON schema field "labelSelector".
+	LabelSelector *KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
+	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
+
+	// MaxSkew corresponds to the JSON schema field "maxSkew".
+	MaxSkew *int32 `json:"maxSkew,omitempty" yaml:"maxSkew,omitempty" mapstructure:"maxSkew,omitempty"`
+
+	// MinDomains corresponds to the JSON schema field "minDomains".
+	MinDomains *int32 `json:"minDomains,omitempty" yaml:"minDomains,omitempty" mapstructure:"minDomains,omitempty"`
+
+	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
+	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty" yaml:"nodeAffinityPolicy,omitempty" mapstructure:"nodeAffinityPolicy,omitempty"`
+
+	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
+	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty" yaml:"nodeTaintsPolicy,omitempty" mapstructure:"nodeTaintsPolicy,omitempty"`
+
+	// TopologyKey corresponds to the JSON schema field "topologyKey".
+	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
+
+	// WhenUnsatisfiable corresponds to the JSON schema field "whenUnsatisfiable".
+	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty" yaml:"whenUnsatisfiable,omitempty" mapstructure:"whenUnsatisfiable,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]string
+
+// Template for the Kafka Connect service account.
+type KafkaMirrorMaker2SpecTemplateServiceAccount struct {
+	// Metadata applied to the resource.
+	Metadata *KafkaMirrorMaker2SpecTemplateServiceAccountMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+}
+
+// Metadata applied to the resource.
+type KafkaMirrorMaker2SpecTemplateServiceAccountMetadata struct {
+	// Annotations added to the Kubernetes resource.
+	Annotations KafkaMirrorMaker2SpecTemplateServiceAccountMetadataAnnotations `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// Labels added to the Kubernetes resource.
+	Labels KafkaMirrorMaker2SpecTemplateServiceAccountMetadataLabels `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
+}
+
+// Annotations added to the Kubernetes resource.
+type KafkaMirrorMaker2SpecTemplateServiceAccountMetadataAnnotations map[string]string
+
+// Labels added to the Kubernetes resource.
+type KafkaMirrorMaker2SpecTemplateServiceAccountMetadataLabels map[string]string
+
+// The configuration of tracing in Kafka Connect.
+type KafkaMirrorMaker2SpecTracing struct {
+	// Type of the tracing used. Currently the only supported type is `opentelemetry`
+	// for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported
+	// anymore and this option is ignored.
+	Type KafkaMirrorMaker2SpecTracingType `json:"type" yaml:"type" mapstructure:"type"`
+}
+
+type KafkaMirrorMaker2SpecTracingType string
+
+const KafkaMirrorMaker2SpecTracingTypeJaeger KafkaMirrorMaker2SpecTracingType = "jaeger"
+const KafkaMirrorMaker2SpecTracingTypeOpentelemetry KafkaMirrorMaker2SpecTracingType = "opentelemetry"
+
+// The status of the Kafka MirrorMaker 2 cluster.
+type KafkaMirrorMaker2Status struct {
+	// List of MirrorMaker 2 connector auto restart statuses.
+	AutoRestartStatuses []KafkaMirrorMaker2StatusAutoRestartStatusesElem `json:"autoRestartStatuses,omitempty" yaml:"autoRestartStatuses,omitempty" mapstructure:"autoRestartStatuses,omitempty"`
+
+	// List of status conditions.
+	Conditions []KafkaMirrorMaker2StatusConditionsElem `json:"conditions,omitempty" yaml:"conditions,omitempty" mapstructure:"conditions,omitempty"`
+
+	// The list of connector plugins available in this Kafka Connect deployment.
+	ConnectorPlugins []KafkaMirrorMaker2StatusConnectorPluginsElem `json:"connectorPlugins,omitempty" yaml:"connectorPlugins,omitempty" mapstructure:"connectorPlugins,omitempty"`
+
+	// List of MirrorMaker 2 connector statuses, as reported by the Kafka Connect REST
+	// API.
+	Connectors []*apiextensions.JSON `json:"connectors,omitempty" yaml:"connectors,omitempty" mapstructure:"connectors,omitempty"`
+
+	// Label selector for pods providing this resource.
+	LabelSelector *string `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
+
+	// The generation of the CRD that was last reconciled by the operator.
+	ObservedGeneration *int32 `json:"observedGeneration,omitempty" yaml:"observedGeneration,omitempty" mapstructure:"observedGeneration,omitempty"`
+
+	// The current number of pods being used to provide this resource.
+	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty" mapstructure:"replicas,omitempty"`
+
+	// The URL of the REST API endpoint for managing and monitoring Kafka Connect
+	// connectors.
+	Url *string `json:"url,omitempty" yaml:"url,omitempty" mapstructure:"url,omitempty"`
+}
+
+type KafkaMirrorMaker2StatusAutoRestartStatusesElem struct {
+	// The name of the connector being restarted.
+	ConnectorName *string `json:"connectorName,omitempty" yaml:"connectorName,omitempty" mapstructure:"connectorName,omitempty"`
+
+	// The number of times the connector or task is restarted.
+	Count *int32 `json:"count,omitempty" yaml:"count,omitempty" mapstructure:"count,omitempty"`
+
+	// The last time the automatic restart was attempted. The required format is
+	// 'yyyy-MM-ddTHH:mm:ssZ' in the UTC time zone.
+	LastRestartTimestamp *string `json:"lastRestartTimestamp,omitempty" yaml:"lastRestartTimestamp,omitempty" mapstructure:"lastRestartTimestamp,omitempty"`
+}
+
+type KafkaMirrorMaker2StatusConditionsElem struct {
+	// Last time the condition of a type changed from one status to another. The
+	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
+	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
+
+	// Human-readable message indicating details about the condition's last
+	// transition.
+	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
+
+	// The reason for the condition's last transition (a single word in CamelCase).
+	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
+
+	// The status of the condition, either True, False or Unknown.
+	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
+
+	// The unique identifier of a condition, used to distinguish between other
+	// conditions in the resource.
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type KafkaMirrorMaker2StatusConnectorPluginsElem struct {
+	// The class of the connector plugin.
+	Class *string `json:"class,omitempty" yaml:"class,omitempty" mapstructure:"class,omitempty"`
+
+	// The type of the connector plugin. The available types are `sink` and `source`.
+	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// The version of the connector plugin.
+	Version *string `json:"version,omitempty" yaml:"version,omitempty" mapstructure:"version,omitempty"`
+}
+
+//type KafkaMirrorMaker2StatusConnectorsElem map[string]interface{}
+
+var enumValues_KafkaMirrorMaker2SpecClustersElemAuthenticationType = []interface{}{
+	"tls",
+	"scram-sha-256",
+	"scram-sha-512",
+	"plain",
+	"oauth",
+}
+var enumValues_KafkaMirrorMaker2SpecJmxOptionsAuthenticationType = []interface{}{
+	"password",
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecMirrorsElem) UnmarshalJSON(b []byte) error {
+func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	if v, ok := raw["sourceCluster"]; !ok || v == nil {
-		return fmt.Errorf("field sourceCluster in KafkaMirrorMaker2SpecMirrorsElem: required")
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate in KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem: required")
 	}
-	if v, ok := raw["targetCluster"]; !ok || v == nil {
-		return fmt.Errorf("field targetCluster in KafkaMirrorMaker2SpecMirrorsElem: required")
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem: required")
 	}
-	type Plain KafkaMirrorMaker2SpecMirrorsElem
+	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem
 	var plain Plain
 	if err := json.Unmarshal(b, &plain); err != nil {
 		return err
 	}
-	*j = KafkaMirrorMaker2SpecMirrorsElem(plain)
+	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecMetricsConfigType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecMetricsConfigType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecMetricsConfigType, v)
+	}
+	*j = KafkaMirrorMaker2SpecMetricsConfigType(v)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecMetricsConfigType = []interface{}{
+	"jmxPrometheusExporter",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecLogging) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMaker2SpecLogging: required")
+	}
+	type Plain KafkaMirrorMaker2SpecLogging
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecLogging(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecLoggingType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecLoggingType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecLoggingType, v)
+	}
+	*j = KafkaMirrorMaker2SpecLoggingType(v)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecLoggingType = []interface{}{
+	"inline",
+	"external",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecJmxOptionsAuthentication) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMaker2SpecJmxOptionsAuthentication: required")
+	}
+	type Plain KafkaMirrorMaker2SpecJmxOptionsAuthentication
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecJmxOptionsAuthentication(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy(v)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy = []interface{}{
+	"RollingUpdate",
+	"Recreate",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["password"]; !ok || v == nil {
+		return fmt.Errorf("field password in KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret: required")
+	}
+	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret(plain)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem = []interface{}{
+	"IPv4",
+	"IPv6",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecJmxOptionsAuthenticationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecJmxOptionsAuthenticationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecJmxOptionsAuthenticationType, v)
+	}
+	*j = KafkaMirrorMaker2SpecJmxOptionsAuthenticationType(v)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy = []interface{}{
+	"SingleStack",
+	"PreferDualStack",
+	"RequireDualStack",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecExternalConfigurationVolumesElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["name"]; !ok || v == nil {
+		return fmt.Errorf("field name in KafkaMirrorMaker2SpecExternalConfigurationVolumesElem: required")
+	}
+	type Plain KafkaMirrorMaker2SpecExternalConfigurationVolumesElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecExternalConfigurationVolumesElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecExternalConfigurationEnvElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["name"]; !ok || v == nil {
+		return fmt.Errorf("field name in KafkaMirrorMaker2SpecExternalConfigurationEnvElem: required")
+	}
+	if v, ok := raw["valueFrom"]; !ok || v == nil {
+		return fmt.Errorf("field valueFrom in KafkaMirrorMaker2SpecExternalConfigurationEnvElem: required")
+	}
+	type Plain KafkaMirrorMaker2SpecExternalConfigurationEnvElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecExternalConfigurationEnvElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["alias"]; !ok || v == nil {
+		return fmt.Errorf("field alias in KafkaMirrorMaker2SpecClustersElem: required")
+	}
+	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
+		return fmt.Errorf("field bootstrapServers in KafkaMirrorMaker2SpecClustersElem: required")
+	}
+	type Plain KafkaMirrorMaker2SpecClustersElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecClustersElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["certificate"]; !ok || v == nil {
+		return fmt.Errorf("field certificate in KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem: required")
+	}
+	type Plain KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElemAuthentication) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMaker2SpecClustersElemAuthentication: required")
+	}
+	type Plain KafkaMirrorMaker2SpecClustersElemAuthentication
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecClustersElemAuthentication(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecClustersElemAuthenticationType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecClustersElemAuthenticationType, v)
+	}
+	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationType(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem(v)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecMetricsConfig) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["type"]; !ok || v == nil {
+		return fmt.Errorf("field type in KafkaMirrorMaker2SpecMetricsConfig: required")
+	}
+	if v, ok := raw["valueFrom"]; !ok || v == nil {
+		return fmt.Errorf("field valueFrom in KafkaMirrorMaker2SpecMetricsConfig: required")
+	}
+	type Plain KafkaMirrorMaker2SpecMetricsConfig
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecMetricsConfig(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken: required")
+	}
+	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken(plain)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState = []interface{}{
+	"paused",
+	"stopped",
+	"running",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState, v)
+	}
+	*j = KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState(v)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy = []interface{}{
+	"SingleStack",
+	"PreferDualStack",
+	"RequireDualStack",
+}
+var enumValues_KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnectorState = []interface{}{
+	"paused",
+	"stopped",
+	"running",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["key"]; !ok || v == nil {
+		return fmt.Errorf("field key in KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret: required")
+	}
+	if v, ok := raw["secretName"]; !ok || v == nil {
+		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret: required")
+	}
+	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy(v)
+	return nil
+}
+
+var enumValues_KafkaMirrorMaker2SpecTracingType = []interface{}{
+	"jaeger",
+	"opentelemetry",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTracingType) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTracingType {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTracingType, v)
+	}
+	*j = KafkaMirrorMaker2SpecTracingType(v)
 	return nil
 }
 
@@ -2514,698 +3241,6 @@ func (j *KafkaMirrorMaker2SpecMirrorsElemSourceConnectorState) UnmarshalJSON(b [
 	}
 	*j = KafkaMirrorMaker2SpecMirrorsElemSourceConnectorState(v)
 	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecMetricsConfigType = []interface{}{
-	"jmxPrometheusExporter",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecRack) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["topologyKey"]; !ok || v == nil {
-		return fmt.Errorf("field topologyKey in KafkaMirrorMaker2SpecRack: required")
-	}
-	type Plain KafkaMirrorMaker2SpecRack
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecRack(plain)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem = []interface{}{
-	"IPv4",
-	"IPv6",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy(v)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamilyPolicy = []interface{}{
-	"SingleStack",
-	"PreferDualStack",
-	"RequireDualStack",
-}
-
-type KafkaMirrorMaker2SpecTemplatePodTolerationsElem struct {
-	// Effect corresponds to the JSON schema field "effect".
-	Effect *string `json:"effect,omitempty" yaml:"effect,omitempty" mapstructure:"effect,omitempty"`
-
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
-
-	// TolerationSeconds corresponds to the JSON schema field "tolerationSeconds".
-	TolerationSeconds *int32 `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty" mapstructure:"tolerationSeconds,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
-}
-
-var enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy = []interface{}{
-	"SingleStack",
-	"PreferDualStack",
-	"RequireDualStack",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecLoggingType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecLoggingType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecLoggingType, v)
-	}
-	*j = KafkaMirrorMaker2SpecLoggingType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem(v)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecTemplateHeadlessServiceIpFamiliesElem = []interface{}{
-	"IPv4",
-	"IPv6",
-}
-var enumValues_KafkaMirrorMaker2SpecLoggingType = []interface{}{
-	"inline",
-	"external",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate in KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationTlsTrustedCertificatesElem(plain)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecClustersElemAuthenticationType = []interface{}{
-	"tls",
-	"scram-sha-256",
-	"scram-sha-512",
-	"plain",
-	"oauth",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecClustersElemAuthenticationType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecClustersElemAuthenticationType, v)
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecJmxOptionsAuthentication) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type in KafkaMirrorMaker2SpecJmxOptionsAuthentication: required")
-	}
-	type Plain KafkaMirrorMaker2SpecJmxOptionsAuthentication
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecJmxOptionsAuthentication(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemAuthentication) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type in KafkaMirrorMaker2SpecClustersElemAuthentication: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElemAuthentication
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemAuthentication(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["certificate"]; !ok || v == nil {
-		return fmt.Errorf("field certificate in KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemTlsTrustedCertificatesElem(plain)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy = []interface{}{
-	"RollingUpdate",
-	"Recreate",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key in KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationRefreshToken(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecJmxOptionsAuthenticationType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecJmxOptionsAuthenticationType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecJmxOptionsAuthenticationType, v)
-	}
-	*j = KafkaMirrorMaker2SpecJmxOptionsAuthenticationType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState, v)
-	}
-	*j = KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState(v)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecMirrorsElemCheckpointConnectorState = []interface{}{
-	"paused",
-	"stopped",
-	"running",
-}
-
-type KafkaMirrorMaker2SpecTemplatePodSecurityContextWindowsOptions struct {
-	// GmsaCredentialSpec corresponds to the JSON schema field "gmsaCredentialSpec".
-	GmsaCredentialSpec *string `json:"gmsaCredentialSpec,omitempty" yaml:"gmsaCredentialSpec,omitempty" mapstructure:"gmsaCredentialSpec,omitempty"`
-
-	// GmsaCredentialSpecName corresponds to the JSON schema field
-	// "gmsaCredentialSpecName".
-	GmsaCredentialSpecName *string `json:"gmsaCredentialSpecName,omitempty" yaml:"gmsaCredentialSpecName,omitempty" mapstructure:"gmsaCredentialSpecName,omitempty"`
-
-	// HostProcess corresponds to the JSON schema field "hostProcess".
-	HostProcess *bool `json:"hostProcess,omitempty" yaml:"hostProcess,omitempty" mapstructure:"hostProcess,omitempty"`
-
-	// RunAsUserName corresponds to the JSON schema field "runAsUserName".
-	RunAsUserName *string `json:"runAsUserName,omitempty" yaml:"runAsUserName,omitempty" mapstructure:"runAsUserName,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecMetricsConfigType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecMetricsConfigType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecMetricsConfigType, v)
-	}
-	*j = KafkaMirrorMaker2SpecMetricsConfigType(v)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecLogging) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type in KafkaMirrorMaker2SpecLogging: required")
-	}
-	type Plain KafkaMirrorMaker2SpecLogging
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecLogging(plain)
-	return nil
-}
-
-type KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile struct {
-	// LocalhostProfile corresponds to the JSON schema field "localhostProfile".
-	LocalhostProfile *string `json:"localhostProfile,omitempty" yaml:"localhostProfile,omitempty" mapstructure:"localhostProfile,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
-}
-
-type KafkaMirrorMaker2SpecTemplatePodSecurityContextSysctlsElem struct {
-	// Name corresponds to the JSON schema field "name".
-	Name *string `json:"name,omitempty" yaml:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Value corresponds to the JSON schema field "value".
-	Value *string `json:"value,omitempty" yaml:"value,omitempty" mapstructure:"value,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecMetricsConfig) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["type"]; !ok || v == nil {
-		return fmt.Errorf("field type in KafkaMirrorMaker2SpecMetricsConfig: required")
-	}
-	if v, ok := raw["valueFrom"]; !ok || v == nil {
-		return fmt.Errorf("field valueFrom in KafkaMirrorMaker2SpecMetricsConfig: required")
-	}
-	type Plain KafkaMirrorMaker2SpecMetricsConfig
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecMetricsConfig(plain)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecMirrorsElemHeartbeatConnectorState = []interface{}{
-	"paused",
-	"stopped",
-	"running",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem, v)
-	}
-	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem(v)
-	return nil
-}
-
-type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem struct {
-	// Key corresponds to the JSON schema field "key".
-	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
-
-	// Operator corresponds to the JSON schema field "operator".
-	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
-
-	// Values corresponds to the JSON schema field "values".
-	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
-}
-
-//type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchLabels map[string]interface{}
-
-type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelector struct {
-	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
-	MatchExpressions []KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
-
-	// MatchLabels corresponds to the JSON schema field "matchLabels".
-	MatchLabels *apiextensions.JSON `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
-}
-
-type KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElem struct {
-	// LabelSelector corresponds to the JSON schema field "labelSelector".
-	LabelSelector *KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsElemLabelSelector `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
-
-	// MatchLabelKeys corresponds to the JSON schema field "matchLabelKeys".
-	MatchLabelKeys []string `json:"matchLabelKeys,omitempty" yaml:"matchLabelKeys,omitempty" mapstructure:"matchLabelKeys,omitempty"`
-
-	// MaxSkew corresponds to the JSON schema field "maxSkew".
-	MaxSkew *int32 `json:"maxSkew,omitempty" yaml:"maxSkew,omitempty" mapstructure:"maxSkew,omitempty"`
-
-	// MinDomains corresponds to the JSON schema field "minDomains".
-	MinDomains *int32 `json:"minDomains,omitempty" yaml:"minDomains,omitempty" mapstructure:"minDomains,omitempty"`
-
-	// NodeAffinityPolicy corresponds to the JSON schema field "nodeAffinityPolicy".
-	NodeAffinityPolicy *string `json:"nodeAffinityPolicy,omitempty" yaml:"nodeAffinityPolicy,omitempty" mapstructure:"nodeAffinityPolicy,omitempty"`
-
-	// NodeTaintsPolicy corresponds to the JSON schema field "nodeTaintsPolicy".
-	NodeTaintsPolicy *string `json:"nodeTaintsPolicy,omitempty" yaml:"nodeTaintsPolicy,omitempty" mapstructure:"nodeTaintsPolicy,omitempty"`
-
-	// TopologyKey corresponds to the JSON schema field "topologyKey".
-	TopologyKey *string `json:"topologyKey,omitempty" yaml:"topologyKey,omitempty" mapstructure:"topologyKey,omitempty"`
-
-	// WhenUnsatisfiable corresponds to the JSON schema field "whenUnsatisfiable".
-	WhenUnsatisfiable *string `json:"whenUnsatisfiable,omitempty" yaml:"whenUnsatisfiable,omitempty" mapstructure:"whenUnsatisfiable,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["password"]; !ok || v == nil {
-		return fmt.Errorf("field password in KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationPasswordSecret(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["alias"]; !ok || v == nil {
-		return fmt.Errorf("field alias in KafkaMirrorMaker2SpecClustersElem: required")
-	}
-	if v, ok := raw["bootstrapServers"]; !ok || v == nil {
-		return fmt.Errorf("field bootstrapServers in KafkaMirrorMaker2SpecClustersElem: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElem(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecExternalConfigurationEnvElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["name"]; !ok || v == nil {
-		return fmt.Errorf("field name in KafkaMirrorMaker2SpecExternalConfigurationEnvElem: required")
-	}
-	if v, ok := raw["valueFrom"]; !ok || v == nil {
-		return fmt.Errorf("field valueFrom in KafkaMirrorMaker2SpecExternalConfigurationEnvElem: required")
-	}
-	type Plain KafkaMirrorMaker2SpecExternalConfigurationEnvElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecExternalConfigurationEnvElem(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecExternalConfigurationVolumesElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["name"]; !ok || v == nil {
-		return fmt.Errorf("field name in KafkaMirrorMaker2SpecExternalConfigurationVolumesElem: required")
-	}
-	type Plain KafkaMirrorMaker2SpecExternalConfigurationVolumesElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecExternalConfigurationVolumesElem(plain)
-	return nil
-}
-
-var enumValues_KafkaMirrorMaker2SpecJmxOptionsAuthenticationType = []interface{}{
-	"password",
-}
-
-// Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplatePodSetMetadataAnnotations map[string]interface{}
-
-// Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplatePodSetMetadataLabels map[string]interface{}
-
-// Metadata applied to the resource.
-type KafkaMirrorMaker2SpecTemplatePodSetMetadata struct {
-	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
-
-	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
-}
-
-// Template for Kafka Connect `StrimziPodSet` resource.
-type KafkaMirrorMaker2SpecTemplatePodSet struct {
-	// Metadata applied to the resource.
-	Metadata *KafkaMirrorMaker2SpecTemplatePodSetMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
-}
-
-// Annotations added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateServiceAccountMetadataAnnotations map[string]interface{}
-
-// Labels added to the Kubernetes resource.
-//type KafkaMirrorMaker2SpecTemplateServiceAccountMetadataLabels map[string]interface{}
-
-// Metadata applied to the resource.
-type KafkaMirrorMaker2SpecTemplateServiceAccountMetadata struct {
-	// Annotations added to the Kubernetes resource.
-	Annotations *apiextensions.JSON `json:"annotations,omitempty" yaml:"annotations,omitempty" mapstructure:"annotations,omitempty"`
-
-	// Labels added to the Kubernetes resource.
-	Labels *apiextensions.JSON `json:"labels,omitempty" yaml:"labels,omitempty" mapstructure:"labels,omitempty"`
-}
-
-// Template for the Kafka Connect service account.
-type KafkaMirrorMaker2SpecTemplateServiceAccount struct {
-	// Metadata applied to the resource.
-	Metadata *KafkaMirrorMaker2SpecTemplateServiceAccountMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty" mapstructure:"metadata,omitempty"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if v, ok := raw["key"]; !ok || v == nil {
-		return fmt.Errorf("field key in KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret: required")
-	}
-	if v, ok := raw["secretName"]; !ok || v == nil {
-		return fmt.Errorf("field secretName in KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret: required")
-	}
-	type Plain KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = KafkaMirrorMaker2SpecClustersElemAuthenticationClientSecret(plain)
-	return nil
-}
-
-type KafkaMirrorMaker2SpecTracingType string
-
-var enumValues_KafkaMirrorMaker2SpecTracingType = []interface{}{
-	"jaeger",
-	"opentelemetry",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *KafkaMirrorMaker2SpecTracingType) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_KafkaMirrorMaker2SpecTracingType {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTracingType, v)
-	}
-	*j = KafkaMirrorMaker2SpecTracingType(v)
-	return nil
-}
-
-const KafkaMirrorMaker2SpecTracingTypeJaeger KafkaMirrorMaker2SpecTracingType = "jaeger"
-const KafkaMirrorMaker2SpecTracingTypeOpentelemetry KafkaMirrorMaker2SpecTracingType = "opentelemetry"
-
-// The configuration of tracing in Kafka Connect.
-type KafkaMirrorMaker2SpecTracing struct {
-	// Type of the tracing used. Currently the only supported type is `opentelemetry`
-	// for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported
-	// anymore and this option is ignored.
-	Type KafkaMirrorMaker2SpecTracingType `json:"type" yaml:"type" mapstructure:"type"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -3268,78 +3303,88 @@ func (j *KafkaMirrorMaker2Spec) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type KafkaMirrorMaker2StatusAutoRestartStatusesElem struct {
-	// The name of the connector being restarted.
-	ConnectorName *string `json:"connectorName,omitempty" yaml:"connectorName,omitempty" mapstructure:"connectorName,omitempty"`
-
-	// The number of times the connector or task is restarted.
-	Count *int32 `json:"count,omitempty" yaml:"count,omitempty" mapstructure:"count,omitempty"`
-
-	// The last time the automatic restart was attempted. The required format is
-	// 'yyyy-MM-ddTHH:mm:ssZ' in the UTC time zone.
-	LastRestartTimestamp *string `json:"lastRestartTimestamp,omitempty" yaml:"lastRestartTimestamp,omitempty" mapstructure:"lastRestartTimestamp,omitempty"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecMirrorsElem) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["sourceCluster"]; !ok || v == nil {
+		return fmt.Errorf("field sourceCluster in KafkaMirrorMaker2SpecMirrorsElem: required")
+	}
+	if v, ok := raw["targetCluster"]; !ok || v == nil {
+		return fmt.Errorf("field targetCluster in KafkaMirrorMaker2SpecMirrorsElem: required")
+	}
+	type Plain KafkaMirrorMaker2SpecMirrorsElem
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecMirrorsElem(plain)
+	return nil
 }
 
-type KafkaMirrorMaker2StatusConditionsElem struct {
-	// Last time the condition of a type changed from one status to another. The
-	// required format is 'yyyy-MM-ddTHH:mm:ssZ', in the UTC time zone.
-	LastTransitionTime *string `json:"lastTransitionTime,omitempty" yaml:"lastTransitionTime,omitempty" mapstructure:"lastTransitionTime,omitempty"`
-
-	// Human-readable message indicating details about the condition's last
-	// transition.
-	Message *string `json:"message,omitempty" yaml:"message,omitempty" mapstructure:"message,omitempty"`
-
-	// The reason for the condition's last transition (a single word in CamelCase).
-	Reason *string `json:"reason,omitempty" yaml:"reason,omitempty" mapstructure:"reason,omitempty"`
-
-	// The status of the condition, either True, False or Unknown.
-	Status *string `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
-
-	// The unique identifier of a condition, used to distinguish between other
-	// conditions in the resource.
-	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecRack) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if v, ok := raw["topologyKey"]; !ok || v == nil {
+		return fmt.Errorf("field topologyKey in KafkaMirrorMaker2SpecRack: required")
+	}
+	type Plain KafkaMirrorMaker2SpecRack
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = KafkaMirrorMaker2SpecRack(plain)
+	return nil
 }
 
-type KafkaMirrorMaker2StatusConnectorPluginsElem struct {
-	// The class of the connector plugin.
-	Class *string `json:"class,omitempty" yaml:"class,omitempty" mapstructure:"class,omitempty"`
-
-	// The type of the connector plugin. The available types are `sink` and `source`.
-	Type *string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
-
-	// The version of the connector plugin.
-	Version *string `json:"version,omitempty" yaml:"version,omitempty" mapstructure:"version,omitempty"`
+var enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem = []interface{}{
+	"IPv4",
+	"IPv6",
 }
 
-//type KafkaMirrorMaker2StatusConnectorsElem map[string]interface{}
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamiliesElem(v)
+	return nil
+}
 
-// The status of the Kafka MirrorMaker 2 cluster.
-type KafkaMirrorMaker2Status struct {
-	// List of MirrorMaker 2 connector auto restart statuses.
-	AutoRestartStatuses []KafkaMirrorMaker2StatusAutoRestartStatusesElem `json:"autoRestartStatuses,omitempty" yaml:"autoRestartStatuses,omitempty" mapstructure:"autoRestartStatuses,omitempty"`
-
-	// List of status conditions.
-	Conditions []KafkaMirrorMaker2StatusConditionsElem `json:"conditions,omitempty" yaml:"conditions,omitempty" mapstructure:"conditions,omitempty"`
-
-	// The list of connector plugins available in this Kafka Connect deployment.
-	ConnectorPlugins []KafkaMirrorMaker2StatusConnectorPluginsElem `json:"connectorPlugins,omitempty" yaml:"connectorPlugins,omitempty" mapstructure:"connectorPlugins,omitempty"`
-
-	// List of MirrorMaker 2 connector statuses, as reported by the Kafka Connect REST
-	// API.
-	Connectors []*apiextensions.JSON `json:"connectors,omitempty" yaml:"connectors,omitempty" mapstructure:"connectors,omitempty"`
-
-	// Label selector for pods providing this resource.
-	LabelSelector *string `json:"labelSelector,omitempty" yaml:"labelSelector,omitempty" mapstructure:"labelSelector,omitempty"`
-
-	// The generation of the CRD that was last reconciled by the operator.
-	ObservedGeneration *int32 `json:"observedGeneration,omitempty" yaml:"observedGeneration,omitempty" mapstructure:"observedGeneration,omitempty"`
-
-	// The current number of pods being used to provide this resource.
-	Replicas *int32 `json:"replicas,omitempty" yaml:"replicas,omitempty" mapstructure:"replicas,omitempty"`
-
-	// The URL of the REST API endpoint for managing and monitoring Kafka Connect
-	// connectors.
-	Url *string `json:"url,omitempty" yaml:"url,omitempty" mapstructure:"url,omitempty"`
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy) UnmarshalJSON(b []byte) error {
+	var v string
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy, v)
+	}
+	*j = KafkaMirrorMaker2SpecTemplateApiServiceIpFamilyPolicy(v)
+	return nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.

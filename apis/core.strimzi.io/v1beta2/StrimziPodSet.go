@@ -24,6 +24,30 @@ type StrimziPodSetSpec struct {
 	Selector metav1.LabelSelector `json:"selector" yaml:"selector" mapstructure:"selector"`
 }
 
+// Selector is a label query which matches all the pods managed by this
+// `StrimziPodSet`. Only `matchLabels` is supported. If `matchExpressions` is set,
+// it will be ignored.
+type StrimziPodSetSpecSelector struct {
+	// MatchExpressions corresponds to the JSON schema field "matchExpressions".
+	MatchExpressions []StrimziPodSetSpecSelectorMatchExpressionsElem `json:"matchExpressions,omitempty" yaml:"matchExpressions,omitempty" mapstructure:"matchExpressions,omitempty"`
+
+	// MatchLabels corresponds to the JSON schema field "matchLabels".
+	MatchLabels StrimziPodSetSpecSelectorMatchLabels `json:"matchLabels,omitempty" yaml:"matchLabels,omitempty" mapstructure:"matchLabels,omitempty"`
+}
+
+type StrimziPodSetSpecSelectorMatchExpressionsElem struct {
+	// Key corresponds to the JSON schema field "key".
+	Key *string `json:"key,omitempty" yaml:"key,omitempty" mapstructure:"key,omitempty"`
+
+	// Operator corresponds to the JSON schema field "operator".
+	Operator *string `json:"operator,omitempty" yaml:"operator,omitempty" mapstructure:"operator,omitempty"`
+
+	// Values corresponds to the JSON schema field "values".
+	Values []string `json:"values,omitempty" yaml:"values,omitempty" mapstructure:"values,omitempty"`
+}
+
+type StrimziPodSetSpecSelectorMatchLabels map[string]string
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (j *StrimziPodSetSpec) UnmarshalJSON(b []byte) error {
 	var raw map[string]interface{}
