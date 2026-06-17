@@ -1,79 +1,126 @@
 # strimzi-client-go
 
-Strimzi client-go package for use with kubernetes controllers.
+Go library providing Kubernetes CRD type definitions for the [Strimzi][strimzi] Kafka operator.
+Enables typed Go clients for managing Strimzi resources on Kubernetes and OpenShift clusters.
 
-This is a **work in progress** and hopefully the generation of this package will be fully automated
-soon.
+## Features
 
-At the moment, the partially-automated process is:
+Provides `runtime.Object`-compliant Go types for all 11 Strimzi CRDs across two API groups:
 
-1. Download the [strimzi CRD yaml](https://github.com/strimzi/strimzi-kafka-operator/releases/download/0.24.0/strimzi-crds-0.24.0.yaml)
+**core.strimzi.io/v1beta2**
 
-1. Edit the openAPI schemas to remove any 'oneOf' statements, since the GoLang type generator we
-use does not handle those.
+- StrimziPodSet
 
-1. Use [crd-codegen](https://github.com/RedHatInsights/crd-codegen) to generate types from the CRD YAML.
+**kafka.strimzi.io/v1beta2**
 
-2. Edit the root type definitions in each file so that they implement the runtime.Object interfaces, add a "List" type for the root object, and add kubebuilder annotations. For example, the root "Kafka" object within Kafka.go will initially look like this:
+- Kafka
+- KafkaBridge
+- KafkaConnect
+- KafkaConnector
+- KafkaMirrorMaker
+- KafkaMirrorMaker2
+- KafkaNodePool
+- KafkaRebalance
+- KafkaTopic
+- KafkaUser
 
-   ```golang
-   package v1beta2
+## Installation
 
-   import "encoding/json"
-   import "fmt"
-   import "reflect"
+```bash
+go get github.com/RedHatInsights/strimzi-client-go
+```
 
-   type Kafka struct {
-       // The specification of the Kafka and ZooKeeper clusters, and Topic Operator.
-       Spec *KafkaSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
+## Usage
 
-       // The status of the Kafka and ZooKeeper clusters, and Topic Operator.
-       Status *KafkaStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
-   }
+Register the Strimzi types with your client's scheme and use typed operations:
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+
+    kafkav1beta2 "github.com/RedHatInsights/strimzi-client-go/apis/kafka.strimzi.io/v1beta2"
+    "sigs.k8s.io/controller-runtime/pkg/client"
+    "sigs.k8s.io/controller-runtime/pkg/client/config"
+    "k8s.io/apimachinery/pkg/runtime"
+)
+
+func main() {
+    scheme := runtime.NewScheme()
+    _ = kafkav1beta2.AddToScheme(scheme)
+
+    cfg, _ := config.GetConfig()
+    c, _ := client.New(cfg, client.Options{Scheme: scheme})
+
+    kafkaList := &kafkav1beta2.KafkaList{}
+    _ = c.List(context.Background(), kafkaList)
+
+    for _, kafka := range kafkaList.Items {
+        fmt.Printf("Kafka cluster: %s/%s\n", kafka.Namespace, kafka.Name)
+    }
+}
+```
+
+## Type Generation
+
+CRD types are generated from upstream Strimzi CRD YAML definitions, not written by hand.
+
+### Prerequisites
+
+- [crd-codegen][crd-codegen] -- generates Go types from CRD YAML
+- [controller-gen][controller-gen] -- generates DeepCopyObject implementations
+- Python 3 -- runs `convert.py` post-processing
+
+### Generation Process
+
+1. Download CRD YAML files from the target [Strimzi release][strimzi-releases]
+2. Run crd-codegen to generate initial Go types:
+   ```bash
+   crd-codegen --apis-dir ./apis <crd-yaml-files>
+   ```
+3. Manually adjust package names and imports in generated files
+4. Run the post-processing script:
+   ```bash
+   python3 convert.py
+   ```
+5. Generate DeepCopyObject implementations:
+   ```bash
+   controller-gen object paths=./apis/...
    ```
 
-   and it will need to be updated to look like this:
+## Development
 
-   ```golang
-   package v1beta2
+### Build
 
-   import (
-       "encoding/json"
-       "fmt"
-       "reflect"
+```bash
+go build ./...
+```
 
-       metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+### Vet
 
-       apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-   )
+```bash
+go vet ./...
+```
 
-   // +kubebuilder:object:root=true
-   // +kubebuilder:subresource:status
-   // Kafka
-   type Kafka struct {
-       metav1.TypeMeta   `json:",inline"`
-       metav1.ObjectMeta `json:"metadata,omitempty"`
+### Regenerate DeepCopy
 
-       // The specification of the Kafka and ZooKeeper clusters, and Topic Operator.
-       Spec *KafkaSpec `json:"spec,omitempty" yaml:"spec,omitempty" mapstructure:"spec,omitempty"`
+```bash
+controller-gen object paths=./apis/...
+```
 
-       // The status of the Kafka and ZooKeeper clusters, and Topic Operator.
-       Status *KafkaStatus `json:"status,omitempty" yaml:"status,omitempty" mapstructure:"status,omitempty"`
-   }
+## Contributing
 
-   // +kubebuilder:object:root=true
-   // KafkaList contains a list of instances.
-   type KafkaList struct {
-       metav1.TypeMeta `json:",inline"`
-       metav1.ListMeta `json:"metadata,omitempty"`
+See [CONTRIBUTING.md][contributing] for guidelines.
 
-       // A list of Kafka objects.
-       Items []Kafka `json:"items,omitempty"`
-   }
-   ```
+## License
 
-3. Some unstructured/"free-form" fields may be defined as `type <name> map[string]interface{}` and these must be changed to type `apiextensions.JSON`. The python script `convert.py` can be ran against each file to help with this.
+[Apache License 2.0][license]
 
-4. Convert int types to int32: ```sed -i 's/int `json/int32 `json'/g *```
-
-5. Finally run `controller-gen object paths=./...` is run to generate `DeepCopy` implementations
+[strimzi]: https://strimzi.io
+[crd-codegen]: https://github.com/RedHatInsights/crd-codegen
+[controller-gen]: https://pkg.go.dev/sigs.k8s.io/controller-tools/cmd/controller-gen
+[strimzi-releases]: https://github.com/strimzi/strimzi-kafka-operator/releases
+[contributing]: CONTRIBUTING.md
+[license]: LICENSE
