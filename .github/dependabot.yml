@@ -1,0 +1,13 @@
+---
+version: 2
+updates:
+  # enable go dependencies security updates
+  - directory: /
+    open-pull-requests-limit: 0
+    package-ecosystem: gomod
+    rebase-strategy: auto
+    schedule:
+      interval: daily
+    commit-message:
+      include: scope
+      prefix: chore
